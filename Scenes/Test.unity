@@ -194,7 +194,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &756141655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,11 +207,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: 0, y: 0, z: 0}
-  - {x: -1.47, y: 0, z: -7.13}
+  - {x: 3.7676172, y: 1.6578126, z: 4.6140623}
+  - {x: -4.838828, y: -4.0023437, z: -14.225781}
+  - {x: -6.6454687, y: -11.658594, z: -24.546093}
   controlPoints:
-  - {x: -2.3041992, y: -0.8457031, z: 0.9160156}
-  - {x: 1.3920898, y: -1.3662109, z: -2.6035156}
+  - {x: -3.9755468, y: -1.6351562, z: -1.1769531}
+  - {x: 2.2178125, y: -7.6562514, z: -9.461563}
+  - {x: -11.25875, y: -2.8070312, z: -13.159375}
+  - {x: -13.372031, y: -8.689844, z: -21.616405}
 --- !u!4 &756141656
 Transform:
   m_ObjectHideFlags: 0
@@ -219,7 +222,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 756141654}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -4.46, y: -7.4, z: 0.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -231,7 +234,7 @@ LineRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 756141654}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 0

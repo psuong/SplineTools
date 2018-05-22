@@ -93,7 +93,12 @@ namespace Curves.EditorTools {
             for (int i = 0; i < size; i++) {
                 var element = points.GetArrayElementAtIndex(i);
                 var snapSize = Vector3.one * HandleSize;
-                element.vector3Value = Handles.FreeMoveHandle(element.vector3Value, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                
+                var pt = transform.TransformPoint(element.vector3Value);
+
+                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                element.vector3Value = transform.InverseTransformPoint(pt);
             }
         }
 
@@ -103,7 +108,11 @@ namespace Curves.EditorTools {
             for (int i = 0; i < size; i++) {
                 var element = controlPoints.GetArrayElementAtIndex(i);
                 var snapSize = Vector3.one * HandleSize;
-                element.vector3Value = Handles.FreeMoveHandle(element.vector3Value, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+
+                var pt = transform.TransformPoint(element.vector3Value);
+
+                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                element.vector3Value = transform.InverseTransformPoint(pt);
             }
         }
 
