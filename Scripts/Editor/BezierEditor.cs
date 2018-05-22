@@ -12,9 +12,11 @@ namespace Curves.EditorTools {
         private SerializedProperty controlPoints;
         private ReorderableList pointsList;
         private ReorderableList ctrlPtsList;
-        
+        private Transform transform;
+
         private void OnEnable() {
             points = serializedObject.FindProperty("points");
+            transform = (target as Bezier).transform;
             controlPoints = serializedObject.FindProperty("controlPoints");
 
             pointsList = new ReorderableList(serializedObject, points);
@@ -25,6 +27,13 @@ namespace Curves.EditorTools {
             pointsList.onAddCallback = (ReorderableList list) => {
                 controlPoints.arraySize += 2;
                 points.arraySize += 1;
+            };
+
+            pointsList.onRemoveCallback = (ReorderableList list) => {
+                if (points.arraySize > 2) {
+                    controlPoints.arraySize -= 2;
+                    points.arraySize -= 1;
+                }
             };
 
             ctrlPtsList.drawHeaderCallback = DrawControlPointHeader;
@@ -68,7 +77,13 @@ namespace Curves.EditorTools {
                 var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
                 var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
 
-                Handles.DrawBezier(start.vector3Value, end.vector3Value, controlStart.vector3Value, controlEnd.vector3Value, Color.red, null, HandleUtility.GetHandleSize(Vector3.zero) * 0.5f);
+                var ptStart = transform.TransformPoint(start.vector3Value);
+                var ptEnd = transform.TransformPoint(end.vector3Value);
+
+                var ctrlStart = transform.TransformPoint(controlStart.vector3Value);
+                var ctrlEnd = transform.TransformPoint(controlEnd.vector3Value);
+
+                Handles.DrawBezier(ptStart, ptEnd, ctrlStart, ctrlEnd, Color.red, null, HandleUtility.GetHandleSize(Vector3.zero) * 0.5f);
             }
         }
 
@@ -106,7 +121,7 @@ namespace Curves.EditorTools {
         }
 
         private void DrawPointElem(Rect r, int i, bool isActive, bool isFocused) {
-            DrawVectorElement(controlPoints, r, i, isActive, isFocused);
+            DrawVectorElement(points, r, i, isActive, isFocused);
         }
 
         private void DrawVectorElement(SerializedProperty prop, Rect r, int i, bool isActive, bool isFocused) {

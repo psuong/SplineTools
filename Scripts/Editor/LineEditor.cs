@@ -39,10 +39,11 @@ namespace Curves.EditorTools {
         }
 
         private void OnSceneGUI() {
+            // Draw the line
+            DrawLine();
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
-                // Draw the line
-                DrawLine();
+                DrawLineHandles();
                 serializedObject.ApplyModifiedProperties();
             }
         }
@@ -55,27 +56,20 @@ namespace Curves.EditorTools {
 
         private void DrawLine() {
             Handles.color = Color.green;
+            var start = transform.TransformPoint(p0.vector3Value);
+            var end = transform.TransformPoint(p1.vector3Value);
 
-            var snap = Vector3.one * DotHandleSize;
-            var size = HandleUtility.GetHandleSize(p0.vector3Value) * DotHandleSize;
+            Handles.DrawLine(start, end);
+        }
 
-            var start = p0.vector3Value;
-            var end = p1.vector3Value;
+        private void DrawLineHandles() {
+            var start = transform.TransformPoint(p0.vector3Value);
+            var end = transform.TransformPoint(p1.vector3Value);
+            start = Handles.PositionHandle(start, Quaternion.identity);
+            end = Handles.PositionHandle(end, Quaternion.identity);
 
-            if (!clampHeight) {
-                cachedStartHeight = start.y;
-                cachedEndHeight = end.y;
-            }
-
-            var startPoint = clampHeight ? new Vector3(start.x, cachedStartHeight, start.z) : start;
-            var endPoint = clampHeight ? new Vector3(end.x, cachedEndHeight, end.z) : end;
-
-            var newStart = Handles.FreeMoveHandle(startPoint, Quaternion.identity, size, snap, Handles.DotHandleCap);
-            var newEnd = Handles.FreeMoveHandle(endPoint, Quaternion.identity, size, snap, Handles.DotHandleCap);
-
-            SetWorldSpaceCoordinates(newStart, newEnd);
-
-            Handles.DrawLine(p0.vector3Value, p1.vector3Value);
+            p0.vector3Value = transform.InverseTransformPoint(start);
+            p1.vector3Value = transform.InverseTransformPoint(end);
         }
 
         private void DrawResetButton() {
@@ -89,8 +83,15 @@ namespace Curves.EditorTools {
             p1.vector3Value = transform.TransformPoint(end);
         }
 
+        private void SetLocalSpaceCoordinates() {
+            p0.vector3Value = transform.InverseTransformPoint(p0.vector3Value);
+            p1.vector3Value = transform.InverseTransformPoint(p1.vector3Value);
+        }
+
         private void Reset() {
-            p0.vector3Value = p1.vector3Value = Vector3.zero;
+            try {
+                p0.vector3Value = p1.vector3Value = Vector3.zero;
+            } catch (System.NullReferenceException) {}
         }
     }
 }
