@@ -65,8 +65,12 @@ namespace Curves.EditorTools {
         private void DrawLineHandles() {
             var start = transform.TransformPoint(p0.vector3Value);
             var end = transform.TransformPoint(p1.vector3Value);
-            start = Handles.PositionHandle(start, Quaternion.identity);
-            end = Handles.PositionHandle(end, Quaternion.identity);
+
+            var size = HandleUtility.GetHandleSize(start) * DotHandleSize; 
+            var snapSize = Vector3.one * DotHandleSize;
+
+            start = Handles.FreeMoveHandle(start, Quaternion.identity, size, snapSize, Handles.DotHandleCap);
+            end = Handles.FreeMoveHandle(end, Quaternion.identity, size, snapSize, Handles.DotHandleCap);
 
             p0.vector3Value = transform.InverseTransformPoint(start);
             p1.vector3Value = transform.InverseTransformPoint(end);
