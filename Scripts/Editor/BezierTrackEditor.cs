@@ -6,7 +6,9 @@ namespace Curves.EditorTools {
     
     [CustomEditor(typeof(BezierTrack))]
     public class BezierTrackEditor : Editor {
-        
+
+        private const float HandleSize = 0.07f;
+
         private SerializedProperty points;
         private SerializedProperty controlPoints;
 
@@ -33,8 +35,7 @@ namespace Curves.EditorTools {
         }
 
         private void OnDisable() {
-            // Remove the sceneview
-            SceneView.onSceneGUIDelegate -= OnSceneGUI;
+            // Remove the sceneview SceneView.onSceneGUIDelegate -= OnSceneGUI;
             pointsList.drawHeaderCallback -= DrawPointHeader;
             pointsList.drawElementCallback -= DrawPointElement;
             pointsList.elementHeightCallback -= ElementHeight;
@@ -71,10 +72,28 @@ namespace Curves.EditorTools {
         }
 #endregion
 
+#region Curve Rendering
+        private void DrawHandlePoints(SerializedProperty property, Color handlesColor) {
+            try {
+                var size = property.arraySize;
+                Handles.color = handlesColor;
+
+                for(int i = 0; i < size; i++) {
+                    var elem = property.GetArrayElementAtIndex(i);
+                    var point = elem.vector3Value;
+                    var snapSize = Vector3.one * HandleSize;
+                    Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                    elem.vector3Value = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                }
+            } catch (System.NullReferenceException) {}
+        }
+#endregion
+
         private void OnSceneGUI(SceneView sceneView) {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
-                // TODO: Draw the scene view tools
+                DrawHandlePoints(points, Color.green);
+                DrawHandlePoints(controlPoints, Color.cyan);
                 serializedObject.ApplyModifiedProperties();
             }
         }
