@@ -52,6 +52,8 @@ namespace Curves.EditorTools {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
                 DrawDefaultInspector();
+                PopulatePoints();
+                ClearPoints();
                 pointsList.DoLayoutList();
                 ctrlPtsList.DoLayoutList();
                 serializedObject.ApplyModifiedProperties();
@@ -67,7 +69,6 @@ namespace Curves.EditorTools {
                 serializedObject.ApplyModifiedProperties();
             }
         }
-
         private void DrawBezierCurve() {
             var size = points.arraySize;
             for (int i = 1; i < size; i++) {
@@ -93,7 +94,7 @@ namespace Curves.EditorTools {
             for (int i = 0; i < size; i++) {
                 var element = points.GetArrayElementAtIndex(i);
                 var snapSize = Vector3.one * HandleSize;
-                
+
                 var pt = transform.TransformPoint(element.vector3Value);
 
                 pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
@@ -138,5 +139,33 @@ namespace Curves.EditorTools {
             EditorGUI.PropertyField(r, elem, GUIContent.none);
         }
 #endregion
+
+        private void PopulatePoints() {
+            if (GUILayout.Button("Generate Cubic Curve")) {
+                var bezier = target as Bezier;
+
+                var size = points.arraySize;
+                for (int i = 1; i < size; i++) {
+                    var t = 0f;
+                    var start = points.GetArrayElementAtIndex(i - 1);
+                    var end = points.GetArrayElementAtIndex(i);
+
+                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
+                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
+
+                    while (t <= 1f) {
+                        bezier.PopulateCubicPoints(start.vector3Value, controlStart.vector3Value, controlEnd.vector3Value, end.vector3Value, t);
+                        t += 0.1f;
+                    }
+                }
+            }
+        }
+
+        private void ClearPoints() {
+            if (GUILayout.Button("Clear Points")) {
+                var bezier = target as Bezier;
+                bezier.ClearPoints();
+            }
+        }
     }
 }
