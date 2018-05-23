@@ -3,6 +3,9 @@ using UnityEditorInternal;
 using UnityEngine;
 
 namespace Curves.EditorTools {
+
+    // TODO: Allow conversion between local and world space
+    // TODO: Add control point + point size control
     
     [CustomEditor(typeof(BezierTrack))]
     public class BezierTrackEditor : Editor {
@@ -82,8 +85,31 @@ namespace Curves.EditorTools {
                     var elem = property.GetArrayElementAtIndex(i);
                     var point = elem.vector3Value;
                     var snapSize = Vector3.one * HandleSize;
-                    Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                    elem.vector3Value = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
                     elem.vector3Value = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                }
+            } catch (System.NullReferenceException) {}
+        }
+
+        private void DrawCubicBezierCurve(Color bezierColor) {
+            try {
+                var size = points.arraySize;
+
+                for (int i = 1; i < size; i++) {
+                    var start = points.GetArrayElementAtIndex(i - 1);
+                    var end = points.GetArrayElementAtIndex(i);
+
+                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
+                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
+
+                    Handles.DrawBezier(
+                            start.vector3Value, 
+                            end.vector3Value, 
+                            controlStart.vector3Value, 
+                            controlEnd.vector3Value, 
+                            bezierColor,
+                            null, 
+                            HandleUtility.GetHandleSize(Vector3.one) * 0.75f);
                 }
             } catch (System.NullReferenceException) {}
         }
@@ -94,6 +120,7 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
                 DrawHandlePoints(points, Color.green);
                 DrawHandlePoints(controlPoints, Color.cyan);
+                DrawCubicBezierCurve(Color.red);
                 serializedObject.ApplyModifiedProperties();
             }
         }
