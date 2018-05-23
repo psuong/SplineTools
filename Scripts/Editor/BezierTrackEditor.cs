@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Math;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -85,8 +86,10 @@ namespace Curves.EditorTools {
                     var elem = property.GetArrayElementAtIndex(i);
                     var point = elem.vector3Value;
                     var snapSize = Vector3.one * HandleSize;
-                    elem.vector3Value = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    elem.vector3Value = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                    var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                    Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+
+                    elem.vector3Value = position;
                 }
             } catch (System.NullReferenceException) {}
         }
