@@ -155,7 +155,7 @@ namespace Curves.EditorTools {
 
                     while (t <= 1f) {
                         bezier.PopulateCubicPoints(start.vector3Value, controlStart.vector3Value, controlEnd.vector3Value, end.vector3Value, t);
-                        t += 0.1f;
+                        t += 0.001f;
                     }
                 }
             }
