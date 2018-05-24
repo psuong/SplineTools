@@ -3,3 +3,7 @@
 
 ### OSX ###
 *.DS_Store
+
+### Local Testing Folder ###
+*Test/
+*Test.meta*
