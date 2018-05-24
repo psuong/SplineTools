@@ -21,7 +21,10 @@ namespace Curves {
         /// <param name="p3">End point</param>
         /// <returns>A point along the cubic bezier curve</returns>
         public static Vector3 GetCubicBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
-            throw new System.NotImplementedException();
+            t = Mathf.Clamp01(t);
+            var inverseT = 1f - t;
+
+            return (Mathf.Pow(inverseT, 3) * p0) + (3 * Mathf.Pow(inverseT, 2) * t * p1) + (3 * inverseT * Mathf.Pow(t, 2) * p2) + (Mathf.Pow(t, 3) * p3); 
         }
 
         /// <summary>
@@ -32,7 +35,10 @@ namespace Curves {
         /// <param name="p2">End point</param>
         /// <returns>A point along the quadratic bezier curve</returns>
         public static Vector3 GetQuadraticBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, float t) {
-            throw new System.NotImplementedException();
+            t = Mathf.Clamp01(t);
+            var inverseT = 1f - t;
+
+            return inverseT * inverseT * p0 + 2f * inverseT * t * p1 + t * t * p2;
         }
     }
 }
