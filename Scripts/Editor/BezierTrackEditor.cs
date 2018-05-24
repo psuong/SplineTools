@@ -89,12 +89,15 @@ namespace Curves.EditorTools {
 
                 for(int i = 0; i < size; i++) {
                     var elem = property.GetArrayElementAtIndex(i);
-                    var point = elem.vector3Value;
+                    
+                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+
+                    var point = trs.MultiplyPoint3x4(elem.vector3Value);
                     var snapSize = Vector3.one * HandleSize;
                     var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                    position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
 
-                    elem.vector3Value = position;
+                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
                 }
             } catch (System.NullReferenceException) {}
         }
@@ -131,7 +134,7 @@ namespace Curves.EditorTools {
             transformData.position = EditorGUILayout.Vector3Field(new GUIContent("Position"), transformData.position);
             transformData.rotation = EditorGUILayout.Vector3Field(new GUIContent("Rotation"), transformData.rotation);
             transformData.scale = EditorGUILayout.Vector3Field(new GUIContent("Scale"), transformData.scale);
-            transformData.showTransformData = EditorGUILayout.Toggle("Show Transform Handle", transformData.showTransformData);
+            transformData.showTransformData = EditorGUILayout.Toggle("Show Transform", transformData.showTransformData);
         }
 
         private void DrawTransformHandle() {
@@ -174,6 +177,7 @@ namespace Curves.EditorTools {
 
         public override void OnInspectorGUI() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                serializedObject.Update();
                 LoadTransformData();
                 DrawDefaultInspector();
                 DrawTransformField();
@@ -181,10 +185,13 @@ namespace Curves.EditorTools {
                 pointsList.DoLayoutList();
                 controlPointsList.DoLayoutList();
 
-                serializedObject.Update();
                 serializedObject.ApplyModifiedProperties();
                 SaveTransformData();
             }
+        }
+        
+        public override bool RequiresConstantRepaint() {
+            return true;
         }
     }
 }

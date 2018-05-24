@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   points:
-  - {x: -10, y: 0, z: -2}
+  - {x: -8.889999, y: 0, z: -2}
   - {x: -4.999998, y: 0, z: -14}
   - {x: -8, y: 0, z: -24}
   controlPoints:
