@@ -14,6 +14,7 @@ namespace Curves.EditorTools {
         private ReorderableList ctrlPtsList;
         private Transform transform;
 
+
         private void OnEnable() {
             points = serializedObject.FindProperty("points");
             transform = (target as Bezier).transform;

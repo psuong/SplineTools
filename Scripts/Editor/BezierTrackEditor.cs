@@ -1,5 +1,4 @@
-﻿using Math;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -7,7 +6,6 @@ namespace Curves.EditorTools {
 
     // TODO: Allow conversion between local and world space
     // TODO: Add control point + point size control
-    
     [CustomEditor(typeof(BezierTrack))]
     public class BezierTrackEditor : Editor {
 
@@ -18,8 +16,15 @@ namespace Curves.EditorTools {
 
         private ReorderableList pointsList;
         private ReorderableList controlPointsList;
+
+        private TransformData transformData;
+        private string jsonDirectory;
+        private string jsonPath;
     
         private void OnEnable() {
+            jsonDirectory = System.IO.Path.Combine(Application.dataPath, "Scripts", "Editor", "Configurations");
+            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as BezierTrack).name));
+
             points = serializedObject.FindProperty("points");
             controlPoints = serializedObject.FindProperty("controlPoints");
 
@@ -118,25 +123,65 @@ namespace Curves.EditorTools {
         }
 #endregion
 
+#region Transform
+        private void DrawTransformField() {
+            EditorGUILayout.LabelField("Transform", EditorStyles.boldLabel);
+            transformData.position = EditorGUILayout.Vector3Field(new GUIContent("Position"), transformData.position);
+            transformData.rotation = EditorGUILayout.Vector3Field(new GUIContent("Rotation"), transformData.rotation);
+            transformData.scale = EditorGUILayout.Vector3Field(new GUIContent("Scale"), transformData.scale);
+            transformData.showTransformData = EditorGUILayout.Toggle("Show Transform Handle", transformData.showTransformData);
+        }
+
+        private void DrawTransformHandle() {
+            if (transformData.showTransformData) {
+                transformData.position = Handles.PositionHandle(transformData.position, Quaternion.Euler(transformData.rotation));
+                transformData.rotation = Handles.RotationHandle(Quaternion.Euler(transformData.rotation), transformData.position).eulerAngles;
+                transformData.scale = Handles.ScaleHandle(transformData.scale, transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale.magnitude);
+            }
+        }
+
+        private void LoadTransformData() {
+            if (System.IO.File.Exists(jsonPath)) {
+                var jsonRep = System.IO.File.ReadAllText(jsonPath);
+                transformData = JsonUtility.FromJson<TransformData>(jsonRep);
+            } else {
+                transformData = TransformData.CreateTransformData();
+                System.IO.Directory.CreateDirectory(jsonDirectory);
+                System.IO.File.WriteAllText(jsonPath, JsonUtility.ToJson(transformData));
+            }
+        }
+
+        private void SaveTransformData() {
+            var json = JsonUtility.ToJson(transformData);
+            System.IO.File.WriteAllText(jsonPath, json);
+        }
+#endregion
+
         private void OnSceneGUI(SceneView sceneView) {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                LoadTransformData();
                 serializedObject.Update();
                 DrawHandlePoints(points, Color.green);
                 DrawHandlePoints(controlPoints, Color.cyan);
                 DrawCubicBezierCurve(Color.red);
+                DrawTransformHandle();
                 serializedObject.ApplyModifiedProperties();
+                SaveTransformData();
             }
         }
 
         public override void OnInspectorGUI() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                LoadTransformData();
                 DrawDefaultInspector();
+                DrawTransformField();
+
                 pointsList.DoLayoutList();
                 controlPointsList.DoLayoutList();
 
                 serializedObject.Update();
-                // TODO: Add the reorderable list functionality of updating values
                 serializedObject.ApplyModifiedProperties();
+                SaveTransformData();
             }
         }
     }
