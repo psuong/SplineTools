@@ -110,11 +110,13 @@ namespace Curves.EditorTools {
                     var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
                     var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
 
+                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+
                     Handles.DrawBezier(
-                            start.vector3Value, 
-                            end.vector3Value, 
-                            controlStart.vector3Value, 
-                            controlEnd.vector3Value, 
+                            trs.MultiplyPoint3x4(start.vector3Value), 
+                            trs.MultiplyPoint3x4(end.vector3Value), 
+                            trs.MultiplyPoint3x4(controlStart.vector3Value), 
+                            trs.MultiplyPoint3x4(controlEnd.vector3Value), 
                             bezierColor,
                             null, 
                             HandleUtility.GetHandleSize(Vector3.one) * 0.75f);
