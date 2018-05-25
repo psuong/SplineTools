@@ -6,9 +6,7 @@ namespace Curves.EditorTools {
 
     // TODO: Allow conversion between local and world space
     // TODO: Add control point + point size control
-    [CustomEditor(typeof(Bezier))]
-    public class BezierEditor : Editor {
-
+    [CustomEditor(typeof(Bezier))] public class BezierEditor : Editor { 
         private const float HandleSize = 0.07f;
 
         private SerializedProperty points;
@@ -39,6 +37,7 @@ namespace Curves.EditorTools {
             pointsList.elementHeightCallback = ElementHeight;
             pointsList.onAddCallback = AddPointListCallback;
             pointsList.onRemoveCallback = RemovePointsListCallback;
+            pointsList.onCanRemoveCallback = CanRemovePointElement;
 
             controlPointsList.drawHeaderCallback = DrawControlPointHeader;
             controlPointsList.drawElementCallback = DrawControlPointElement;
@@ -54,6 +53,7 @@ namespace Curves.EditorTools {
             pointsList.elementHeightCallback -= ElementHeight; 
             pointsList.onAddCallback -= AddPointListCallback;
             pointsList.onRemoveCallback -= RemovePointsListCallback;
+            pointsList.onCanRemoveCallback -= CanRemovePointElement;
 
             controlPointsList.drawHeaderCallback -= DrawControlPointHeader;
             controlPointsList.drawElementCallback -= DrawControlPointElement;
@@ -94,6 +94,10 @@ namespace Curves.EditorTools {
         private void RemovePointsListCallback(ReorderableList list) {
             points.arraySize -= 1;
             controlPoints.arraySize -= 2;
+        }
+
+        private bool CanRemovePointElement(ReorderableList list) {
+            return points.arraySize > 2;
         }
 #endregion
 
