@@ -7,3 +7,6 @@
 ### Local Testing Folder ###
 *Test/
 *Test.meta*
+
+### Meta Files ###
+*.meta
