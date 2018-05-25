@@ -37,6 +37,8 @@ namespace Curves.EditorTools {
             pointsList.drawHeaderCallback = DrawPointHeader;
             pointsList.drawElementCallback = DrawPointElement;
             pointsList.elementHeightCallback = ElementHeight;
+            pointsList.onAddCallback = AddPointListCallback;
+            pointsList.onRemoveCallback = RemovePointsListCallback;
 
             controlPointsList.drawHeaderCallback = DrawControlPointHeader;
             controlPointsList.drawElementCallback = DrawControlPointElement;
@@ -44,10 +46,14 @@ namespace Curves.EditorTools {
         }
 
         private void OnDisable() {
-            // Remove the sceneview SceneView.onSceneGUIDelegate -= OnSceneGUI;
+            // Remove the sceneview 
+            SceneView.onSceneGUIDelegate -= OnSceneGUI;
+
             pointsList.drawHeaderCallback -= DrawPointHeader;
             pointsList.drawElementCallback -= DrawPointElement;
-            pointsList.elementHeightCallback -= ElementHeight;
+            pointsList.elementHeightCallback -= ElementHeight; 
+            pointsList.onAddCallback -= AddPointListCallback;
+            pointsList.onRemoveCallback -= RemovePointsListCallback;
 
             controlPointsList.drawHeaderCallback -= DrawControlPointHeader;
             controlPointsList.drawElementCallback -= DrawControlPointElement;
@@ -78,6 +84,16 @@ namespace Curves.EditorTools {
 
         private float ElementHeight(int i) {
             return EditorGUIUtility.singleLineHeight;
+        }
+
+        private void AddPointListCallback(ReorderableList list) {
+            points.arraySize += 1;
+            controlPoints.arraySize += 2;
+        }
+
+        private void RemovePointsListCallback(ReorderableList list) {
+            points.arraySize -= 1;
+            controlPoints.arraySize -= 2;
         }
 #endregion
 
