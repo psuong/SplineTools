@@ -6,8 +6,8 @@ namespace Curves.EditorTools {
 
     // TODO: Allow conversion between local and world space
     // TODO: Add control point + point size control
-    [CustomEditor(typeof(BezierTrack))]
-    public class BezierTrackEditor : Editor {
+    [CustomEditor(typeof(Bezier))]
+    public class BezierEditor : Editor {
 
         private const float HandleSize = 0.07f;
 
@@ -23,7 +23,7 @@ namespace Curves.EditorTools {
     
         private void OnEnable() {
             jsonDirectory = System.IO.Path.Combine(Application.dataPath, "Scripts", "Editor", "Configurations");
-            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as BezierTrack).name));
+            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Bezier).name));
 
             points = serializedObject.FindProperty("points");
             controlPoints = serializedObject.FindProperty("controlPoints");

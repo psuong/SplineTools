@@ -5,7 +5,7 @@ namespace Curves {
     // TODO: Add looping functionality of Bezier curves
     
     [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "Bezier Curve")]
-    public class BezierTrack : ScriptableObject {
+    public class Bezier : ScriptableObject {
 
         [SerializeField, HideInInspector]
         private Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
