@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
-    // TODO: Allow conversion between local and world space
-    // TODO: Add control point + point size control
-    [CustomEditor(typeof(Bezier))] public class BezierEditor : Editor { 
+    [CustomEditor(typeof(Bezier))] 
+    public class BezierEditor : Editor { 
         private const float HandleSize = 0.07f;
 
         private SerializedProperty points;
@@ -110,7 +109,7 @@ namespace Curves.EditorTools {
                 for(int i = 0; i < size; i++) {
                     var elem = property.GetArrayElementAtIndex(i);
                     
-                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+                    var trs = transformData.TRS;
 
                     var point = trs.MultiplyPoint3x4(elem.vector3Value);
                     var snapSize = Vector3.one * HandleSize;
@@ -133,7 +132,7 @@ namespace Curves.EditorTools {
                     var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
                     var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
 
-                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+                    var trs = transformData.TRS;
 
                     Handles.DrawBezier(
                             trs.MultiplyPoint3x4(start.vector3Value), 
