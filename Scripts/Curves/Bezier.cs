@@ -1,64 +1,44 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Curves {
 
-    public enum BezierMode {
-        Quadratic,
-        Cubic
-    }
+    // TODO: Add looping functionality of Bezier curves
     
-    public class Bezier : MonoBehaviour {
-        
-        [SerializeField]
-        private Vector3[] points = new Vector3[] { Vector3.zero, Vector3.forward * 10f };
-        [SerializeField]
-        private Vector3[] controlPoints;
+    [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "Bezier Curve")]
+    public class Bezier : ScriptableObject {
 
-        private float progress;
-        [SerializeField]
-        private IList<Vector3> bezierPoints = new List<Vector3>();
-
-        private void Awake() {
-            progress = 0f;
-        }
-
-        private void OnDrawGizmos() {
-            for (int i = 1; i < bezierPoints.Count; i++) {
-                var previous = transform.TransformPoint(bezierPoints[i - 1]);
-                var current = transform.TransformPoint(bezierPoints[i]);
-                Gizmos.DrawLine(previous, current);
-            }
-        }
-
-        public void ClearPoints() {
-            bezierPoints.Clear();
-        }
-
-        public void PopulateCubicPoints(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
-            bezierPoints.Add(GetCubicBezier(p0, p1, p2, p3, t));
-        }
+        [SerializeField, HideInInspector]
+        private Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
+        [SerializeField, HideInInspector]
+        private Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
         
         /// <summary>
-        /// A bezier is defined by (1 - t)^2 * p0 + 2(1 - t) * t * p1 + t^2 * p2.
+        /// Gets a point along the tangent of the cubic bezier curve.
         /// </summary>
-        /// <param name="p0">First point</param>
-        /// <param name="p1">Second point</param>
-        /// <param name="p2">Third point</param>
-        /// <param name="t">Parametric value between o and 1</param>
-        /// <returns>The value alongside the bezier curve</returns>
-        public static Vector3 GetQuadraticBezier(Vector3 p0, Vector3 p1, Vector3 p2, float t) {
-            t = Mathf.Clamp01(t);
-            var inverseT = 1f - t;
-
-            return inverseT * inverseT * p0 + 2f * inverseT * t * p1 + t * t * p2;
-        }
-
-        public static Vector3 GetCubicBezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        /// <param name="p0">Start point</param>
+        /// <param name="p1">First control point</param>
+        /// <param name="p2">Second control point</param>
+        /// <param name="p3">End point</param>
+        /// <returns>A point along the cubic bezier curve</returns>
+        public static Vector3 GetCubicBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
 
             return (Mathf.Pow(inverseT, 3) * p0) + (3 * Mathf.Pow(inverseT, 2) * t * p1) + (3 * inverseT * Mathf.Pow(t, 2) * p2) + (Mathf.Pow(t, 3) * p3); 
+        }
+
+        /// <summary>
+        /// Gets a point along the tangent of the quadratic bezier curve.
+        /// </summary>
+        /// <param name="p0">Start point</param>
+        /// <param name="p1">Control point</param>
+        /// <param name="p2">End point</param>
+        /// <returns>A point along the quadratic bezier curve</returns>
+        public static Vector3 GetQuadraticBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, float t) {
+            t = Mathf.Clamp01(t);
+            var inverseT = 1f - t;
+
+            return inverseT * inverseT * p0 + 2f * inverseT * t * p1 + t * t * p2;
         }
     }
 }
