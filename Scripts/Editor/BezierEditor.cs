@@ -3,170 +3,215 @@ using UnityEditorInternal;
 using UnityEngine;
 
 namespace Curves.EditorTools {
-    [CustomEditor(typeof(Bezier))]
-    public class BezierEditor : Editor {
 
-        private const float HandleSize = 0.15f;
+    // TODO: Allow conversion between local and world space
+    // TODO: Add control point + point size control
+    [CustomEditor(typeof(Bezier))] public class BezierEditor : Editor { 
+        private const float HandleSize = 0.07f;
 
         private SerializedProperty points;
         private SerializedProperty controlPoints;
+
         private ReorderableList pointsList;
-        private ReorderableList ctrlPtsList;
-        private Transform transform;
+        private ReorderableList controlPointsList;
 
-
+        private TransformData transformData;
+        private string jsonDirectory;
+        private string jsonPath;
+    
         private void OnEnable() {
+            jsonDirectory = System.IO.Path.Combine(Application.dataPath, "Scripts", "Editor", "Configurations");
+            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Bezier).name));
+
             points = serializedObject.FindProperty("points");
-            transform = (target as Bezier).transform;
             controlPoints = serializedObject.FindProperty("controlPoints");
 
             pointsList = new ReorderableList(serializedObject, points);
-            ctrlPtsList = new ReorderableList(serializedObject, controlPoints, true, true, false, false);
+            controlPointsList = new ReorderableList(serializedObject, controlPoints, true, true, false, false);
+
+            // Register the sceneview
+            SceneView.onSceneGUIDelegate += OnSceneGUI;
 
             pointsList.drawHeaderCallback = DrawPointHeader;
-            pointsList.drawElementCallback = DrawPointElem;
-            pointsList.onAddCallback = (ReorderableList list) => {
-                controlPoints.arraySize += 2;
-                points.arraySize += 1;
-            };
+            pointsList.drawElementCallback = DrawPointElement;
+            pointsList.elementHeightCallback = ElementHeight;
+            pointsList.onAddCallback = AddPointListCallback;
+            pointsList.onRemoveCallback = RemovePointsListCallback;
+            pointsList.onCanRemoveCallback = CanRemovePointElement;
 
-            pointsList.onRemoveCallback = (ReorderableList list) => {
-                if (points.arraySize > 2) {
-                    controlPoints.arraySize -= 2;
-                    points.arraySize -= 1;
-                }
-            };
-
-            ctrlPtsList.drawHeaderCallback = DrawControlPointHeader;
-            ctrlPtsList.drawElementCallback = DrawControlPointElem;
+            controlPointsList.drawHeaderCallback = DrawControlPointHeader;
+            controlPointsList.drawElementCallback = DrawControlPointElement;
+            controlPointsList.elementHeightCallback = ElementHeight;
         }
 
         private void OnDisable() {
+            // Remove the sceneview 
+            SceneView.onSceneGUIDelegate -= OnSceneGUI;
+
             pointsList.drawHeaderCallback -= DrawPointHeader;
-            pointsList.drawElementCallback -= DrawPointElem;
+            pointsList.drawElementCallback -= DrawPointElement;
+            pointsList.elementHeightCallback -= ElementHeight; 
+            pointsList.onAddCallback -= AddPointListCallback;
+            pointsList.onRemoveCallback -= RemovePointsListCallback;
+            pointsList.onCanRemoveCallback -= CanRemovePointElement;
 
-            ctrlPtsList.drawHeaderCallback -= DrawControlPointHeader;
-            ctrlPtsList.drawElementCallback -= DrawControlPointElem;
+            controlPointsList.drawHeaderCallback -= DrawControlPointHeader;
+            controlPointsList.drawElementCallback -= DrawControlPointElement;
+            controlPointsList.elementHeightCallback -= ElementHeight;
         }
 
-        public override void OnInspectorGUI() {
-            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
-                serializedObject.Update();
-                DrawDefaultInspector();
-                PopulatePoints();
-                ClearPoints();
-                pointsList.DoLayoutList();
-                ctrlPtsList.DoLayoutList();
-                serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        private void OnSceneGUI() {
-            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
-                serializedObject.Update();
-                DrawBezierCurve();
-                DrawPoints();
-                DrawControlPoints();
-                serializedObject.ApplyModifiedProperties();
-            }
-        }
-        private void DrawBezierCurve() {
-            var size = points.arraySize;
-            for (int i = 1; i < size; i++) {
-                var start = points.GetArrayElementAtIndex(i - 1);
-                var end = points.GetArrayElementAtIndex(i);
-
-                var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
-                var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
-
-                var ptStart = transform.TransformPoint(start.vector3Value);
-                var ptEnd = transform.TransformPoint(end.vector3Value);
-
-                var ctrlStart = transform.TransformPoint(controlStart.vector3Value);
-                var ctrlEnd = transform.TransformPoint(controlEnd.vector3Value);
-
-                Handles.DrawBezier(ptStart, ptEnd, ctrlStart, ctrlEnd, Color.red, null, HandleUtility.GetHandleSize(Vector3.zero) * 0.5f);
-            }
-        }
-
-        private void DrawPoints() {
-            Handles.color = Color.cyan;
-            var size = points.arraySize;
-            for (int i = 0; i < size; i++) {
-                var element = points.GetArrayElementAtIndex(i);
-                var snapSize = Vector3.one * HandleSize;
-
-                var pt = transform.TransformPoint(element.vector3Value);
-
-                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
-                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                element.vector3Value = transform.InverseTransformPoint(pt);
-            }
-        }
-
-        private void DrawControlPoints() {
-            Handles.color = Color.green;
-            var size = controlPoints.arraySize;
-            for (int i = 0; i < size; i++) {
-                var element = controlPoints.GetArrayElementAtIndex(i);
-                var snapSize = Vector3.one * HandleSize;
-
-                var pt = transform.TransformPoint(element.vector3Value);
-
-                pt = Handles.FreeMoveHandle(pt, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
-                element.vector3Value = transform.InverseTransformPoint(pt);
-            }
-        }
-
-#region ReorderableList
+#region List Callbacks
         private void DrawPointHeader(Rect r) {
-            EditorGUI.LabelField(r, "Points", EditorStyles.boldLabel);
+            EditorGUI.LabelField(r, new GUIContent("Points", "What are the main points that define the bezier curve?"));
         }
 
         private void DrawControlPointHeader(Rect r) {
-            EditorGUI.LabelField(r, "Control Points", EditorStyles.boldLabel);
+            EditorGUI.LabelField(r, new GUIContent("Control Points", "What are the main control points that affect the bezier curve?"));
         }
 
-        private void DrawControlPointElem(Rect r, int i, bool isActive, bool isFocused) {
-            DrawVectorElement(controlPoints, r, i, isActive, isFocused);
-        }
-
-        private void DrawPointElem(Rect r, int i, bool isActive, bool isFocused) {
+        private void DrawPointElement(Rect r, int i, bool isActive, bool isFocused) {
             DrawVectorElement(points, r, i, isActive, isFocused);
+        }
+
+        private void DrawControlPointElement(Rect r, int i, bool isActive, bool isFocused) {
+            DrawVectorElement(controlPoints, r, i, isActive, isFocused);
         }
 
         private void DrawVectorElement(SerializedProperty prop, Rect r, int i, bool isActive, bool isFocused) {
             var elem = prop.GetArrayElementAtIndex(i);
             EditorGUI.PropertyField(r, elem, GUIContent.none);
         }
+
+        private float ElementHeight(int i) {
+            return EditorGUIUtility.singleLineHeight;
+        }
+
+        private void AddPointListCallback(ReorderableList list) {
+            points.arraySize += 1;
+            controlPoints.arraySize += 2;
+        }
+
+        private void RemovePointsListCallback(ReorderableList list) {
+            points.arraySize -= 1;
+            controlPoints.arraySize -= 2;
+        }
+
+        private bool CanRemovePointElement(ReorderableList list) {
+            return points.arraySize > 2;
+        }
 #endregion
 
-        private void PopulatePoints() {
-            if (GUILayout.Button("Generate Cubic Curve")) {
-                var bezier = target as Bezier;
+#region Curve Rendering
+        private void DrawHandlePoints(SerializedProperty property, Color handlesColor) {
+            try {
+                var size = property.arraySize;
+                Handles.color = handlesColor;
 
+                for(int i = 0; i < size; i++) {
+                    var elem = property.GetArrayElementAtIndex(i);
+                    
+                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+
+                    var point = trs.MultiplyPoint3x4(elem.vector3Value);
+                    var snapSize = Vector3.one * HandleSize;
+                    var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                    position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+
+                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
+                }
+            } catch (System.NullReferenceException) {}
+        }
+
+        private void DrawCubicBezierCurve(Color bezierColor) {
+            try {
                 var size = points.arraySize;
+
                 for (int i = 1; i < size; i++) {
-                    var t = 0f;
                     var start = points.GetArrayElementAtIndex(i - 1);
                     var end = points.GetArrayElementAtIndex(i);
 
                     var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
                     var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
 
-                    while (t <= 1f) {
-                        bezier.PopulateCubicPoints(start.vector3Value, controlStart.vector3Value, controlEnd.vector3Value, end.vector3Value, t);
-                        t += 0.001f;
-                    }
+                    var trs = Matrix4x4.TRS(transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale);
+
+                    Handles.DrawBezier(
+                            trs.MultiplyPoint3x4(start.vector3Value), 
+                            trs.MultiplyPoint3x4(end.vector3Value), 
+                            trs.MultiplyPoint3x4(controlStart.vector3Value), 
+                            trs.MultiplyPoint3x4(controlEnd.vector3Value), 
+                            bezierColor,
+                            null, 
+                            HandleUtility.GetHandleSize(Vector3.one) * 0.75f);
                 }
+            } catch (System.NullReferenceException) {}
+        }
+#endregion
+
+#region Transform
+        private void DrawTransformField() {
+            EditorGUILayout.LabelField("Transform", EditorStyles.boldLabel);
+            transformData.position = EditorGUILayout.Vector3Field(new GUIContent("Position"), transformData.position);
+            transformData.rotation = EditorGUILayout.Vector3Field(new GUIContent("Rotation"), transformData.rotation);
+            transformData.scale = EditorGUILayout.Vector3Field(new GUIContent("Scale"), transformData.scale);
+            transformData.showTransformData = EditorGUILayout.Toggle("Show Transform", transformData.showTransformData);
+        }
+
+        private void DrawTransformHandle() {
+            if (transformData.showTransformData) {
+                transformData.position = Handles.PositionHandle(transformData.position, Quaternion.Euler(transformData.rotation));
+                transformData.rotation = Handles.RotationHandle(Quaternion.Euler(transformData.rotation), transformData.position).eulerAngles;
+                transformData.scale = Handles.ScaleHandle(transformData.scale, transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale.magnitude);
             }
         }
 
-        private void ClearPoints() {
-            if (GUILayout.Button("Clear Points")) {
-                var bezier = target as Bezier;
-                bezier.ClearPoints();
+        private void LoadTransformData() {
+            if (System.IO.File.Exists(jsonPath)) {
+                var jsonRep = System.IO.File.ReadAllText(jsonPath);
+                transformData = JsonUtility.FromJson<TransformData>(jsonRep);
+            } else {
+                transformData = TransformData.CreateTransformData();
+                System.IO.Directory.CreateDirectory(jsonDirectory);
+                System.IO.File.WriteAllText(jsonPath, JsonUtility.ToJson(transformData));
             }
+        }
+
+        private void SaveTransformData() {
+            var json = JsonUtility.ToJson(transformData);
+            System.IO.File.WriteAllText(jsonPath, json);
+        }
+#endregion
+
+        private void OnSceneGUI(SceneView sceneView) {
+            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                LoadTransformData();
+                serializedObject.Update();
+                DrawHandlePoints(points, Color.green);
+                DrawHandlePoints(controlPoints, Color.cyan);
+                DrawCubicBezierCurve(Color.red);
+                DrawTransformHandle();
+                serializedObject.ApplyModifiedProperties();
+                SaveTransformData();
+            }
+        }
+
+        public override void OnInspectorGUI() {
+            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                serializedObject.Update();
+                LoadTransformData();
+                DrawDefaultInspector();
+                DrawTransformField();
+
+                pointsList.DoLayoutList();
+                controlPointsList.DoLayoutList();
+
+                serializedObject.ApplyModifiedProperties();
+                SaveTransformData();
+            }
+        }
+        
+        public override bool RequiresConstantRepaint() {
+            return true;
         }
     }
 }
