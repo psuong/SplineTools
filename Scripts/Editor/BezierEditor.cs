@@ -163,6 +163,9 @@ namespace Curves.EditorTools {
 
                 serializedObject.ApplyModifiedProperties();
                 SaveTransformData();
+                if (changeCheck.changed) {
+                    SceneView.RepaintAll();
+                }
             }
         }
         

@@ -43,6 +43,9 @@ namespace Curves.EditorTools {
                 DrawDefaultInspector();
                 serializedObject.ApplyModifiedProperties();
                 SaveTransformData();
+                if (changeCheck.changed) {
+                    SceneView.RepaintAll();
+                }
             }
         }
 
