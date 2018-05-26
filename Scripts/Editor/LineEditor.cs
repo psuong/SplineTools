@@ -4,98 +4,72 @@ using UnityEngine;
 namespace Curves.EditorTools {
 
     [CustomEditor(typeof(Line))]
-    public class LineEditor : Editor {
+    public class LineEditor : SceneViewEditor {
 
-        private const float DotHandleSize = 0.05f;
+        private const float HandleSize = 0.15f;
 
-        private Transform transform;
         private SerializedProperty p0;
         private SerializedProperty p1;
 
-        private bool clampHeight;
-        private float cachedStartHeight;
-        private float cachedEndHeight;
+        protected override void OnEnable() {
+            base.OnEnable();
 
-        private void OnEnable() {
-            var line = target as Line;
-            transform = line.transform;
+            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Line).name));
 
             p0 = serializedObject.FindProperty("p0");
             p1 = serializedObject.FindProperty("p1");
+        }
 
-            clampHeight = false;
+        protected override void OnDisable() {
+            base.OnDisable(); }
 
-            SetWorldSpaceCoordinates(p0.vector3Value, p1.vector3Value);
+        protected override void OnSceneGUI(SceneView sceneView) {
+            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                LoadTransformData();
+                serializedObject.Update();
+                DrawLine();
+                DrawLineHandles();
+                DrawTransformHandle();
+                serializedObject.ApplyModifiedProperties();
+                SaveTransformData();
+            }
         }
 
         public override void OnInspectorGUI() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                LoadTransformData();
                 serializedObject.Update();
+                DrawTransformField();
                 DrawDefaultInspector();
-                DrawClampHeightButton();
-                DrawResetButton();
                 serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        private void OnSceneGUI() {
-            // Draw the line
-            DrawLine();
-            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
-                serializedObject.Update();
-                DrawLineHandles();
-                serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        private void DrawClampHeightButton() {
-            if (GUILayout.Button(clampHeight ? "Clamp Height: Off" : "Clamp Height: On")) {
-                clampHeight = !clampHeight;
+                SaveTransformData();
             }
         }
 
         private void DrawLine() {
-            Handles.color = Color.green;
-            var start = transform.TransformPoint(p0.vector3Value);
-            var end = transform.TransformPoint(p1.vector3Value);
+            Handles.color = Color.red;
+
+            var trs = transformData.TRS;
+            
+            var start = trs.MultiplyPoint3x4(p0.vector3Value);
+            var end = trs.MultiplyPoint3x4(p1.vector3Value);
 
             Handles.DrawLine(start, end);
         }
 
         private void DrawLineHandles() {
-            var start = transform.TransformPoint(p0.vector3Value);
-            var end = transform.TransformPoint(p1.vector3Value);
+            Handles.color = Color.green;
+            var trs = transformData.TRS;
+            var start = trs.MultiplyPoint3x4(p0.vector3Value);
+            var end = trs.MultiplyPoint3x4(p1.vector3Value);
 
-            var size = HandleUtility.GetHandleSize(start) * DotHandleSize; 
-            var snapSize = Vector3.one * DotHandleSize;
+            var snapSize = Vector3.one * HandleSize;
 
-            start = Handles.FreeMoveHandle(start, Quaternion.identity, size, snapSize, Handles.DotHandleCap);
-            end = Handles.FreeMoveHandle(end, Quaternion.identity, size, snapSize, Handles.DotHandleCap);
+            var startPosition = Handles.FreeMoveHandle(start, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.DotHandleCap);
+            var endPosition = Handles.FreeMoveHandle(end, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.DotHandleCap);
 
-            p0.vector3Value = transform.InverseTransformPoint(start);
-            p1.vector3Value = transform.InverseTransformPoint(end);
-        }
-
-        private void DrawResetButton() {
-            if (GUILayout.Button("Reset")) {
-                Reset();
-            }
-        }
-
-        private void SetWorldSpaceCoordinates(Vector3 start, Vector3 end) {
-            p0.vector3Value = transform.TransformPoint(start);
-            p1.vector3Value = transform.TransformPoint(end);
-        }
-
-        private void SetLocalSpaceCoordinates() {
-            p0.vector3Value = transform.InverseTransformPoint(p0.vector3Value);
-            p1.vector3Value = transform.InverseTransformPoint(p1.vector3Value);
-        }
-
-        private void Reset() {
-            try {
-                p0.vector3Value = p1.vector3Value = Vector3.zero;
-            } catch (System.NullReferenceException) {}
+            p0.vector3Value = trs.inverse.MultiplyPoint3x4(startPosition);
+            p1.vector3Value = trs.inverse.MultiplyPoint3x4(endPosition);
         }
     }
 }

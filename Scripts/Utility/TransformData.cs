@@ -4,6 +4,20 @@ namespace Curves {
     
     [System.Serializable]
     public struct TransformData {
+        
+        /// <summary>
+        ///  Returns the matrix representation of the transform.
+        /// </summary>
+        public Matrix4x4 TRS {
+            get {
+                return Matrix4x4.TRS(
+                    position,
+                    Quaternion.Euler(rotation),
+                    scale
+                );
+            }
+        }
+
         // Store the position, rotation, and scale to create a fake Transform component
         public Vector3 position, rotation, scale;
         public bool showTransformData;
