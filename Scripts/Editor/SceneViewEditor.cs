@@ -51,5 +51,9 @@ namespace Curves.EditorTools {
             var json = JsonUtility.ToJson(transformData);
             System.IO.File.WriteAllText(jsonPath, json);
         }
+
+        public override bool RequiresConstantRepaint() {
+            return true;
+        }
     }
 }
