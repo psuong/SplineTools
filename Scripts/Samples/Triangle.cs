@@ -11,7 +11,7 @@ namespace Curves {
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class Triangle : MonoBehaviour {
 
-        public Vector3[] points;
+        public Vector3[] vertices;
         public Vector3[] normals;
         public Vector2[] uvs;
         public int[] triangleIndices;
@@ -23,7 +23,7 @@ namespace Curves {
             Gizmos.color = Color.red;
             var radius = 0.2f;
             try {
-                foreach (var point in points) {
+                foreach (var point in vertices) {
                     Gizmos.DrawWireSphere(point, radius);
                 }
             } catch(System.Exception) {}
@@ -33,7 +33,7 @@ namespace Curves {
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = new MeshGenerator();
 
-            meshGenerator.AddVertices(points);
+            meshGenerator.AddVertices(vertices);
             meshGenerator.AddNormals(normals);
             meshGenerator.AddUVs(uvs);
             meshGenerator.AddTriangle(triangleIndices);

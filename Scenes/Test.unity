@@ -113,7 +113,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!43 &586904693
+--- !u!43 &166139560
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -129,8 +129,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 3
     localAABB:
-      m_Center: {x: 1, y: 0, z: 1}
-      m_Extent: {x: 1, y: 0, z: 1}
+      m_Center: {x: -0.5, y: -0.02355957, z: 0.529541}
+      m_Extent: {x: 0.5, y: 0.02355957, z: 0.529541}
   m_Shapes:
     vertices: []
     shapes: []
@@ -199,7 +199,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 96
-    _typelessdata: 000000000000000000000040000000000000803f000000000000000000000000000000400000000000000000000000000000803f00000000000000000000803f000000000000000000000000000000000000803f000000000000803f00000000
+    _typelessdata: 008025bd000041bd0090873f000000000000803f000000000000000000000000000000000000000000000000000000000000803f00000000000000000000803f000080bf0000000000000000000000000000803f000000000000803f00000000
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -253,8 +253,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 1, y: 0, z: 1}
-    m_Extent: {x: 1, y: 0, z: 1}
+    m_Center: {x: -0.5, y: -0.02355957, z: 0.529541}
+    m_Extent: {x: 0.5, y: 0.02355957, z: 0.529541}
   m_MeshUsageFlags: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
@@ -353,10 +353,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b930904bb0c294ceb81a87c6966211a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  points:
-  - {x: 0, y: 0, z: 2}
-  - {x: 2, y: 0, z: 0}
+  vertices:
+  - {x: 0, y: 0, z: 1}
   - {x: 0, y: 0, z: 0}
+  - {x: -1, y: 0, z: 0}
   normals:
   - {x: 0, y: 1, z: 0}
   - {x: 0, y: 1, z: 0}
@@ -420,7 +420,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 987250990}
-  m_Mesh: {fileID: 586904693}
+  m_Mesh: {fileID: 166139560}
 --- !u!1 &1861719574
 GameObject:
   m_ObjectHideFlags: 0
