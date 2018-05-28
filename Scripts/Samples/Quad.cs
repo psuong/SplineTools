@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Curves {
 
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class Quad : BaseMesh {
 
-        // Top left, Top right, Bottom Left, Bottom Right
+        // Bottom left, Bottom right, Top Left, Top Right
         public Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
         public int resolution = 1;
 

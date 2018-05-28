@@ -29,8 +29,8 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
                 DrawDefaultInspector();
                 DrawMeshGeneratorButton();
-                triangle.GenerateMesh();
                 if (changeCheck.changed) {
+                    triangle.GenerateMesh();
                     serializedObject.ApplyModifiedProperties();
                 }
             }
