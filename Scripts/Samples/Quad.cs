@@ -7,7 +7,7 @@ namespace Curves {
     public class Quad : BaseMesh {
 
         // Top left, Top right, Bottom Left, Bottom Right
-        public Vector3 topLeft, topRight, bottomLeft, bottomRight;
+        public Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
         public int resolution = 1;
 
         private Vector3[] vertices;
@@ -27,8 +27,8 @@ namespace Curves {
             float tVertical = 0, tHorizontal = 0;
 
             for (int y = 0, i = 0; y <= resolution; y++) {
-                var startLeft = Vector3.Lerp(bottomLeft, topLeft, tVertical);
-                var endLeft = Vector3.Lerp(bottomRight, topRight, tVertical);
+                var startLeft = Vector3.Lerp(points[2], points[0], tVertical);
+                var endLeft = Vector3.Lerp(points[3], points[1], tVertical);
                 for (int x = 0; x <= resolution; x++, i++) {
                     var current = Vector3.Lerp(startLeft, endLeft, tHorizontal);
                     tHorizontal += tInterval;
