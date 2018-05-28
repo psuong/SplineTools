@@ -8,28 +8,14 @@ namespace Curves {
      * UVs: Depends on the coordinates of a unit square.
      * Points: Any value
      */
-    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-    public class Triangle : MonoBehaviour {
+    public class Triangle : BaseMesh {
 
         public Vector3[] vertices;
         public Vector3[] normals;
         public Vector2[] uvs;
         public int[] triangleIndices;
 
-        private MeshFilter meshFilter;
-        private MeshGenerator meshGenerator;
-
-        private void OnDrawGizmos() {
-            Gizmos.color = Color.red;
-            var radius = 0.2f;
-            try {
-                foreach (var point in vertices) {
-                    Gizmos.DrawWireSphere(point, radius);
-                }
-            } catch(System.Exception) {}
-        }
-
-        public void GenerateMesh() {
+        public override void GenerateMesh() {
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = new MeshGenerator();
 

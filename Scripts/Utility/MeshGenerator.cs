@@ -85,6 +85,16 @@ namespace Curves {
         }
 
         /// <summary>
+        /// Resets all of the vector coordinates in the MeshGenerator.
+        /// </summary>
+        public void Clear() {
+            vertices.Clear();
+            uvs.Clear();
+            normals.Clear();
+            indices.Clear();
+        }
+
+        /// <summary>
         /// Constructs a mesh object with the normals and uvs.
         /// </summary>
         /// <returns>A mesh object</returns>
