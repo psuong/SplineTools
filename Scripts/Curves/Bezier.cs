@@ -7,10 +7,12 @@ namespace Curves {
     [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "Bezier Curve")]
     public class Bezier : ScriptableObject {
 
+#pragma warning disable 414
         [SerializeField, HideInInspector]
         private Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
         [SerializeField, HideInInspector]
         private Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
+#pragma warning restore 414
         
         /// <summary>
         /// Gets a point along the tangent of the cubic bezier curve.
