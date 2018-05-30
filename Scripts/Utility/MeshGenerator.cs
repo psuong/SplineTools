@@ -2,9 +2,7 @@
 using UnityEngine;
 
 namespace Curves {
-
-    public class MeshGenerator {
-
+public class MeshGenerator { 
         public IList<Vector3> Vertices {
             get {
                 return vertices.AsReadOnly();
@@ -24,13 +22,13 @@ namespace Curves {
 
         private List<Vector3> vertices, normals;        // Store coordinates to generate all properties of the mesh
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
-        private List<int> indices;                      // Store the indices to generate the triangle
+        private List<int> triangles;                      // Store the triangles to generate the triangle
 
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
             uvs = new List<Vector2>();
-            indices = new List<int>();
+            triangles = new List<int>();
         }
         
         // TODO: Add the docStrings
@@ -70,18 +68,18 @@ namespace Curves {
         /// <summary>
         /// Adds all indices of a triangle to a list.
         /// </summary>
-        /// <param name="indices">An array of indices to add.</param>
-        public void AddTriangle(params int[] indices) {
-            this.indices.AddRange(indices);
+        /// <param name="triangles">An array of indices to add.</param>
+        public void AddTriangle(params int[] triangles) {
+            this.triangles.AddRange(triangles);
         }
 
         /// <summary>
         /// Adds a triangle to the mesh.
         /// </summary>
         public void AddTriangle(int p0, int p1, int p2) {
-            indices.Add(p0);
-            indices.Add(p1);
-            indices.Add(p2);
+            triangles.Add(p0);
+            triangles.Add(p1);
+            triangles.Add(p2);
         }
 
         /// <summary>
@@ -91,7 +89,23 @@ namespace Curves {
             vertices.Clear();
             uvs.Clear();
             normals.Clear();
-            indices.Clear();
+            triangles.Clear();
+        }
+        
+        /// <summary>
+        /// Creates a mesh with only the vertices and the triangles.
+        /// </summary>
+        /// <returns>A mesh object</returns>
+        public Mesh CreateDefaultMesh() {
+            var mesh = new Mesh();
+            mesh.vertices = vertices.ToArray();
+            mesh.triangles = triangles.ToArray();
+
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            mesh.RecalculateBounds();
+
+            return mesh;
         }
 
         /// <summary>
@@ -101,7 +115,7 @@ namespace Curves {
         public Mesh CreateMesh() {
             var mesh = new Mesh();
             mesh.vertices = vertices.ToArray();
-            mesh.triangles = indices.ToArray();
+            mesh.triangles = triangles.ToArray();
 
             if (normals.Count == vertices.Count) {
                 mesh.normals = normals.ToArray();

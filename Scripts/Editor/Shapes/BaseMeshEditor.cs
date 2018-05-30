@@ -19,9 +19,7 @@ namespace Curves.EditorTools {
             meshTool = target as BaseMesh;
         }
 
-        protected virtual void OnDisable() {
-            
-        }
+        protected virtual void OnDisable() { }
 
         protected virtual void OnSceneGUI() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
