@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
-    [CustomEditor(typeof(Triangle))]
+    [CustomEditor(typeof(TriangleMesh))]
     public class TriangleEditor : Editor {
 
         private const float HandleSize = 0.015f;
@@ -13,10 +13,10 @@ namespace Curves.EditorTools {
         private SerializedProperty uvs;
         private SerializedProperty triangleIndices;
 
-        private Triangle triangle;
+        private TriangleMesh triangle;
 
         private void OnEnable() {
-            triangle = target as Triangle;
+            triangle = target as TriangleMesh;
 
             vertices = serializedObject.FindProperty("vertices");
             normals = serializedObject.FindProperty("normals");
@@ -51,8 +51,7 @@ namespace Curves.EditorTools {
 
         private void DrawMeshGeneratorButton() {
             if (GUILayout.Button(new GUIContent("Generate Mesh"))) {
-                Triangle instance = target as Triangle;
-                instance.GenerateMesh();
+                triangle.GenerateMesh();
             }
         }
 

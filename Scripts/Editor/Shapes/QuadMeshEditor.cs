@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
     
-    [CustomEditor(typeof(Quad))]
+    [CustomEditor(typeof(QuadMesh))]
     public class QuadMeshEditor : BaseMeshEditor {
 
         private const float HandleSize = 0.015f;
@@ -12,13 +12,13 @@ namespace Curves.EditorTools {
         private SerializedProperty points;
 
         private ReorderableList pointsList;
-        private Quad quad;
+        private QuadMesh quad;
         private string[] labels = { "Bottom Left", "Bottom Right", "Top Left", "Top Right" };
         
         protected override void OnEnable() {
             base.OnEnable();
 
-            quad = target as Quad;
+            quad = target as QuadMesh;
 
             points = serializedObject.FindProperty("points");
             pointsList = new ReorderableList(serializedObject, points);

@@ -3,7 +3,7 @@
 namespace Curves {
 
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-    public class Quad : BaseMesh {
+    public class QuadMesh : BaseMesh {
 
         // Bottom left, Bottom right, Top Left, Top Right
         public Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };

@@ -8,7 +8,7 @@ namespace Curves {
      * UVs: Depends on the coordinates of a unit square.
      * Points: Any value
      */
-    public class Triangle : BaseMesh {
+    public class TriangleMesh : BaseMesh {
 
         public Vector3[] vertices;
         public Vector3[] normals;
