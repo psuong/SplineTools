@@ -21,17 +21,23 @@ namespace Curves.EditorTools {
             quad = target as QuadMesh;
 
             points = serializedObject.FindProperty("points");
-            pointsList = new ReorderableList(serializedObject, points);
+            pointsList = new ReorderableList(serializedObject, points, false, false, false, false);
 
             onInspectorCallback += pointsList.DoLayoutList;
             onSceneCallback += DrawPointHandles;
             onChangeCallback += RegenerateMesh;
+
+            pointsList.drawElementCallback += DrawPointElement;
+            pointsList.drawHeaderCallback += DrawPointHeader;
         }
 
         protected override void OnDisable() {
             onInspectorCallback -= pointsList.DoLayoutList;
             onSceneCallback -= DrawPointHandles;
             onChangeCallback -= RegenerateMesh;
+
+            pointsList.drawElementCallback -= DrawPointElement;
+            pointsList.drawHeaderCallback -= DrawPointHeader;
         }
 
         private void DrawPointHandles() {
@@ -46,14 +52,30 @@ namespace Curves.EditorTools {
             }
         }
 
+#region PointsCallback
         private void DrawPointElement(Rect r, int i, bool isActive, bool isFocused) {
             var element = points.GetArrayElementAtIndex(i);
             EditorGUI.PropertyField(r, element, new GUIContent(labels[i]));
         }
 
+        private void DrawPointHeader(Rect r) {
+            EditorGUI.LabelField(r, new GUIContent("Quad Points", "What points define the the quad?"), EditorStyles.boldLabel);
+        }
+#endregion
+
         private void RegenerateMesh() {
             if (quad) {
                 quad.GenerateMesh();
+            }
+        }
+
+        private void ResetHeight() {
+            var arraySize = points.arraySize;
+
+            for (int i = 0; i < arraySize; i++) {
+                var element = points.GetArrayElementAtIndex(i);
+                var position = new Vector3(element.vector3Value.x, 0f, element.vector3Value.z);
+                element.vector3Value = position;
             }
         }
     }

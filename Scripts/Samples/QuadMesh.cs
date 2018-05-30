@@ -6,8 +6,10 @@ namespace Curves {
     public class QuadMesh : BaseMesh {
 
         // Bottom left, Bottom right, Top Left, Top Right
-        public Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
-        public int resolution = 1;
+        [SerializeField, HideInInspector]
+        private Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
+        [SerializeField, Tooltip("How refine should the mesh be? The higher the resolution the more vertices the mesh has.")]
+        private int resolution = 1;
 
         private Vector3[] vertices;
         private int[] triangles;

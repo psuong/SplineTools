@@ -8,6 +8,9 @@ namespace Curves {
         protected MeshGenerator meshGenerator;
         protected MeshFilter meshFilter;
         
+        /// <summary>
+        /// Creates a mesh and assigns it to the meshFilter.
+        /// </summary>
         public abstract void GenerateMesh();
     }
 }
