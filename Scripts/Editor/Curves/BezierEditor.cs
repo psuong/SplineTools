@@ -34,7 +34,8 @@ namespace Curves.EditorTools {
             controlPointsList.drawHeaderCallback = DrawControlPointHeader;
             controlPointsList.drawElementCallback = DrawControlPointElement;
             controlPointsList.elementHeightCallback = ElementHeight;
-        } 
+        }
+
         protected override void OnDisable() {
             base.OnDisable();
 

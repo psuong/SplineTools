@@ -10,13 +10,10 @@ namespace Curves.EditorTools {
         private SerializedProperty points;
 
         private ReorderableList pointsList;
-        private QuadMesh quad;
         private string[] labels = { "Bottom Left", "Bottom Right", "Top Left", "Top Right" };
 
         protected override void OnEnable() {
             base.OnEnable();
-
-            quad = target as QuadMesh;
 
             points = serializedObject.FindProperty("points");
             pointsList = new ReorderableList(serializedObject, points, false, false, false, false);
@@ -25,11 +22,12 @@ namespace Curves.EditorTools {
             onSceneCallback += DrawPointHandles;
             onChangeCallback += RegenerateMesh;
 
-            pointsList.drawElementCallback += DrawPointElement;
-            pointsList.drawHeaderCallback += DrawPointHeader;
+            pointsList.drawElementCallback = DrawPointElement;
+            pointsList.drawHeaderCallback = DrawPointHeader;
+            pointsList.elementHeightCallback = DrawElementHeight;
 
             // Undo support
-            Undo.undoRedoPerformed += RegenerateMesh;
+            Undo.undoRedoPerformed = RegenerateMesh;
         }
 
         protected override void OnDisable() {
@@ -39,6 +37,7 @@ namespace Curves.EditorTools {
 
             pointsList.drawElementCallback -= DrawPointElement;
             pointsList.drawHeaderCallback -= DrawPointHeader;
+            pointsList.elementHeightCallback -= DrawElementHeight;
 
             // Undo deregister
             Undo.undoRedoPerformed -= RegenerateMesh;
@@ -64,6 +63,10 @@ namespace Curves.EditorTools {
 
         private void DrawPointHeader(Rect r) {
             EditorGUI.LabelField(r, new GUIContent("Quad Points", "What points define the the quad?"), EditorStyles.boldLabel);
+        }
+
+        private float DrawElementHeight(int i) {
+            return EditorGUIUtility.singleLineHeight;
         }
 #endregion
 
