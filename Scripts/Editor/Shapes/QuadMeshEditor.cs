@@ -3,18 +3,16 @@ using UnityEditorInternal;
 using UnityEngine;
 
 namespace Curves.EditorTools {
-    
+
     [CustomEditor(typeof(QuadMesh))]
     public class QuadMeshEditor : BaseMeshEditor {
-
-        private const float HandleSize = 0.015f;
-
+        private const float HandleSize = 0.015f; 
         private SerializedProperty points;
 
         private ReorderableList pointsList;
         private QuadMesh quad;
         private string[] labels = { "Bottom Left", "Bottom Right", "Top Left", "Top Right" };
-        
+
         protected override void OnEnable() {
             base.OnEnable();
 
@@ -29,6 +27,9 @@ namespace Curves.EditorTools {
 
             pointsList.drawElementCallback += DrawPointElement;
             pointsList.drawHeaderCallback += DrawPointHeader;
+
+            // Undo support
+            Undo.undoRedoPerformed += RegenerateMesh;
         }
 
         protected override void OnDisable() {
@@ -38,6 +39,9 @@ namespace Curves.EditorTools {
 
             pointsList.drawElementCallback -= DrawPointElement;
             pointsList.drawHeaderCallback -= DrawPointHeader;
+
+            // Undo deregister
+            Undo.undoRedoPerformed -= RegenerateMesh;
         }
 
         private void DrawPointHandles() {
@@ -62,12 +66,6 @@ namespace Curves.EditorTools {
             EditorGUI.LabelField(r, new GUIContent("Quad Points", "What points define the the quad?"), EditorStyles.boldLabel);
         }
 #endregion
-
-        private void RegenerateMesh() {
-            if (quad) {
-                quad.GenerateMesh();
-            }
-        }
 
         private void ResetHeight() {
             var arraySize = points.arraySize;

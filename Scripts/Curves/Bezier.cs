@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace Curves {
 
@@ -13,6 +14,22 @@ namespace Curves {
         [SerializeField, HideInInspector]
         private Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
 #pragma warning restore 414
+
+        public Vector3[] GetQuadraticBezierPoints(float factor) {
+            var points = new List<Vector3>();
+            
+            for (int i = 1; i < this.points.Length; i++) {
+                var start = points[i - 1];
+                var end = points[i];
+
+                var controlStart = controlPoints[i == 1 ? 0 : i];
+                var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
+                
+                var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, 1f/ factor);
+                points.Add(point);
+            }
+            return points.ToArray();
+        }
         
         /// <summary>
         /// Gets a point along the tangent of the cubic bezier curve.
