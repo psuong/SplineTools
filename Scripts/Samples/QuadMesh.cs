@@ -30,7 +30,8 @@ namespace Curves {
             for (int y = 0, i = 0; y <= resolution; y++) {
                 var startLeft = Vector3.Lerp(points[2], points[0], tVertical);
                 var endLeft = Vector3.Lerp(points[3], points[1], tVertical);
-                for (int x = 0; x <= resolution; x++, i++) { var current = Vector3.Lerp(startLeft, endLeft, tHorizontal);
+                for (int x = 0; x <= resolution; x++, i++) { 
+                    var current = Vector3.Lerp(startLeft, endLeft, tHorizontal);
                     tHorizontal += tInterval;
                     vertices[i] = current;
                 } 

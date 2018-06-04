@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Curves.Utility;
+using UnityEditor;
 using UnityEngine;
 
 namespace Curves.EditorTools {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Curves {
+namespace Curves.Utility {
     
     [System.Serializable]
     public struct TransformData {

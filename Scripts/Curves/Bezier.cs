@@ -9,25 +9,31 @@ namespace Curves {
     public class Bezier : ScriptableObject {
 
 #pragma warning disable 414
-        [SerializeField, HideInInspector]
-        private Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
+        [HideInInspector]
+        public Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
         [SerializeField, HideInInspector]
         private Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
 #pragma warning restore 414
 
-        public Vector3[] GetQuadraticBezierPoints(float factor) {
+        public Vector3[] GetCubicBezierPoints(float factor) {
             var points = new List<Vector3>();
-            
-            for (int i = 1; i < this.points.Length; i++) {
-                var start = points[i - 1];
-                var end = points[i];
+            var size = this.points.Length;
+
+            for (int i = 1; i < size; i++) {
+                var start = this.points[i - 1];
+                var end = this.points[i];
 
                 var controlStart = controlPoints[i == 1 ? 0 : i];
                 var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
-                
-                var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, 1f/ factor);
-                points.Add(point);
+
+                var interval = 1f / factor;
+
+                for (float t = 0; t < factor; t += interval) {
+                    var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, t);
+                    points.Add(point);
+                }
             }
+
             return points.ToArray();
         }
         
