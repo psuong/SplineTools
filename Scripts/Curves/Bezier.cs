@@ -11,8 +11,8 @@ namespace Curves {
 #pragma warning disable 414
         [HideInInspector]
         public Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
-        [SerializeField, HideInInspector]
-        private Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
+        [HideInInspector]
+        public Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
 #pragma warning restore 414
 
         public Vector3[] GetCubicBezierPoints(float factor) {

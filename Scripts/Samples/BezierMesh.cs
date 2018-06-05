@@ -23,6 +23,10 @@ namespace Curves {
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
 
+        private IList<Vector3> leftHandPoints;
+        private IList<Vector3> rightHandPoints;
+        private IList<Vector3> actualPoints;
+
         private void Start() {
             GeneratePoints();
         }
@@ -42,26 +46,55 @@ namespace Curves {
             GeneratePoints();
 
             try {
-                for (int i = 1; i < vertices.Length; i++) {
-                    var start = vertices[i - 1];
-                    var end = vertices[i];
-
-                    Gizmos.DrawLine(transform.TransformPoint(end.item1), transform.TransformPoint(start.item1));
-                    Gizmos.DrawLine(transform.TransformPoint(end.item2), transform.TransformPoint(start.item2));
+                for (int i = 1; i < actualPoints.Count; i++) {
+                    Gizmos.DrawLine(actualPoints[i - 1], actualPoints[i]);
+                    Gizmos.DrawLine(rightHandPoints[i - 1], rightHandPoints[i]);
+                    Gizmos.DrawLine(leftHandPoints[i - 1], leftHandPoints[i]);
                 }
             } catch (System.Exception) { }
         }
 #endif
         private void GeneratePoints() {
-            var bezierPoints = bezier.GetCubicBezierPoints(t);
+            // var bezierPoints = bezier.GetCubicBezierPoints(t);
+
+            var bezierPoints = bezier.points;
+            var controls = bezier.controlPoints;
+
+            leftHandPoints = new List<Vector3>();
+            rightHandPoints = new List<Vector3>();
+            actualPoints = new List<Vector3>();
 
             vertices = new Tuple<Vector3, Vector3>[bezierPoints.Length];
 
-            for (int i = 0; i < bezierPoints.Length; i++) {
-                var left = MathUtility.GetCircleXZPoint(bezierPoints[i], radius, angle);
-                var right = MathUtility.GetCircleXZPoint(bezierPoints[i], radius, angle - 180f);
+            for (int i = 1; i < bezierPoints.Length; i++) {
+                var start = bezierPoints[i - 1];
+                var end = bezierPoints[i];
 
-                vertices[i] = Tuple<Vector3, Vector3>.CreateTuple(left, right);
+                var startR = MathUtility.GetCircleXZPoint(start, radius, angle);
+                var endR = MathUtility.GetCircleXZPoint(end, radius, angle);
+
+                var startL = MathUtility.GetCircleXZPoint(start, radius, angle - 180f);
+                var endL = MathUtility.GetCircleXZPoint(end, radius, angle - 180f);
+
+                var controlStart = controls[i == 1 ? 0 : i];
+                var controlEnd = controls[i == 1 ? i : i + (i - 1)];
+
+                var controlStartR = MathUtility.GetCircleXZPoint(controlStart, radius, angle);
+                var controlEndR = MathUtility.GetCircleXZPoint(controlEnd, radius, angle);
+
+                var controlStartL = MathUtility.GetCircleXZPoint(controlStart, radius, angle - 180f);
+                var controlEndL = MathUtility.GetCircleXZPoint(controlEnd, radius, angle - 180f);
+
+                var tInterval = 1f / t;
+
+                for (float j = 0; j < t; j += tInterval) {
+                    var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, j);
+                    var rPoint = Bezier.GetCubicBezierCurve(startR, controlStartR, controlEndR, endR, j);
+                    var lPoint = Bezier.GetCubicBezierCurve(startL, controlStartL, controlEndL, endL, j);
+                    actualPoints.Add(point);
+                    rightHandPoints.Add(rPoint);
+                    leftHandPoints.Add(lPoint);
+                }
             }
         }
 
