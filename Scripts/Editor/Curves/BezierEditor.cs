@@ -106,8 +106,9 @@ namespace Curves.EditorTools {
                     var point = trs.MultiplyPoint3x4(elem.vector3Value);
                     var snapSize = Vector3.one * HandleSize;
                     var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
 
+                    position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
                     elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
                 }
             } catch (System.NullReferenceException) {}

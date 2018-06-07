@@ -579,7 +579,7 @@ GameObject:
   - component: {fileID: 1003922865}
   - component: {fileID: 1003922863}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: kk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -599,7 +599,7 @@ MonoBehaviour:
   bezier: {fileID: 11400000, guid: 458b9bf4c79004044b8d1dadec0f8f4d, type: 2}
   t: 100
   angle: 180
-  radius: 1
+  radius: 3.66
   resolution: 1
 --- !u!4 &1003922864
 Transform:
@@ -608,7 +608,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1003922862}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.16, y: 0, z: 0}
+  m_LocalPosition: {x: -5.79, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
