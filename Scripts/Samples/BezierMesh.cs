@@ -1,4 +1,5 @@
 ﻿using CommonStructures;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,14 +24,6 @@ namespace Curves {
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
 
-        private IList<Vector3> leftHandPoints;
-        private IList<Vector3> rightHandPoints;
-        private IList<Vector3> actualPoints;
-
-        private void Start() {
-            GeneratePoints();
-        }
-
 #if UNITY_EDITOR
         private void OnDrawGizmos() {
             Gizmos.color = Color.cyan;
@@ -46,26 +39,20 @@ namespace Curves {
             GeneratePoints();
 
             try {
-                for (int i = 1; i < actualPoints.Count; i++) {
-                    Gizmos.DrawLine(actualPoints[i - 1], actualPoints[i]);
-                    Gizmos.DrawLine(rightHandPoints[i - 1], rightHandPoints[i]);
-                    Gizmos.DrawLine(leftHandPoints[i - 1], leftHandPoints[i]);
+                for (int i = 1; i < vertices.Length; i++) {
+                    Gizmos.DrawLine(transform.TransformPoint(vertices[i - 1].item1), transform.TransformPoint(vertices[i].item1));
+                    Gizmos.DrawLine(transform.TransformPoint(vertices[i - 1].item2), transform.TransformPoint(vertices[i].item2));
                 }
             } catch (System.Exception) { }
         }
 #endif
         private void GeneratePoints() {
-            // var bezierPoints = bezier.GetCubicBezierPoints(t);
-
             var bezierPoints = bezier.points;
             var controls = bezier.controlPoints;
 
-            leftHandPoints = new List<Vector3>();
-            rightHandPoints = new List<Vector3>();
-            actualPoints = new List<Vector3>();
-
-            vertices = new Tuple<Vector3, Vector3>[bezierPoints.Length];
-
+            var points = new List<Tuple<Vector3, Vector3>>();
+            var size = (int)t * bezier.points.Length - 1;
+            
             for (int i = 1; i < bezierPoints.Length; i++) {
                 var start = bezierPoints[i - 1];
                 var end = bezierPoints[i];
@@ -88,19 +75,22 @@ namespace Curves {
                 var tInterval = 1f / t;
 
                 for (float j = 0; j < t; j += tInterval) {
-                    var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, j);
                     var rPoint = Bezier.GetCubicBezierCurve(startR, controlStartR, controlEndR, endR, j);
                     var lPoint = Bezier.GetCubicBezierCurve(startL, controlStartL, controlEndL, endL, j);
-                    actualPoints.Add(point);
-                    rightHandPoints.Add(rPoint);
-                    leftHandPoints.Add(lPoint);
+                    
+                    points.Add(Tuple<Vector3, Vector3>.CreateTuple(lPoint, rPoint));
                 }
+
+                vertices = points.ToArray();
+
+                GenerateTriangles();
             }
+            
         }
 
         private void GenerateTriangles() {
-            triangles = new int[resolution * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < resolution; y++, vi++) {
+            triangles = new int[vertices.Length * resolution * 6];
+            for (int ti = 0, vi = 0, y = 0; y < vertices.Length; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
                     triangles[ti + 3] = triangles[ti + 2] = vi + 1;

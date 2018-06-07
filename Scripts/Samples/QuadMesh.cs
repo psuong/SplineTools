@@ -15,6 +15,9 @@ namespace Curves {
         private int[] triangles;
 
         public override void GenerateMesh() {
+            // TODO: Lerp the vertices to get each squad within the mesh.
+            // TODO: Calculate the binormal to get the second set of vertices.
+            // TODO: Define the number of segments
             vertices = new Vector3[(resolution + 1) * (resolution + 1)];
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
