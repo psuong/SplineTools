@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CommonStructures;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace Curves {
@@ -70,29 +71,6 @@ namespace Curves {
             return inverseT * inverseT * p0 + 2f * inverseT * t * p1 + t * t * p2;
         }
 
-        public static Vector3[] GetVelocities(int lineStep, Vector3[] points, Vector3[] cPoints, Vector3 origin) {
-            var velocities = new Vector3[(lineStep * points.Length) - 1];
-            
-            var t = 1f / lineStep;
-            var index = 0;
-
-            for (int i = 1; i < points.Length; i++) {
-                var start = points[i - 1];
-                var end = points[i];
-
-                var cStart = cPoints[i == 1 ? 0 : i];
-                var cEnd = cPoints[i == 1 ? i : i + (i - 1)];
-                
-                for (float j = 0f; j < 1f; j += t) {
-                    var velocity = GetVelocity(start, cStart, cEnd, end, j);
-                    // Subtract the velociy from the origin to get the direction of the velocity
-                    velocities[index] = velocity - origin;
-                    index++;
-                }
-            }
-            return velocities;
-        }
-
         /// <summary>
         /// Gets the tangent (velocity) at a point.
         /// </summary>
@@ -102,11 +80,40 @@ namespace Curves {
         /// <param name="p3">The second point on the bezier curve</param>
         /// <param name="t">Parametric value, t, which defines the percentage on the curve</param>
         /// <returns>The first derivative at a said point.</returns>
-        public static Vector3 GetVelocity(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        public static Vector3 GetTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
             
             return (3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 20) * (p3 - p2));
+        }
+        
+        /// <summary>
+        /// Returns an array of of normalised tangents for each parametric value t within the linesteps.
+        /// </summary>
+        /// <param name="lineStep">How many line segments should there be?</param>
+        /// <param name="points">An array of points that define the array.</param>
+        /// <param name="cPoints">An array of control points which define the bezier.</param>
+        /// <returns>Returns an array of tuples defining the direction and its points of origin.</returns>
+        public static Tuple<Vector3, Vector3>[] GetTangentsNormalised(int lineStep, Vector3[] points, Vector3[] cPoints) {
+            var directions = new List<Tuple<Vector3, Vector3>>();
+
+            for (int i = 1; i < points.Length; i++) {
+                var start = points[i - 1];
+                var end = points[i];
+
+                var cStart = cPoints[i == 1 ? 0 : i];
+                var cEnd = cPoints[i == 1 ? i : i + (i - 1)];
+                for (int t = 0; t <= lineStep; t++) {
+                    float progress = ((float)t) / ((float)lineStep);
+
+                    var point = Bezier.GetCubicBezierCurve(start, cStart, cEnd, end, progress);
+                    var tangent = Bezier.GetTangent(start, cStart, cEnd, end, progress).normalized;
+
+                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(point, tangent));
+                }
+            }
+
+            return directions.ToArray();
         }
     }
 }

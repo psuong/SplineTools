@@ -155,34 +155,18 @@ namespace Curves.EditorTools {
             }
         }
 
-        private void SampleVelocities(float factor) {
-            var curve = new List<Vector3>();
-            float t = 1f / factor;
-
+        private void SampleDirections(int segments) {
             var pts = bezier.points;
             var cPts = bezier.controlPoints;
-            
-            var size = bezier.points.Length;
 
-            for (int i = 1; i < size; i++) {
-                var start = pts[i - 1];
-                var end = cPts[i];
+            var directions = Bezier.GetTangentsNormalised(segments, pts, cPts);
 
-                var cStart = bezier.controlPoints[i == 1 ? 0 : i];
-                var cEnd = bezier.controlPoints[i == 1 ? i : i + (i - 1)];
-
-                for (float j = 0; j < 1; j += t) {
-                    var point = Bezier.GetCubicBezierCurve(start, cStart, cEnd, end, j);
-                    curve.Add(point);
-                }
-            }
-
-            DrawPoints(curve.ToArray());
-            
-            var velocities = Bezier.GetVelocities(10, pts, cPts, transformData.position);
-
-            foreach (var velocity in velocities) {
-                Handles.DrawLine(transformData.position, velocity);
+            var trs = transformData.TRS;
+            Handles.color = Color.green;
+            foreach (var direction in directions) {
+                var start = trs.MultiplyPoint3x4(direction.item1);
+                var end = trs.MultiplyPoint3x4(direction.item1 + direction.item2);
+                Handles.DrawLine(start, end);
             }
         }
 #endregion
@@ -195,8 +179,8 @@ namespace Curves.EditorTools {
                 DrawHandlePoints(controlPoints, Color.cyan);
                 DrawCubicBezierCurve(Color.red);
                 DrawTransformHandle();
-                
-                // SampleVelocities(10f);
+ 
+                SampleDirections(10);
 
                 if (changeCheck.changed) {
                     serializedObject.ApplyModifiedProperties();
