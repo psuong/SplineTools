@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -13,9 +14,13 @@ namespace Curves.EditorTools {
 
         private ReorderableList pointsList;
         private ReorderableList controlPointsList;
+
+        private Bezier bezier;
     
         protected override void OnEnable() {
             base.OnEnable();
+
+            bezier = target as Bezier;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Bezier).name));
 
             points = serializedObject.FindProperty("points");
@@ -116,6 +121,7 @@ namespace Curves.EditorTools {
 
         private void DrawCubicBezierCurve(Color bezierColor) {
             try {
+                var bezierPoints = new List<Vector3>();
                 var size = points.arraySize;
 
                 for (int i = 1; i < size; i++) {
@@ -125,18 +131,59 @@ namespace Curves.EditorTools {
                     var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
                     var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
 
-                    var trs = transformData.TRS;
+                    var pts = bezier.GetCubicBezierPoints(100);
+                    bezierPoints.AddRange(pts);
+                }
 
-                    Handles.DrawBezier(
-                            trs.MultiplyPoint3x4(start.vector3Value), 
-                            trs.MultiplyPoint3x4(end.vector3Value), 
-                            trs.MultiplyPoint3x4(controlStart.vector3Value), 
-                            trs.MultiplyPoint3x4(controlEnd.vector3Value), 
-                            bezierColor,
-                            null, 
-                            HandleUtility.GetHandleSize(Vector3.one) * 0.75f);
+                var trs = transformData.TRS;
+
+                Handles.color = Color.red;
+                for (int i = 1; i < bezierPoints.Count; i += 2) {
+                    var start = trs.MultiplyPoint3x4(bezierPoints[i - 1]);
+                    var end = trs.MultiplyPoint3x4(bezierPoints[i]);
+
+                    Handles.DrawLine(start, end);
                 }
             } catch (System.NullReferenceException) {}
+        }
+
+        private void DrawPoints(Vector3[] points) {
+            Handles.color = Color.green;
+            foreach (var point in points) {
+                var bPoint = transformData.TRS.MultiplyPoint3x4(point);
+                Handles.DrawSolidDisc(bPoint, Vector3.up, 0.2f);
+            }
+        }
+
+        private void SampleVelocities(float factor) {
+            var curve = new List<Vector3>();
+            float t = 1f / factor;
+
+            var pts = bezier.points;
+            var cPts = bezier.controlPoints;
+            
+            var size = bezier.points.Length;
+
+            for (int i = 1; i < size; i++) {
+                var start = pts[i - 1];
+                var end = cPts[i];
+
+                var cStart = bezier.controlPoints[i == 1 ? 0 : i];
+                var cEnd = bezier.controlPoints[i == 1 ? i : i + (i - 1)];
+
+                for (float j = 0; j < 1; j += t) {
+                    var point = Bezier.GetCubicBezierCurve(start, cStart, cEnd, end, j);
+                    curve.Add(point);
+                }
+            }
+
+            DrawPoints(curve.ToArray());
+            
+            var velocities = Bezier.GetVelocities(10, pts, cPts, transformData.position);
+
+            foreach (var velocity in velocities) {
+                Handles.DrawLine(transformData.position, velocity);
+            }
         }
 #endregion
 
@@ -148,8 +195,14 @@ namespace Curves.EditorTools {
                 DrawHandlePoints(controlPoints, Color.cyan);
                 DrawCubicBezierCurve(Color.red);
                 DrawTransformHandle();
-                serializedObject.ApplyModifiedProperties();
-                SaveTransformData();
+                
+                // SampleVelocities(10f);
+
+                if (changeCheck.changed) {
+                    serializedObject.ApplyModifiedProperties();
+                    SaveTransformData();
+                    SceneView.RepaintAll();
+                }
             }
         }
 
@@ -163,9 +216,9 @@ namespace Curves.EditorTools {
                 pointsList.DoLayoutList();
                 controlPointsList.DoLayoutList();
 
-                serializedObject.ApplyModifiedProperties();
-                SaveTransformData();
                 if (changeCheck.changed) {
+                    SaveTransformData();
+                    serializedObject.ApplyModifiedProperties();
                     SceneView.RepaintAll();
                 }
             }
