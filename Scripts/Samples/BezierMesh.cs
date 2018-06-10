@@ -75,8 +75,8 @@ namespace Curves {
                 var tInterval = 1f / t;
 
                 for (float j = 0; j < t; j += tInterval) {
-                    var rPoint = Bezier.GetCubicBezierCurve(startR, controlStartR, controlEndR, endR, j);
-                    var lPoint = Bezier.GetCubicBezierCurve(startL, controlStartL, controlEndL, endL, j);
+                    var rPoint = Bezier.GetCubicBezierPoint(startR, controlStartR, controlEndR, endR, j);
+                    var lPoint = Bezier.GetCubicBezierPoint(startL, controlStartL, controlEndL, endL, j);
                     
                     points.Add(Tuple<Vector3, Vector3>.CreateTuple(lPoint, rPoint));
                 }

@@ -33,12 +33,22 @@ namespace Curves {
 
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float)t) / ((float)segments);
-                    var point = Bezier.GetCubicBezierCurve(start, controlStart, controlEnd, end, progress);
+                    var point = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
                     points.Add(point);
                 }
             }
 
             return points.ToArray();
+        }
+        
+        /// <summary>
+        /// Returns the binormal vector.
+        /// </summary>
+        /// <param name="tangent">The tangent of a point</param>
+        /// <param name="normal">The normal of the tangent.</param>
+        /// <returns>The cross product between a tangent and a normal.</returns>
+        public static Vector3 GetBinormal(Vector3 tangent, Vector3 normal) {
+            return Vector3.Cross(tangent, normal);
         }
 
         /// <summary>
@@ -50,7 +60,7 @@ namespace Curves {
         /// <param name="p3">End point</param>
         /// <param name="t">The parametric value, t.</param>
         /// <returns>A point along the cubic bezier curve</returns>
-        public static Vector3 GetCubicBezierCurve(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+        public static Vector3 GetCubicBezierPoint(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
 
@@ -106,7 +116,7 @@ namespace Curves {
                 for (int t = 0; t <= lineStep; t++) {
                     float progress = ((float)t) / ((float)lineStep);
 
-                    var point = Bezier.GetCubicBezierCurve(start, cStart, cEnd, end, progress);
+                    var point = Bezier.GetCubicBezierPoint(start, cStart, cEnd, end, progress);
                     var tangent = Bezier.GetTangent(start, cStart, cEnd, end, progress).normalized;
 
                     directions.Add(Tuple<Vector3, Vector3>.CreateTuple(point, tangent));
