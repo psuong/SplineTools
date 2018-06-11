@@ -1,24 +1,19 @@
 ﻿using CommonStructures;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
 
-    using Curves.Utility;
-
     public class BezierMesh : BaseMesh {
 
         [SerializeField]
         private Bezier bezier;
-        [SerializeField]
-        private float t = 100f;
-        [SerializeField, Range(90f, 270f)]
-        private float angle = 180f;
-        [SerializeField]
-        private float radius = 1f;
+        [SerializeField, Tooltip("How wide are the curves away from each other?")]
+        private float width = 1f;
         [SerializeField]
         private int resolution = 1;
+        [SerializeField, Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
+        private int segments = 10;
 
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
@@ -26,66 +21,21 @@ namespace Curves {
 
 #if UNITY_EDITOR
         private void OnDrawGizmos() {
-            Gizmos.color = Color.cyan;
-
-            Gizmos.DrawWireSphere(transform.position, 0.1f);
-
-            var p0 = transform.TransformPoint(MathUtility.GetCircleXZPoint(transform.position, radius, angle));
-            var p1 = transform.TransformPoint(MathUtility.GetCircleXZPoint(transform.position, radius, angle - 180f));
-
-            Gizmos.DrawWireSphere(transform.InverseTransformPoint(p0), 0.1f);
-            Gizmos.DrawWireSphere(transform.InverseTransformPoint(p1), 0.1f);
+            Gizmos.color = Color.green;
 
             GeneratePoints();
+            
+            for (int i = 1; i < vertices.Length; i++) {
+                var start = vertices[i - 1];
+                var end = vertices[i];
 
-            try {
-                for (int i = 1; i < vertices.Length; i++) {
-                    Gizmos.DrawLine(transform.TransformPoint(vertices[i - 1].item1), transform.TransformPoint(vertices[i].item1));
-                    Gizmos.DrawLine(transform.TransformPoint(vertices[i - 1].item2), transform.TransformPoint(vertices[i].item2));
-                }
-            } catch (System.Exception) { }
+                Gizmos.DrawLine(start.item1, end.item1);
+                Gizmos.DrawLine(start.item2, end.item2);
+            }
         }
 #endif
         private void GeneratePoints() {
-            var bezierPoints = bezier.points;
-            var controls = bezier.controlPoints;
-
-            var points = new List<Tuple<Vector3, Vector3>>();
-            var size = (int)t * bezier.points.Length - 1;
-            
-            for (int i = 1; i < bezierPoints.Length; i++) {
-                var start = bezierPoints[i - 1];
-                var end = bezierPoints[i];
-
-                var startR = MathUtility.GetCircleXZPoint(start, radius, angle);
-                var endR = MathUtility.GetCircleXZPoint(end, radius, angle);
-
-                var startL = MathUtility.GetCircleXZPoint(start, radius, angle - 180f);
-                var endL = MathUtility.GetCircleXZPoint(end, radius, angle - 180f);
-
-                var controlStart = controls[i == 1 ? 0 : i];
-                var controlEnd = controls[i == 1 ? i : i + (i - 1)];
-
-                var controlStartR = MathUtility.GetCircleXZPoint(controlStart, radius, angle);
-                var controlEndR = MathUtility.GetCircleXZPoint(controlEnd, radius, angle);
-
-                var controlStartL = MathUtility.GetCircleXZPoint(controlStart, radius, angle - 180f);
-                var controlEndL = MathUtility.GetCircleXZPoint(controlEnd, radius, angle - 180f);
-
-                var tInterval = 1f / t;
-
-                for (float j = 0; j < t; j += tInterval) {
-                    var rPoint = Bezier.GetCubicBezierPoint(startR, controlStartR, controlEndR, endR, j);
-                    var lPoint = Bezier.GetCubicBezierPoint(startL, controlStartL, controlEndL, endL, j);
-                    
-                    points.Add(Tuple<Vector3, Vector3>.CreateTuple(lPoint, rPoint));
-                }
-
-                vertices = points.ToArray();
-
-                GenerateTriangles();
-            }
-            
+            vertices = bezier.GetCubicBezierPoints(segments, width);
         }
 
         private void GenerateTriangles() {

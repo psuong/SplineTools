@@ -125,13 +125,7 @@ namespace Curves.EditorTools {
                 var size = points.arraySize;
 
                 for (int i = 1; i < size; i++) {
-                    var start = points.GetArrayElementAtIndex(i - 1);
-                    var end = points.GetArrayElementAtIndex(i);
-
-                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
-                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
-
-                    var pts = bezier.GetCubicBezierPoints(100);
+                    var pts = bezier.GetCubicBezierPoints(20);
                     bezierPoints.AddRange(pts);
                 }
 
