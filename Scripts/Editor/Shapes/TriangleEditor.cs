@@ -8,10 +8,12 @@ namespace Curves.EditorTools {
 
         private const float HandleSize = 0.015f;
 
+#pragma warning disable 414
         private SerializedProperty vertices;
         private SerializedProperty normals;
         private SerializedProperty uvs;
         private SerializedProperty triangleIndices;
+#pragma warning restore 414
 
         private TriangleMesh triangle;
 

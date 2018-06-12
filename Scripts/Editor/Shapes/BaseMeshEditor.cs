@@ -6,6 +6,7 @@ namespace Curves.EditorTools {
     public delegate void SceneHandler();
     public delegate void InspectorHandler();
     public delegate void ChangeHandler();
+    public delegate void UndoHandler();
 
     [CustomEditor(typeof(BaseMesh), true)]
     public class BaseMeshEditor : Editor {
@@ -48,9 +49,7 @@ namespace Curves.EditorTools {
                     onInspectorCallback();
                 }
 
-                if (GUILayout.Button("Generate Mesh")) {
-                    meshTool.GenerateMesh();
-                }
+                DrawMeshGenerationButton();
 
                 if (changeCheck.changed) {
                     if (onChangeCallback != null) {
@@ -58,6 +57,18 @@ namespace Curves.EditorTools {
                     }
                     serializedObject.ApplyModifiedProperties();
                 }
+            }
+        }
+
+        protected virtual void RegenerateMesh() {
+            if (meshTool) {
+                meshTool.GenerateMesh();
+            }
+        }
+
+        protected void DrawMeshGenerationButton() {
+            if (GUILayout.Button(new GUIContent("Generate Mesh", "Creates a mesh and assigns it to the MeshFilter."))) {
+                meshTool.GenerateMesh();
             }
         }
     }

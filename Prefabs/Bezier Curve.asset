@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Name: Bezier Curve
   m_EditorClassIdentifier: 
   points:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 10}
+  - {x: 4.9160156, y: 0, z: -14.750732}
+  - {x: 1.3027344, y: 0, z: 9.927734}
   controlPoints:
-  - {x: -3, y: 0, z: 2.5}
-  - {x: 2.5, y: 0, z: 7.5}
+  - {x: -8.724609, y: 0, z: -4.138672}
+  - {x: 1.5429688, y: 0, z: 3.296875}
