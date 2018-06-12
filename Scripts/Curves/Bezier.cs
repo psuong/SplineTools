@@ -21,7 +21,7 @@ namespace Curves {
         /// <param name="segments">How many line segments should be generated in the spline?</param>
         /// <returns>An array of points.</returns>
         public Vector3[] GetCubicBezierPoints(int segments) {
-            var points = new List<Vector3>();
+            var bezierPoints = new Vector3[segments + 1];
             var size = this.points.Length;
 
             for (int i = 1; i < size; i++) {
@@ -34,10 +34,10 @@ namespace Curves {
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float)t) / ((float)segments);
                     var point = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
-                    points.Add(point);
+                    bezierPoints[t] = point;
                 }
             }
-            return points.ToArray();
+            return bezierPoints;
         }
         
         /// <summary>
@@ -47,7 +47,8 @@ namespace Curves {
         /// <param name="width">What is the width of the bezier?</param>
         /// <returns>An array of points defining a bezier</returns>
         public Tuple<Vector3, Vector3>[] GetCubicBezierPoints(int segments, float width) {
-            var bezierPoints = new List<Tuple<Vector3, Vector3>>();
+            var bezierPoints = new Tuple<Vector3, Vector3>[segments + 1];
+            
             var pSize = points.Length;
 
             for (int i = 1; i < pSize; i++) {
@@ -60,17 +61,17 @@ namespace Curves {
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float)t) / ((float)segments);
 
-                    var point = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
+                    var lhs = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
                     var tangent = Bezier.GetTangent(start, controlStart, controlEnd, end, progress);
                     var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
 
-                    var right = point + (binormal * width);
+                    var rhs = lhs + (binormal * width);
 
-                    var pair = Tuple<Vector3, Vector3>.CreateTuple(point, right);
-                    bezierPoints.Add(pair);
+                    var pair = Tuple<Vector3, Vector3>.CreateTuple(rhs, lhs);
+                    bezierPoints[t] = pair;
                 }
             }
-            return bezierPoints.ToArray();
+            return bezierPoints;   
         }
         
         /// <summary>
