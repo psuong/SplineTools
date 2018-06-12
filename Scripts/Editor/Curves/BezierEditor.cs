@@ -83,8 +83,20 @@ namespace Curves.EditorTools {
         }
 
         private void AddPointListCallback(ReorderableList list) {
-            points.arraySize += 1;
+            var cSize = controlPoints.arraySize;
+            var pSize = points.arraySize;
+
+            var cPoint = controlPoints.GetArrayElementAtIndex(cSize - 1).vector3Value;
+            var pPoint = points.GetArrayElementAtIndex(pSize - 1).vector3Value;
+
+            points.arraySize++;
             controlPoints.arraySize += 2;
+
+            var factor = 5;
+            
+            points.GetArrayElementAtIndex(pSize).vector3Value = pPoint + factor *  new Vector3(1, 0, 1);
+            controlPoints.GetArrayElementAtIndex(cSize).vector3Value = cPoint + factor *  new Vector3(1, 0, 1);
+            controlPoints.GetArrayElementAtIndex(cSize + 1).vector3Value = cPoint + 2 * factor * new Vector3(1, 0, 1);
         }
 
         private void RemovePointsListCallback(ReorderableList list) {
@@ -121,22 +133,26 @@ namespace Curves.EditorTools {
 
         private void DrawCubicBezierCurve(Color bezierColor) {
             try {
-                var bezierPoints = new List<Vector3>();
+                // var bezierPoints = new List<Vector3>();
                 var size = points.arraySize;
-
-                for (int i = 1; i < size; i++) {
-                    var pts = bezier.GetCubicBezierPoints(20);
-                    bezierPoints.AddRange(pts);
-                }
 
                 var trs = transformData.TRS;
 
-                Handles.color = Color.red;
-                for (int i = 1; i < bezierPoints.Count; i += 2) {
-                    var start = trs.MultiplyPoint3x4(bezierPoints[i - 1]);
-                    var end = trs.MultiplyPoint3x4(bezierPoints[i]);
+                for (int i = 1; i < size; i++) {
+                    var start = points.GetArrayElementAtIndex(i - 1).vector3Value;
+                    var end = points.GetArrayElementAtIndex(i).vector3Value;
 
-                    Handles.DrawLine(start, end);
+                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i).vector3Value;
+                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1)).vector3Value;
+                    
+                    Handles.DrawBezier(
+                        trs.MultiplyPoint3x4(start),
+                        trs.MultiplyPoint3x4(end),
+                        trs.MultiplyPoint3x4(controlStart),
+                        trs.MultiplyPoint3x4(controlEnd),
+                        bezierColor,
+                        null,
+                        HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
                 }
             } catch (System.NullReferenceException) {}
         }

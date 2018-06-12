@@ -22,11 +22,13 @@ namespace Curves {
         /// <returns>An array of points.</returns>
         public Vector3[] GetCubicBezierPoints(int segments) {
             var bezierPoints = new Vector3[segments + 1];
-            var size = this.points.Length;
+            var size = points.Length;
+
+            Debug.LogErrorFormat("Size: {0}", size);
 
             for (int i = 1; i < size; i++) {
-                var start = this.points[i - 1];
-                var end = this.points[i];
+                var start = points[i - 1];
+                var end = points[i];
 
                 var controlStart = controlPoints[i == 1 ? 0 : i];
                 var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
@@ -47,6 +49,7 @@ namespace Curves {
         /// <param name="width">What is the width of the bezier?</param>
         /// <returns>An array of points defining a bezier</returns>
         public Tuple<Vector3, Vector3>[] GetCubicBezierPoints(int segments, float width) {
+            Debug.LogWarningFormat("Size: {0}", segments + 1);
             var bezierPoints = new Tuple<Vector3, Vector3>[segments + 1];
             
             var pSize = points.Length;

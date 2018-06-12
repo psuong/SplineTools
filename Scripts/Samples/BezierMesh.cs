@@ -1,8 +1,14 @@
 ﻿using CommonStructures;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
+
+    /**
+     * 2 splines, 10 segments per spline.
+     * 3 bezier points
+     */
 
     public class BezierMesh : BaseMesh {
 
@@ -35,29 +41,17 @@ namespace Curves {
         }
 #endif
         private void GeneratePoints() {
-            vertices = bezier.GetCubicBezierPoints(segments, width);
+            var size = segments * bezier.points.Length - 1;
+            vertices = bezier.GetCubicBezierPoints(size, width);
         }
         
-        /*
-        private void GenerateTriangles() {
-            triangles = new int[vertices.Length * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < vertices.Length; y++, vi++) {
-                for (int x = 0; x < resolution; x++, ti += 6, vi++) {
-                    triangles[ti] = vi;
-                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
-                    triangles[ti + 5] = vi + resolution + 2; 
-                }
-            }
-        }
-        */
+        private void GenerateTriangles(int splineCount) {
+            triangles = new int[segments * resolution * 6 * splineCount];
+            var size = splineCount * segments;
+            
+            Debug.LogErrorFormat("Size: {0}, Triangles Size: {1}", size, triangles.Length);
 
-        /**
-         * Testing the mesh generation of a single row in a triangle.
-         */
-        private void GenerateTriangles(IList<Vector3> mVertices) {
-            triangles = new int[segments * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < segments; y++, vi++) {
+            for (int ti = 0, vi = 0, y = 0; y < splineCount; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
                     triangles[ti + 3] = triangles[ti + 2] = vi + 1;
@@ -83,8 +77,8 @@ namespace Curves {
                     mVertices.Add(pt);
                 }
             }
-
-            GenerateTriangles(mVertices);
+            Debug.LogFormat("Vertices Count: {0}", mVertices.Count);
+            GenerateTriangles(bezier.points.Length);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.SetVertices(mVertices);
