@@ -7,7 +7,7 @@ namespace Curves {
 
         // Bottom left, Bottom right, Top Left, Top Right
         [SerializeField, HideInInspector]
-        private Vector3[] points = { new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
+        private Vector3[] points = { new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(1, 0, 1) };
         [SerializeField, Tooltip("How refine should the mesh be? The higher the resolution the more vertices the mesh has.")]
         private int resolution = 1;
 
@@ -15,6 +15,9 @@ namespace Curves {
         private int[] triangles;
 
         public override void GenerateMesh() {
+            // TODO: Lerp the vertices to get each squad within the mesh.
+            // TODO: Calculate the binormal to get the second set of vertices.
+            // TODO: Define the number of segments
             vertices = new Vector3[(resolution + 1) * (resolution + 1)];
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
@@ -30,7 +33,7 @@ namespace Curves {
             for (int y = 0, i = 0; y <= resolution; y++) {
                 var startLeft = Vector3.Lerp(points[2], points[0], tVertical);
                 var endLeft = Vector3.Lerp(points[3], points[1], tVertical);
-                for (int x = 0; x <= resolution; x++, i++) {
+                for (int x = 0; x <= resolution; x++, i++) { 
                     var current = Vector3.Lerp(startLeft, endLeft, tHorizontal);
                     tHorizontal += tInterval;
                     vertices[i] = current;
@@ -44,8 +47,14 @@ namespace Curves {
             meshGenerator.AddVertices(vertices);
             meshGenerator.AddTriangle(triangles);
 
-            meshFilter.sharedMesh = meshGenerator.CreateMesh();
-            meshFilter.sharedMesh.RecalculateNormals();
+            var mesh = meshGenerator.CreateMesh();
+            mesh.name = name;
+
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            mesh.RecalculateTangents();
+
+            meshFilter.sharedMesh = mesh;
         }
 
         private void GenerateTriangles() {
@@ -58,7 +67,6 @@ namespace Curves {
                     triangles[ti + 5] = vi + resolution + 2; 
                 }
             }
-
         }
     }
 }

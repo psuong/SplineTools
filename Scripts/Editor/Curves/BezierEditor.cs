@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -13,9 +14,13 @@ namespace Curves.EditorTools {
 
         private ReorderableList pointsList;
         private ReorderableList controlPointsList;
+
+        private Bezier bezier;
     
         protected override void OnEnable() {
             base.OnEnable();
+
+            bezier = target as Bezier;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Bezier).name));
 
             points = serializedObject.FindProperty("points");
@@ -34,7 +39,8 @@ namespace Curves.EditorTools {
             controlPointsList.drawHeaderCallback = DrawControlPointHeader;
             controlPointsList.drawElementCallback = DrawControlPointElement;
             controlPointsList.elementHeightCallback = ElementHeight;
-        } 
+        }
+
         protected override void OnDisable() {
             base.OnDisable();
 
@@ -105,8 +111,9 @@ namespace Curves.EditorTools {
                     var point = trs.MultiplyPoint3x4(elem.vector3Value);
                     var snapSize = Vector3.one * HandleSize;
                     var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
 
+                    position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
                     elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
                 }
             } catch (System.NullReferenceException) {}
@@ -114,27 +121,47 @@ namespace Curves.EditorTools {
 
         private void DrawCubicBezierCurve(Color bezierColor) {
             try {
+                var bezierPoints = new List<Vector3>();
                 var size = points.arraySize;
 
                 for (int i = 1; i < size; i++) {
-                    var start = points.GetArrayElementAtIndex(i - 1);
-                    var end = points.GetArrayElementAtIndex(i);
+                    var pts = bezier.GetCubicBezierPoints(20);
+                    bezierPoints.AddRange(pts);
+                }
 
-                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i);
-                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1));
+                var trs = transformData.TRS;
 
-                    var trs = transformData.TRS;
+                Handles.color = Color.red;
+                for (int i = 1; i < bezierPoints.Count; i += 2) {
+                    var start = trs.MultiplyPoint3x4(bezierPoints[i - 1]);
+                    var end = trs.MultiplyPoint3x4(bezierPoints[i]);
 
-                    Handles.DrawBezier(
-                            trs.MultiplyPoint3x4(start.vector3Value), 
-                            trs.MultiplyPoint3x4(end.vector3Value), 
-                            trs.MultiplyPoint3x4(controlStart.vector3Value), 
-                            trs.MultiplyPoint3x4(controlEnd.vector3Value), 
-                            bezierColor,
-                            null, 
-                            HandleUtility.GetHandleSize(Vector3.one) * 0.75f);
+                    Handles.DrawLine(start, end);
                 }
             } catch (System.NullReferenceException) {}
+        }
+
+        private void DrawPoints(Vector3[] points) {
+            Handles.color = Color.green;
+            foreach (var point in points) {
+                var bPoint = transformData.TRS.MultiplyPoint3x4(point);
+                Handles.DrawSolidDisc(bPoint, Vector3.up, 0.2f);
+            }
+        }
+
+        private void SampleDirections(int segments) {
+            var pts = bezier.points;
+            var cPts = bezier.controlPoints;
+
+            var directions = Bezier.GetTangentsNormalised(segments, pts, cPts);
+
+            var trs = transformData.TRS;
+            Handles.color = Color.green;
+            foreach (var direction in directions) {
+                var start = trs.MultiplyPoint3x4(direction.item1);
+                var end = trs.MultiplyPoint3x4(direction.item1 + direction.item2);
+                Handles.DrawLine(start, end);
+            }
         }
 #endregion
 
@@ -146,8 +173,14 @@ namespace Curves.EditorTools {
                 DrawHandlePoints(controlPoints, Color.cyan);
                 DrawCubicBezierCurve(Color.red);
                 DrawTransformHandle();
-                serializedObject.ApplyModifiedProperties();
-                SaveTransformData();
+ 
+                SampleDirections(10);
+
+                if (changeCheck.changed) {
+                    serializedObject.ApplyModifiedProperties();
+                    SaveTransformData();
+                    SceneView.RepaintAll();
+                }
             }
         }
 
@@ -161,9 +194,9 @@ namespace Curves.EditorTools {
                 pointsList.DoLayoutList();
                 controlPointsList.DoLayoutList();
 
-                serializedObject.ApplyModifiedProperties();
-                SaveTransformData();
                 if (changeCheck.changed) {
+                    SaveTransformData();
+                    serializedObject.ApplyModifiedProperties();
                     SceneView.RepaintAll();
                 }
             }

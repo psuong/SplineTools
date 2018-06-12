@@ -10,10 +10,16 @@ namespace Curves {
      */
     public class TriangleMesh : BaseMesh {
 
-        public Vector3[] vertices;
-        public Vector3[] normals;
-        public Vector2[] uvs;
-        public int[] triangleIndices;
+#pragma warning disable 414
+        [SerializeField]
+        private Vector3[] vertices;
+        [SerializeField]
+        private Vector3[] normals;
+        [SerializeField]
+        private Vector2[] uvs;
+        [SerializeField]
+        private int[] triangleIndices;
+#pragma warning restore 414
 
         public override void GenerateMesh() {
             meshFilter = GetComponent<MeshFilter>();

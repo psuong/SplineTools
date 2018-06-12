@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Curves {
-public class MeshGenerator { 
+    public class MeshGenerator { 
         public IList<Vector3> Vertices {
             get {
                 return vertices.AsReadOnly();
@@ -22,7 +22,7 @@ public class MeshGenerator {
 
         private List<Vector3> vertices, normals;        // Store coordinates to generate all properties of the mesh
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
-        private List<int> triangles;                      // Store the triangles to generate the triangle
+        private List<int> triangles;                    // Store the triangles to generate the triangle
 
         public MeshGenerator() {
             vertices = new List<Vector3>();
@@ -30,7 +30,7 @@ public class MeshGenerator {
             uvs = new List<Vector2>();
             triangles = new List<int>();
         }
-        
+
         // TODO: Add the docStrings
         public void AddNormal(Vector3 normal) {
             normals.Add(normal);
@@ -40,7 +40,7 @@ public class MeshGenerator {
         public void AddVertex(Vector3 vertex) {
             vertices.Add(vertex);
         }
-        
+
         /// <summary>
         /// Adds all vertices to a list.
         /// </summary>
@@ -64,7 +64,7 @@ public class MeshGenerator {
         public void AddUVs(params Vector2[] uvs) {
             this.uvs.AddRange(uvs);
         }
-        
+
         /// <summary>
         /// Adds all indices of a triangle to a list.
         /// </summary>
@@ -91,7 +91,7 @@ public class MeshGenerator {
             normals.Clear();
             triangles.Clear();
         }
-        
+
         /// <summary>
         /// Creates a mesh with only the vertices and the triangles.
         /// </summary>
