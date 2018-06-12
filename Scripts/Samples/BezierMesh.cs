@@ -37,7 +37,8 @@ namespace Curves {
         private void GeneratePoints() {
             vertices = bezier.GetCubicBezierPoints(segments, width);
         }
-
+        
+        /*
         private void GenerateTriangles() {
             triangles = new int[vertices.Length * resolution * 6];
             for (int ti = 0, vi = 0, y = 0; y < vertices.Length; y++, vi++) {
@@ -49,40 +50,51 @@ namespace Curves {
                 }
             }
         }
+        */
+
+        /**
+         * Testing the mesh generation of a single row in a triangle.
+         */
+        private void GenerateTriangles(IList<Vector3> mVertices) {
+            triangles = new int[segments * resolution * 6];
+            for (int ti = 0, vi = 0, y = 0; y < segments; y++, vi++) {
+                for (int x = 0; x < resolution; x++, ti += 6, vi++) {
+                    triangles[ti] = vi;
+                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
+                    triangles[ti + 5] = vi + resolution + 2;
+                }
+            }
+        }
 
         public override void GenerateMesh() {
             GeneratePoints();
-            GenerateTriangles();
 
+            meshFilter = meshFilter?? GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 
-            var points = new List<Vector3>();
+            var mVertices = new List<Vector3>();
 
-            var size = vertices.Length;
-
-            var tInterval = 1f / resolution;
-
-            var tHorizontal = 0f;
-
-            for (int y = 0; y < size; y++) {
-                var vertex = vertices[0];
-                var bottomLeft = vertex.item1;
-                var bottomRight = vertex.item2;
-                for (var x = 0; x < resolution; x++) {
-                    var current = Vector3.Lerp(bottomLeft, bottomRight, tHorizontal);
-                    tHorizontal += tInterval;
-                    points.Add(current);
+            foreach (var tuple in vertices) {
+                for (int t = 0; t <= resolution; t++) {
+                    var progress = ((float) t) / ((float) resolution);
+                    var pt = Vector3.Lerp(tuple.item1, tuple.item2, progress);
+                    mVertices.Add(pt);
                 }
             }
-            meshGenerator.AddVertices(points.ToArray());
-            meshGenerator.AddTriangle(triangles);
+
+            GenerateTriangles(mVertices);
 
             var mesh = meshGenerator.CreateMesh();
+            mesh.SetVertices(mVertices);
+            mesh.triangles = triangles;
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
+            
+            meshFilter.mesh = mesh;
         }
     }
 }
