@@ -49,18 +49,19 @@ namespace Curves {
         /// <param name="width">What is the width of the bezier?</param>
         /// <returns>An array of points defining a bezier</returns>
         public Tuple<Vector3, Vector3>[] GetCubicBezierPoints(int segments, float width) {
-            var bezierPoints = new List<Tuple<Vector3, Vector3>>();
-
             var pSize = points.Length;
+            var size = (segments + 1) * (pSize - 1);
+            var cubicPoints = new Tuple<Vector3, Vector3>[size];
+            var index = 0;
 
             for (int i = 1; i < pSize; i++) {
                 var start = points[i - 1];
                 var end = points[i];
 
-                var index = i * 2;
+                var cIndex = i * 2;
 
-                var controlStart = controlPoints[index - 2];
-                var controlEnd = controlPoints[index - 1];
+                var controlStart = controlPoints[cIndex - 2];
+                var controlEnd = controlPoints[cIndex - 1];
 
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float)t) / ((float)segments);
@@ -72,10 +73,11 @@ namespace Curves {
                     var rhs = lhs + (binormal * width);
 
                     var pair = Tuple<Vector3, Vector3>.CreateTuple(rhs, lhs);
-                    bezierPoints.Add(pair);
+                    cubicPoints[index] = pair;
+                    index++;
                 }
             }
-            return bezierPoints.ToArray();
+            return cubicPoints;
         }
         
         /// <summary>

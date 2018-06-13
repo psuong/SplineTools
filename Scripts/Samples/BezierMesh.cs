@@ -1,14 +1,8 @@
 ﻿using CommonStructures;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
-
-    /**
-     * 2 splines, 10 segments per spline.
-     * 3 bezier points
-     */
 
     public class BezierMesh : BaseMesh {
 
@@ -47,15 +41,11 @@ namespace Curves {
 #endif
         private void GeneratePoints() {
             vertices = bezier.GetCubicBezierPoints(segments, width);
-            Debug.LogWarningFormat("Actual Size: {0}, Computed: {1}", vertices.Length, (segments + 1) * (bezier.points.Length - 1));
         }
         
         private void GenerateTriangles(int splineCount) {
             triangles = new int[segments * resolution * 6 * splineCount];
-            var size = splineCount * segments;
             
-            Debug.LogErrorFormat("Size: {0}, Triangles Size: {1}", size, triangles.Length);
-
             for (int ti = 0, vi = 0, y = 0; y < splineCount; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
