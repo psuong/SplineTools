@@ -30,7 +30,12 @@ namespace Curves {
             Gizmos.color = Color.green;
 
             GeneratePoints();
-            
+
+            foreach (var vertex in vertices) {
+                Gizmos.DrawSphere(vertex.item1, 0.5f);
+                Gizmos.DrawSphere(vertex.item2, 0.5f);
+            }
+
             for (int i = 1; i < vertices.Length; i++) {
                 var start = vertices[i - 1];
                 var end = vertices[i];
@@ -41,8 +46,8 @@ namespace Curves {
         }
 #endif
         private void GeneratePoints() {
-            var size = segments * bezier.points.Length - 1;
-            vertices = bezier.GetCubicBezierPoints(size, width);
+            vertices = bezier.GetCubicBezierPoints(segments, width);
+            Debug.LogWarningFormat("Actual Size: {0}, Computed: {1}", vertices.Length, (segments + 1) * (bezier.points.Length - 1));
         }
         
         private void GenerateTriangles(int splineCount) {
@@ -64,7 +69,7 @@ namespace Curves {
         public override void GenerateMesh() {
             GeneratePoints();
 
-            meshFilter = meshFilter?? GetComponent<MeshFilter>();
+            meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 

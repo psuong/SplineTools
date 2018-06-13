@@ -141,9 +141,10 @@ namespace Curves.EditorTools {
                 for (int i = 1; i < size; i++) {
                     var start = points.GetArrayElementAtIndex(i - 1).vector3Value;
                     var end = points.GetArrayElementAtIndex(i).vector3Value;
+                    var index = i * 2;
 
-                    var controlStart = controlPoints.GetArrayElementAtIndex(i == 1 ? 0 : i).vector3Value;
-                    var controlEnd = controlPoints.GetArrayElementAtIndex(i == 1 ? i : i + (i - 1)).vector3Value;
+                    var controlStart = controlPoints.GetArrayElementAtIndex(index - 2).vector3Value;
+                    var controlEnd = controlPoints.GetArrayElementAtIndex(index - 1).vector3Value;
                     
                     Handles.DrawBezier(
                         trs.MultiplyPoint3x4(start),
