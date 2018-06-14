@@ -14,6 +14,12 @@ namespace Curves {
         private int resolution = 1;
         [SerializeField, Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
         private int segments = 10;
+#if UNITY_EDITOR
+        [SerializeField]
+        private bool drawGizmos;
+        [SerializeField]
+        private Color gizmoColor = Color.green;
+#endif
 
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
@@ -21,21 +27,22 @@ namespace Curves {
 
 #if UNITY_EDITOR
         private void OnDrawGizmos() {
-            Gizmos.color = Color.green;
+            if (drawGizmos) {
+                Gizmos.color = gizmoColor;
+                GeneratePoints();
+                
+                foreach (var vertex in vertices) {
+                    Gizmos.DrawSphere(vertex.item1, 0.5f);
+                    Gizmos.DrawSphere(vertex.item2, 0.5f);
+                }
+                
+                for (int i = 1; i < vertices.Length; i++) {
+                    var start = vertices[i - 1];
+                    var end = vertices[i];
 
-            GeneratePoints();
-
-            foreach (var vertex in vertices) {
-                Gizmos.DrawSphere(vertex.item1, 0.5f);
-                Gizmos.DrawSphere(vertex.item2, 0.5f);
-            }
-
-            for (int i = 1; i < vertices.Length; i++) {
-                var start = vertices[i - 1];
-                var end = vertices[i];
-
-                Gizmos.DrawLine(start.item1, end.item1);
-                Gizmos.DrawLine(start.item2, end.item2);
+                    Gizmos.DrawLine(start.item1, end.item1);
+                    Gizmos.DrawLine(start.item2, end.item2);
+                }
             }
         }
 #endif
@@ -44,22 +51,28 @@ namespace Curves {
         }
         
         private void GenerateTriangles(int splineCount) {
-            triangles = new int[segments * resolution * 6 * splineCount];
-            
-            for (int ti = 0, vi = 0, y = 0; y < splineCount; y++, vi++) {
+            // triangles = new int[segments * resolution * 6];
+            var mTriangles = new List<int>();
+
+            Debug.LogFormat("Spline Count: {0}", splineCount);
+            for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
-                    triangles[ti] = vi;
-                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
-                    triangles[ti + 5] = vi + resolution + 2;
+                    mTriangles.Add(vi);
+                    mTriangles.Add(vi + resolution + 1);
+                    mTriangles.Add(vi + 1);
+                    mTriangles.Add(vi + 1);
+                    mTriangles.Add(vi + resolution + 1);
+                    mTriangles.Add(vi + resolution + 2);
                 }
             }
+
+            triangles = mTriangles.ToArray();
         }
 
         public override void GenerateMesh() {
             GeneratePoints();
 
-            meshFilter = GetComponent<MeshFilter>();
+            meshFilter = meshFilter?? GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 
