@@ -38,13 +38,24 @@ namespace Curves.EditorTools {
                 }
                 
                 if (changeCheck.changed) {
+                    bezierProperty.serializedObject.ApplyModifiedProperties();
                     serializedObject.ApplyModifiedProperties();
                 }
             }
         }
 
         private void DrawSceneViewEditor() {
-            // TODO: Draw the scene view of the scriptable.
+            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                // TODO: Draw the scene view of the scriptable.
+                if (foldoutState) {
+                    
+                }
+
+                if (changeCheck.changed) {
+                    serializedObject.ApplyModifiedProperties();
+                    bezierProperty.serializedObject.ApplyModifiedProperties();
+                }
+            }
         }
 
         private void RedrawMesh() {
