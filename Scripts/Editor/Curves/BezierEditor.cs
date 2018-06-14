@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -133,7 +132,6 @@ namespace Curves.EditorTools {
 
         private void DrawCubicBezierCurve(Color bezierColor) {
             try {
-                // var bezierPoints = new List<Vector3>();
                 var size = points.arraySize;
 
                 var trs = transformData.TRS;

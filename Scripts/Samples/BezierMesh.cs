@@ -20,7 +20,6 @@ namespace Curves {
         [SerializeField]
         private Color gizmoColor = Color.green;
 #endif
-
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
@@ -51,10 +50,8 @@ namespace Curves {
         }
         
         private void GenerateTriangles(int splineCount) {
-            // triangles = new int[segments * resolution * 6];
             var mTriangles = new List<int>();
 
-            Debug.LogFormat("Spline Count: {0}", splineCount);
             for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     mTriangles.Add(vi);
@@ -85,7 +82,6 @@ namespace Curves {
                     mVertices.Add(pt);
                 }
             }
-            Debug.LogFormat("Vertices Count: {0}", mVertices.Count);
             GenerateTriangles(bezier.points.Length);
 
             var mesh = meshGenerator.CreateMesh();

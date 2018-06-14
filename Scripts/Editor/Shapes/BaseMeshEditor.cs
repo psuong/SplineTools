@@ -30,6 +30,10 @@ namespace Curves.EditorTools {
                     onSceneCallback();
                 }
 
+                if (onSceneCallback != null) {
+                    onSceneCallback();
+                }
+
                 if (changeCheck.changed) {
                     if (onChangeCallback != null) {
                         onChangeCallback();
