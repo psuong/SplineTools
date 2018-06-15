@@ -6,19 +6,15 @@ namespace Curves {
 
     public class BezierMesh : BaseMesh {
 
-        [SerializeField]
-        private Bezier bezier;
-        [SerializeField, Tooltip("How wide are the curves away from each other?")]
-        private float width = 1f;
-        [SerializeField]
-        private int resolution = 1;
-        [SerializeField, Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
-        private int segments = 10;
+        public Bezier bezier;
+        [Tooltip("How wide are the curves away from each other?")]
+        public float width = 1f;
+        public int resolution = 1;
+        [Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
+        public int segments = 10;
 #if UNITY_EDITOR
-        [SerializeField]
-        private bool drawGizmos;
-        [SerializeField]
-        private Color gizmoColor = Color.green;
+        public bool drawGizmos;
+        public Color gizmoColor = Color.green;
 #endif
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
@@ -46,7 +42,9 @@ namespace Curves {
         }
 #endif
         private void GeneratePoints() {
-            vertices = bezier.GetCubicBezierPoints(segments, width);
+            try {
+                vertices = bezier.GetCubicBezierPoints(segments, width);
+            } catch (System.NullReferenceException) { }
         }
         
         private void GenerateTriangles(int splineCount) {
@@ -69,7 +67,7 @@ namespace Curves {
         public override void GenerateMesh() {
             GeneratePoints();
 
-            meshFilter = meshFilter?? GetComponent<MeshFilter>();
+            meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 

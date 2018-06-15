@@ -24,8 +24,6 @@ namespace Curves {
             var bezierPoints = new Vector3[segments + 1];
             var size = points.Length;
 
-            Debug.LogErrorFormat("Size: {0}", size);
-
             for (int i = 1; i < size; i++) {
                 var start = points[i - 1];
                 var end = points[i];

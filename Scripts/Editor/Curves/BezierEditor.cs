@@ -21,7 +21,7 @@ namespace Curves.EditorTools {
                 base.OnEnable();
 
                 bezier = target as Bezier;
-                jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", (target as Bezier).name));
+                jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 
                 points = serializedObject.FindProperty("points");
                 controlPoints = serializedObject.FindProperty("controlPoints");
@@ -112,6 +112,25 @@ namespace Curves.EditorTools {
 #region Curve Rendering
             // TODO: Add DocStrings
             // TODO: Add more utility functions
+            public static void DrawHandlePoints(SerializedProperty property, Color handlesColor, Transform transform) {
+                try {
+                    var size = property.arraySize;
+                    Handles.color = handlesColor;
+
+                    for(int i = 0; i < size; i++) {
+                        var elem = property.GetArrayElementAtIndex(i);
+
+                        var point = transform.InverseTransformPoint(elem.vector3Value);
+                        var snapSize = Vector3.one * HandleSize;
+                        var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
+                        elem.vector3Value = transform.TransformPoint(position);
+
+                        position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
+                        elem.vector3Value = transform.TransformPoint(position);
+                    }
+                } catch (System.NullReferenceException) {}                
+            }
+
             public static void DrawHandlePoints(SerializedProperty property, Color handlesColor, TransformData transformData) {
                 try {
                     var size = property.arraySize;
