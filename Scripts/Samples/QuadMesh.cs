@@ -15,9 +15,6 @@ namespace Curves {
         private int[] triangles;
 
         public override void GenerateMesh() {
-            // TODO: Lerp the vertices to get each squad within the mesh.
-            // TODO: Calculate the binormal to get the second set of vertices.
-            // TODO: Define the number of segments
             vertices = new Vector3[(resolution + 1) * (resolution + 1)];
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
@@ -43,7 +40,7 @@ namespace Curves {
             }
 
             GenerateTriangles();
-            var uvs = GenerateUvs(vertices.Length, resolution, resolution);
+            var uvs = MeshGenerator.GenerateUvs(vertices.Length, resolution, resolution);
 
             meshGenerator.AddVertices(vertices);
             meshGenerator.AddTriangle(triangles);
@@ -69,17 +66,6 @@ namespace Curves {
                     triangles[ti + 5] = vi + resolution + 2; 
                 }
             }
-        }
-
-        private Vector2[] GenerateUvs(int size, int xSegments, int ySegments) {
-            var uvs = new Vector2[size];
-
-            for (int y = 0, i = 0; y <= ySegments; y++) {
-                for (int x = 0; x <= xSegments; x++, i++) {
-                    uvs[i] = new Vector2((float)x / xSegments, (float)y / ySegments);
-                }
-            }
-            return uvs;
         }
     }
 }
