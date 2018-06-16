@@ -6,71 +6,68 @@ namespace Curves {
 
     public class BezierMesh : BaseMesh {
 
-        [SerializeField]
-        private Bezier bezier;
-        [SerializeField, Tooltip("How wide are the curves away from each other?")]
-        private float width = 1f;
-        [SerializeField]
-        private int resolution = 1;
-        [SerializeField, Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
-        private int segments = 10;
-
+        public Bezier bezier;
+        [Tooltip("How wide are the curves away from each other?")]
+        public float width = 1f;
+        public int resolution = 1;
+        [Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
+        public int segments = 10;
+#if UNITY_EDITOR
+        public bool drawGizmos;
+        public Color gizmoColor = Color.green;
+#endif
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
 
 #if UNITY_EDITOR
         private void OnDrawGizmos() {
-            Gizmos.color = Color.green;
+            if (drawGizmos) {
+                Gizmos.color = gizmoColor;
+                GeneratePoints();
+                
+                foreach (var vertex in vertices) {
+                    Gizmos.DrawSphere(vertex.item1, 0.5f);
+                    Gizmos.DrawSphere(vertex.item2, 0.5f);
+                }
+                
+                for (int i = 1; i < vertices.Length; i++) {
+                    var start = vertices[i - 1];
+                    var end = vertices[i];
 
-            GeneratePoints();
-            
-            for (int i = 1; i < vertices.Length; i++) {
-                var start = vertices[i - 1];
-                var end = vertices[i];
-
-                Gizmos.DrawLine(start.item1, end.item1);
-                Gizmos.DrawLine(start.item2, end.item2);
+                    Gizmos.DrawLine(start.item1, end.item1);
+                    Gizmos.DrawLine(start.item2, end.item2);
+                }
             }
         }
 #endif
         private void GeneratePoints() {
-            vertices = bezier.GetCubicBezierPoints(segments, width);
+            try {
+                vertices = bezier.GetCubicBezierPoints(segments, width);
+            } catch (System.NullReferenceException) { }
         }
         
-        /*
-        private void GenerateTriangles() {
-            triangles = new int[vertices.Length * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < vertices.Length; y++, vi++) {
-                for (int x = 0; x < resolution; x++, ti += 6, vi++) {
-                    triangles[ti] = vi;
-                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
-                    triangles[ti + 5] = vi + resolution + 2; 
-                }
-            }
-        }
-        */
+        private void GenerateTriangles(int splineCount) {
+            var mTriangles = new List<int>();
 
-        /**
-         * Testing the mesh generation of a single row in a triangle.
-         */
-        private void GenerateTriangles(IList<Vector3> mVertices) {
-            triangles = new int[segments * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < segments; y++, vi++) {
+            for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
-                    triangles[ti] = vi;
-                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
-                    triangles[ti + 5] = vi + resolution + 2;
+                    mTriangles.Add(vi);
+                    mTriangles.Add(vi + resolution + 1);
+                    mTriangles.Add(vi + 1);
+                    mTriangles.Add(vi + 1);
+                    mTriangles.Add(vi + resolution + 1);
+                    mTriangles.Add(vi + resolution + 2);
                 }
             }
+
+            triangles = mTriangles.ToArray();
         }
 
         public override void GenerateMesh() {
             GeneratePoints();
 
-            meshFilter = meshFilter?? GetComponent<MeshFilter>();
+            meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 
@@ -83,8 +80,7 @@ namespace Curves {
                     mVertices.Add(pt);
                 }
             }
-
-            GenerateTriangles(mVertices);
+            GenerateTriangles(bezier.points.Length);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.SetVertices(mVertices);
