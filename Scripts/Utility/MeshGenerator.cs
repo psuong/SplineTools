@@ -17,13 +17,50 @@ namespace Curves {
 
         public IList<Vector2> UVs {
             get {
-                return uvs.AsReadOnly(); }
+                return uvs.AsReadOnly();
+            }
         }
 
         private List<Vector3> vertices, normals;        // Store coordinates to generate all properties of the mesh
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
         private List<int> triangles;                    // Store the triangles to generate the triangle
-
+            
+        /// <summary>
+        /// A utlity function to generate the uv coordinates of a mesh.
+        /// </summary>
+        /// <param name="size">The size of a series of vertices.</param>
+        /// <param name="xSize">The number of segments along the x axis.</param>
+        /// <param name="ySize">The number of segments along the y axis.</param>
+        /// <returns>An array of the computed uv coordinates.</returns>
+        public static Vector2[] GenerateUvs(int size, int xSize, int ySize) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    uvs[i] = new Vector2((float) x / xSize, (float) y / ySize);
+                }
+            }
+            return uvs;
+        }
+        
+        /// <summary>
+        /// A utility function to generate the uv coordinates equidistance no matter the mesh size.
+        /// </summary>
+        /// <param name="size">The size of a series of vertices.</param>
+        /// <param name="xSize">The number of segments along the x axis.</param>
+        /// <param name="ySize">The number of segments along the y axis.</param>
+        /// <param name="splineDistance">The total distance of a spline.</param>
+        /// <returns>An array of uv coordinates with equidistant v coordinates.</returns>
+        public static Vector2[] GenerateUvs(int size, int xSize, int ySize, float splineDistance) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    // Generate the (UV) coordinate
+                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * splineDistance);
+                }
+            }
+            return uvs;
+        }
+    
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
@@ -31,12 +68,18 @@ namespace Curves {
             triangles = new List<int>();
         }
 
-        // TODO: Add the docStrings
+        /// <summary>
+        /// Stores a normal coordinate into the mesh generator.
+        /// </summary>
+        /// <param name="normal">A normal to the vertex.</param>
         public void AddNormal(Vector3 normal) {
             normals.Add(normal);
         }
-
-        // TODO: Add the docStrings
+        
+        /// <summary>
+        /// Stores a vertex into the mesh generator.
+        /// </summary>
+        /// <param name="vertex">A vertex on the mesh.</param>
         public void AddVertex(Vector3 vertex) {
             vertices.Add(vertex);
         }
@@ -129,5 +172,6 @@ namespace Curves {
 
             return mesh;
         }
+
     }
 }
