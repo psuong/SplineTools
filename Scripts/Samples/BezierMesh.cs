@@ -81,12 +81,19 @@ namespace Curves {
                     mVertices.Add(pt);
                 }
             }
+
             GenerateTriangles(bezier.points.Length);
+
+            var spline = bezier.GetCubicBezierPoints(segments);
+            var totalDistance = Bezier.GetCubicBezierDistance(spline);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.SetVertices(mVertices);
             mesh.triangles = triangles;
-            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, segments);
+
+            // TODO: Get the U-Span
+            
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, segments, totalDistance);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();

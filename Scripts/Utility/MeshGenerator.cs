@@ -41,6 +41,25 @@ namespace Curves {
             }
             return uvs;
         }
+        
+        /// <summary>
+        /// A utility function to generate the uv coordinates equidistance no matter the mesh size.
+        /// </summary>
+        /// <param name="size">The size of a series of vertices.</param>
+        /// <param name="xSize">The number of segments along the x axis.</param>
+        /// <param name="ySize">The number of segments along the y axis.</param>
+        /// <param name="splineDistance">The total distance of a spline.</param>
+        /// <returns>An array of uv coordinates with equidistant v coordinates.</returns>
+        public static Vector2[] GenerateUvs(int size, int xSize, int ySize, float splineDistance) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    // Generate the (UV) coordinate
+                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * splineDistance);
+                }
+            }
+            return uvs;
+        }
     
         public MeshGenerator() {
             vertices = new List<Vector3>();
