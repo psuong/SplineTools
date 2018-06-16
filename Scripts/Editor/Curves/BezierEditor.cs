@@ -110,23 +110,21 @@ namespace Curves.EditorTools {
 #endregion
 
 #region Curve Rendering
-            // TODO: Add DocStrings
-            // TODO: Add more utility functions
-            public static void DrawHandlePoints(SerializedProperty property, Color handlesColor, Transform transform) {
+            public static void DrawHandlePoints(Vector3[] points, Color handlesColor, Transform transform) {
                 try {
-                    var size = property.arraySize;
+                    var size = points.Length;
                     Handles.color = handlesColor;
 
                     for(int i = 0; i < size; i++) {
-                        var elem = property.GetArrayElementAtIndex(i);
+                        var elem = points[i];
 
-                        var point = transform.InverseTransformPoint(elem.vector3Value);
+                        var point = transform.InverseTransformPoint(elem);
                         var snapSize = Vector3.one * HandleSize;
                         var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                        elem.vector3Value = transform.TransformPoint(position);
+                        points[i] = transform.TransformPoint(position);
 
                         position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
-                        elem.vector3Value = transform.TransformPoint(position);
+                        points[i] = transform.InverseTransformPoint(position);
                     }
                 } catch (System.NullReferenceException) {}                
             }
