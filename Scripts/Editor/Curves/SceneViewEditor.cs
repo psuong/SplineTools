@@ -4,7 +4,11 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
+    public delegate bool TransformDataHandler();
+
     public abstract class SceneViewEditor : Editor {
+
+        public TransformDataHandler onDrawTransformCallback;
 
         protected TransformData transformData;
         protected string jsonDirectory;

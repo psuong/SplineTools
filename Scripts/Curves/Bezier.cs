@@ -22,11 +22,11 @@ namespace Curves {
         /// <returns>An array of points.</returns>
         public Vector3[] GetCubicBezierPoints(int segments) {
             var bezierPoints = new Vector3[segments + 1];
-            var size = this.points.Length;
+            var size = points.Length;
 
             for (int i = 1; i < size; i++) {
-                var start = this.points[i - 1];
-                var end = this.points[i];
+                var start = points[i - 1];
+                var end = points[i];
 
                 var controlStart = controlPoints[i == 1 ? 0 : i];
                 var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
@@ -47,16 +47,19 @@ namespace Curves {
         /// <param name="width">What is the width of the bezier?</param>
         /// <returns>An array of points defining a bezier</returns>
         public Tuple<Vector3, Vector3>[] GetCubicBezierPoints(int segments, float width) {
-            var bezierPoints = new Tuple<Vector3, Vector3>[segments + 1];
-            
             var pSize = points.Length;
+            var size = (segments + 1) * (pSize - 1);
+            var cubicPoints = new Tuple<Vector3, Vector3>[size];
+            var index = 0;
 
             for (int i = 1; i < pSize; i++) {
                 var start = points[i - 1];
                 var end = points[i];
 
-                var controlStart = controlPoints[i == 1 ? 0 : i];
-                var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
+                var cIndex = i * 2;
+
+                var controlStart = controlPoints[cIndex - 2];
+                var controlEnd = controlPoints[cIndex - 1];
 
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float)t) / ((float)segments);
@@ -68,10 +71,11 @@ namespace Curves {
                     var rhs = lhs + (binormal * width);
 
                     var pair = Tuple<Vector3, Vector3>.CreateTuple(rhs, lhs);
-                    bezierPoints[t] = pair;
+                    cubicPoints[index] = pair;
+                    index++;
                 }
             }
-            return bezierPoints;   
+            return cubicPoints;
         }
         
         /// <summary>
@@ -144,8 +148,10 @@ namespace Curves {
                 var start = points[i - 1];
                 var end = points[i];
 
-                var cStart = cPoints[i == 1 ? 0 : i];
-                var cEnd = cPoints[i == 1 ? i : i + (i - 1)];
+                var index = i * 2;
+
+                var cStart = cPoints[index - 2];
+                var cEnd = cPoints[index - 1];
                 for (int t = 0; t <= lineStep; t++) {
                     float progress = ((float)t) / ((float)lineStep);
 

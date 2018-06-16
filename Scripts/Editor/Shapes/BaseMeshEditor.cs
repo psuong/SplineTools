@@ -10,7 +10,7 @@ namespace Curves.EditorTools {
 
     [CustomEditor(typeof(BaseMesh), true)]
     public class BaseMeshEditor : Editor {
-        
+
         protected BaseMesh meshTool;
         protected ChangeHandler onChangeCallback;
         protected InspectorHandler onInspectorCallback;
@@ -25,10 +25,12 @@ namespace Curves.EditorTools {
         protected virtual void OnSceneGUI() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
-                
-                if (onSceneCallback != null) {
-                    onSceneCallback();
-                }
+
+                try {
+                    if (onSceneCallback != null) {
+                        onSceneCallback();
+                    }
+                } catch (System.Exception) { }
 
                 if (changeCheck.changed) {
                     if (onChangeCallback != null) {
@@ -44,10 +46,11 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
 
                 DrawDefaultInspector();
-
-                if (onInspectorCallback != null) {
-                    onInspectorCallback();
-                }
+                try {
+                    if (onInspectorCallback != null) {
+                        onInspectorCallback();
+                    }
+                } catch (System.Exception) { }
 
                 DrawMeshGenerationButton();
 
