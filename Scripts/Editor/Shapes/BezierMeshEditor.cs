@@ -48,39 +48,15 @@ namespace Curves.EditorTools {
             }
         } 
 
-        private void DrawBezierCurve(Vector3[] points, Vector3[] controlPoints) {
-            try {
-                var size = points.Length;
-
-                for (int i = 1; i < size; i++) {
-                    var start = points[i - 1];
-                    var end = points[i];
-                    var index = i * 2;
-
-                    var controlStart = controlPoints[index - 2];
-                    var controlEnd = controlPoints[index - 1];
-
-                    Handles.DrawBezier(
-                            transform.TransformPoint(start),
-                            transform.TransformPoint(end),
-                            transform.TransformPoint(controlStart),
-                            transform.TransformPoint(controlEnd),
-                            Color.red,
-                            null,
-                            HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
-                }
-            } catch (System.NullReferenceException) { }
-        }
-
         private void DrawSceneViewEditor() {
             try {
                 var bezierMesh = meshTool as BezierMesh;
-                var bezier = bezierMesh.bezier;
-
-                DrawBezierCurve(bezier.points, bezier.controlPoints);
-
-                BezierEditor.DrawHandlePoints(bezier.points, Color.green, transform);
-                BezierEditor.DrawHandlePoints(bezier.controlPoints, Color.cyan, transform);
+                var points = bezierMesh.bezier.points;
+                var cPoints = bezierMesh.bezier.controlPoints;
+                
+                BezierEditor.DrawCubicBezierCurve(points, cPoints, transform, Color.red);
+                BezierEditor.DrawHandlePoints(points, Color.green, transform);
+                BezierEditor.DrawHandlePoints(cPoints, Color.cyan, transform);
             } catch (System.NullReferenceException) { }
         }
 

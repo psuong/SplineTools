@@ -176,6 +176,30 @@ namespace Curves.EditorTools {
                 } catch (System.NullReferenceException) {}
             }
 
+            public static void DrawCubicBezierCurve(Vector3[] points, Vector3[] controlPoints, Transform transform, Color color) {
+                try {
+                    var size = points.Length;
+
+                    for (int i = 1; i < size; i++) {
+                        var start = points[i - 1];
+                        var end = points[i];
+
+                        var index = i * 2;
+                        var cStart = controlPoints[index - 2];
+                        var cEnd = controlPoints[index - 1];
+
+                        Handles.DrawBezier(
+                                transform.TransformPoint(start),
+                                transform.TransformPoint(end),
+                                transform.TransformPoint(cStart),
+                                transform.TransformPoint(cEnd),
+                                color,
+                                null,
+                                HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
+                    }
+                } catch (System.NullReferenceException) {}
+            }
+
             public static void DrawPoints(Vector3[] points, TransformData transformData) {
                 Handles.color = Color.green;
                 foreach (var point in points) {
