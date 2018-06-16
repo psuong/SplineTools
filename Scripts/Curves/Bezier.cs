@@ -77,7 +77,7 @@ namespace Curves {
             }
             return cubicPoints;
         }
-        
+#region Static Functions
         /// <summary>
         /// Returns the binormal vector.
         /// </summary>
@@ -102,6 +102,21 @@ namespace Curves {
             var inverseT = 1f - t;
 
             return (Mathf.Pow(inverseT, 3) * p0) + (3 * Mathf.Pow(inverseT, 2) * t * p1) + (3 * inverseT * Mathf.Pow(t, 2) * p2) + (Mathf.Pow(t, 3) * p3); 
+        }
+        
+        /// <summary>
+        /// Accumulates the distance of the entire bezier curve(s).
+        /// </summary>
+        /// <param name="points">The points of the bezier curve.</param>
+        /// <returns>The total distance of the bezier curve.</returns>
+        public static float GetCubicBezierDistance(Vector3[] points) {
+            var sum = 0f;
+            for (int i = 1; i < points.Length; i++) {
+                var start = points[i - 1];
+                var end = points[i];
+                sum += Vector3.Distance(end, start);
+            }
+            return sum;
         }
 
         /// <summary>
@@ -164,4 +179,5 @@ namespace Curves {
             return directions.ToArray();
         }
     }
+#endregion
 }

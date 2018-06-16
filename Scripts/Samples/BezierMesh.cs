@@ -48,6 +48,7 @@ namespace Curves {
         }
         
         private void GenerateTriangles(int splineCount) {
+            // TODO: Use an array instead of a list.
             var mTriangles = new List<int>();
 
             for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
@@ -80,11 +81,19 @@ namespace Curves {
                     mVertices.Add(pt);
                 }
             }
+
             GenerateTriangles(bezier.points.Length);
+
+            var spline = bezier.GetCubicBezierPoints(segments);
+            var totalDistance = Bezier.GetCubicBezierDistance(spline);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.SetVertices(mVertices);
             mesh.triangles = triangles;
+
+            // TODO: Get the U-Span
+            
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, segments, totalDistance);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
