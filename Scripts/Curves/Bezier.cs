@@ -77,7 +77,7 @@ namespace Curves {
             }
             return cubicPoints;
         }
-        
+#region Static Functions
         /// <summary>
         /// Returns the binormal vector.
         /// </summary>
@@ -164,4 +164,5 @@ namespace Curves {
             return directions.ToArray();
         }
     }
+#endregion
 }

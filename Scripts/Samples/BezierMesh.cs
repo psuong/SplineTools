@@ -48,6 +48,7 @@ namespace Curves {
         }
         
         private void GenerateTriangles(int splineCount) {
+            // TODO: Use an array instead of a list.
             var mTriangles = new List<int>();
 
             for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
@@ -85,6 +86,7 @@ namespace Curves {
             var mesh = meshGenerator.CreateMesh();
             mesh.SetVertices(mVertices);
             mesh.triangles = triangles;
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, segments);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
