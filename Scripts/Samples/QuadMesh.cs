@@ -43,9 +43,11 @@ namespace Curves {
             }
 
             GenerateTriangles();
+            var uvs = GenerateUvs(vertices.Length, resolution, resolution);
 
             meshGenerator.AddVertices(vertices);
             meshGenerator.AddTriangle(triangles);
+            meshGenerator.AddUVs(uvs);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.name = name;
@@ -67,6 +69,17 @@ namespace Curves {
                     triangles[ti + 5] = vi + resolution + 2; 
                 }
             }
+        }
+
+        private Vector2[] GenerateUvs(int size, int xSegments, int ySegments) {
+            var uvs = new Vector2[size];
+
+            for (int y = 0, i = 0; y <= ySegments; y++) {
+                for (int x = 0; x <= xSegments; x++, i++) {
+                    uvs[i] = new Vector2((float)x / xSegments, (float)y / ySegments);
+                }
+            }
+            return uvs;
         }
     }
 }
