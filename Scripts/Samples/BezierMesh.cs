@@ -69,7 +69,7 @@ namespace Curves {
 
             var splineCount = bezier.points.Length - 1;
 
-            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * segments, totalDistance);
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * (segments + 1) - 1, totalDistance);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
