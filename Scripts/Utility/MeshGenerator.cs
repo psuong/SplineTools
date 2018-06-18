@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Curves.Utility;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
+
     public class MeshGenerator { 
         public IList<Vector3> Vertices {
             get {
@@ -58,6 +60,24 @@ namespace Curves {
                     uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * splineDistance);
                 }
             }
+            return uvs;
+        }
+
+        public static Vector2[] GenerateUvs(Vector3[] vertices, int xSize, int ySize) {
+            var uvs = new Vector2[vertices.Length];
+            // Stores the look up table for the distances.
+            var distances = Bezier.GetCubicLengthTable(vertices);
+
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    var u = (float) x / xSize;
+                    var v = ((float) y / ySize) * distances.Sample((float)i / vertices.Length);
+
+                    var uv = new Vector2(u, v);
+                    uvs[i] = uv;
+                }
+            }
+            
             return uvs;
         }
     

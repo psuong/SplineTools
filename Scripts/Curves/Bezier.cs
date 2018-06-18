@@ -118,6 +118,26 @@ namespace Curves {
             }
             return sum;
         }
+        
+        /// <summary>
+        /// Creates a lookup table of the distances.
+        /// </summary>
+        /// <param name="vertices">An array of vertices.</param>
+        /// <returns>An array of accumulating distances.</returns>
+        public static float[] GetCubicLengthTable(Vector3[] vertices) {
+            var distances = new float[vertices.Length];
+            distances[0] = 0f;
+            var total = 0f;
+            for (int i = 1; i < vertices.Length; i++) {
+                var start = vertices[i - 1];
+                var end = vertices[i];
+
+                var distance = (end - start).magnitude;
+                total += distance;
+                distances[i] = distance;
+            }
+            return distances;
+        }
 
         /// <summary>
         /// Gets a point along the tangent of the quadratic bezier curve.
