@@ -29,8 +29,9 @@ namespace Curves.Utility {
         /// </summary>
         /// <param name="data">The set of values to search.</param>
         /// <param name="t">A parametric value between 0 and 1.</param>
-        /// <returns>The value cloest to t.</returns>
+        /// <returns>The value closest to t.</returns>
         public static float Sample(this float[] data, float t) {
+            t = Mathf.Clamp01(t);
             var size = data.Length;
 
             if (size == 0) {
@@ -38,8 +39,6 @@ namespace Curves.Utility {
             } else if (size == 1) {
                 return data[1];
             }
-
-            t = Mathf.Clamp01(t);
 
             var floatI = t * (size - 1);
             var lhs = Mathf.FloorToInt(floatI);

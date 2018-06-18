@@ -134,7 +134,7 @@ namespace Curves {
 
                 var distance = (end - start).magnitude;
                 total += distance;
-                distances[i] = distance;
+                distances[i] = total;
             }
             return distances;
         }

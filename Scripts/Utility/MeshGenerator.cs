@@ -71,7 +71,9 @@ namespace Curves {
             for (int y = 0, i = 0; y <= ySize; y++) {
                 for (int x = 0; x <= xSize; x++, i++) {
                     var u = (float) x / xSize;
-                    var v = ((float) y / ySize) * distances.Sample((float)i / vertices.Length);
+
+                    var t = (float)i / (vertices.Length - 1);
+                    var v = ((float) y / ySize) * distances.Sample(t);
 
                     var uv = new Vector2(u, v);
                     uvs[i] = uv;
