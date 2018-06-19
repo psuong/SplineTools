@@ -118,7 +118,7 @@ namespace Curves {
             }
             return sum;
         }
-        
+
         /// <summary>
         /// Creates a lookup table of the distances.
         /// </summary>
@@ -136,6 +136,37 @@ namespace Curves {
                 total += distance;
                 distances[i] = total;
             }
+            return distances;
+        }
+        
+        /// <summary>
+        /// Generates a look up table for each spline.
+        /// </summary>
+        public static float[][] GetCubicLengthTable(Vector3[] points, Vector3[] controlPoints, int segments) {
+            var splineCount = points.Length - 1;
+
+            var distances = new float[splineCount][];
+            var previous = points[0];
+
+            for (int i = 1, splineIndex = 0; i < points.Length; i++, splineIndex++) {
+                var index = i * 2;
+                var lhs = points[i - 1];
+                var rhs = points[i];
+                
+                var cStart = controlPoints[index - 2];
+                var cEnd = controlPoints[index - 1];
+
+                distances[splineIndex] = new float[segments];
+                
+                for (int j = 0; j <= segments; j++) {
+                    var t = (float) j / segments;
+                    var point = Bezier.GetCubicBezierPoint(lhs, cStart, cEnd, rhs, t);
+                    var magnitude = (point - previous).magnitude;
+
+                    distances[splineIndex][j] = magnitude;
+                }
+            }
+
             return distances;
         }
 

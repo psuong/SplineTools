@@ -85,7 +85,24 @@ namespace Curves {
                     uvs[i] = uv;
                 }
             }
-            
+            return uvs;
+        }
+
+        public static Vector2[] GenerateUvs(Vector3[] vertices, int xSize, int ySize, int vertexCount, int verticesPerSpline) {
+            var uvs = new Vector2[vertexCount];
+
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    var u = (float) x / xSize;
+
+                    i = i % verticesPerSpline;
+                    var t = (float)i / verticesPerSpline;
+                    var v = ((float) y / ySize);
+
+                    var uv = new Vector2(u, v);
+                    uvs[i] = uv;
+                }
+            }            
             return uvs;
         }
     
