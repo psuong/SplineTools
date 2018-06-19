@@ -62,7 +62,13 @@ namespace Curves {
             }
             return uvs;
         }
-
+        
+        /// <summary>
+        /// </summary>
+        /// <param name="vertices">A series of vertices to calculate the distance.</param>
+        /// <param name="xSize">A the number of segments along the x axis.</param>
+        /// <param name="ySize">A the number of segments along the y axis.</param>
+        /// <returns>An array of uv coordinates with v values mapped to the distance of the vertices.</returns>
         public static Vector2[] GenerateUvs(Vector3[] vertices, int xSize, int ySize) {
             var uvs = new Vector2[vertices.Length];
             // Stores the look up table for the distances.
