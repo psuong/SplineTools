@@ -52,15 +52,17 @@ namespace Curves.Utility {
                 return Mathf.Lerp(data[lhs], data[rhs], floatI - lhs);
             }
         }
-
+    
         public static float Sample(this float[][] data, int index, float t) {
             var size = data.Length;
-            t = Mathf.Clamp01(t);
-            index = Mathf.Clamp(index, 0, size - 1);
-
             if (size == 0) {
                 return 0f;
-            return 0f;
+            } else {
+                index = Mathf.Clamp(index, 0, size - 1);
+                t = Mathf.Clamp01(t);
+                
+                return data[index].Sample(t);
+            }
         }
     }
 }
