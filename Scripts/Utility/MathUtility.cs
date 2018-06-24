@@ -52,7 +52,11 @@ namespace Curves.Utility {
                 return Mathf.Lerp(data[lhs], data[rhs], floatI - lhs);
             }
         }
-    
+        
+        /// <summary>
+        /// Samples a matrix of a size t given a row.
+        /// </summary>
+        /// <param name="data">A matrix of data given</param>
         public static float Sample(this float[][] data, int index, float t) {
             var size = data.Length;
             if (size == 0) {

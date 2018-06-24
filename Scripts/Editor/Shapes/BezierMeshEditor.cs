@@ -49,6 +49,7 @@ namespace Curves.EditorTools {
         } 
 
         private void DrawSceneViewEditor() {
+            /*
             try {
                 var bezierMesh = meshTool as BezierMesh;
                 var points = bezierMesh.bezier.points;
@@ -58,6 +59,7 @@ namespace Curves.EditorTools {
                 BezierEditor.DrawHandlePoints(points, Color.green, transform);
                 BezierEditor.DrawHandlePoints(cPoints, Color.cyan, transform);
             } catch (System.NullReferenceException) { }
+            */
         }
 
         private void RedrawMesh() {

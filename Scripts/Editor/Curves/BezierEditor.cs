@@ -7,38 +7,42 @@ namespace Curves.EditorTools {
 
     [CustomEditor(typeof(Bezier))]
     public class BezierEditor : SceneViewEditor {
+
         private const float HandleSize = 0.07f;
+        private const float Alpha = 0.2f;
 
         private SerializedProperty points;
-        private SerializedProperty controlPoints;
 
         private ReorderableList pointsList;
-        private ReorderableList controlPointsList;
-
         private Bezier bezier;
+        private int currentIndex;
+
+        private Color pointBackground;
+        private Color controlPointBackground;
+        private Color selectedBackground;
 
         protected override void OnEnable() {
             base.OnEnable();
+
+            pointBackground = new Color(1, 0, 0, Alpha);
+            controlPointBackground = new Color(0, 0, 1, Alpha);
+            selectedBackground = new Color(0, 1, 1, Alpha);
 
             bezier = target as Bezier;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 
             points = serializedObject.FindProperty("points");
-            controlPoints = serializedObject.FindProperty("controlPoints");
 
             pointsList = new ReorderableList(serializedObject, points);
-            controlPointsList = new ReorderableList(serializedObject, controlPoints, true, true, false, false);
 
             pointsList.drawHeaderCallback = DrawPointHeader;
             pointsList.drawElementCallback = DrawPointElement;
+            pointsList.drawElementBackgroundCallback = DrawPointElementBackground;
             pointsList.elementHeightCallback = ElementHeight;
             pointsList.onAddCallback = AddPointListCallback;
             pointsList.onRemoveCallback = RemovePointsListCallback;
             pointsList.onCanRemoveCallback = CanRemovePointElement;
-
-            controlPointsList.drawHeaderCallback = DrawControlPointHeader;
-            controlPointsList.drawElementCallback = DrawControlPointElement;
-            controlPointsList.elementHeightCallback = ElementHeight;
+            pointsList.onSelectCallback = OnSelectPointsList;
         }
 
         protected override void OnDisable() {
@@ -46,14 +50,12 @@ namespace Curves.EditorTools {
 
             pointsList.drawHeaderCallback -= DrawPointHeader;
             pointsList.drawElementCallback -= DrawPointElement;
+            pointsList.drawElementBackgroundCallback -= DrawPointElementBackground;
             pointsList.elementHeightCallback -= ElementHeight;
             pointsList.onAddCallback -= AddPointListCallback;
             pointsList.onRemoveCallback -= RemovePointsListCallback;
             pointsList.onCanRemoveCallback -= CanRemovePointElement;
-
-            controlPointsList.drawHeaderCallback -= DrawControlPointHeader;
-            controlPointsList.drawElementCallback -= DrawControlPointElement;
-            controlPointsList.elementHeightCallback -= ElementHeight;
+            pointsList.onSelectCallback -= OnSelectPointsList;
         }
 
 #region List Callbacks
@@ -69,8 +71,12 @@ namespace Curves.EditorTools {
             DrawVectorElement(points, r, i, isActive, isFocused);
         }
 
-        private void DrawControlPointElement(Rect r, int i, bool isActive, bool isFocused) {
-            DrawVectorElement(controlPoints, r, i, isActive, isFocused);
+        private void DrawPointElementBackground(Rect r, int i, bool isActive, bool isFocused) {
+            var texture = new Texture2D(1, 1);
+            texture.SetPixel(0, 0, (isActive) ? selectedBackground : (i % 3 == 0) ? pointBackground : controlPointBackground);
+
+            texture.Apply();
+            GUI.DrawTexture(r, texture as Texture);
         }
 
         private void DrawVectorElement(SerializedProperty prop, Rect r, int i, bool isActive, bool isFocused) {
@@ -83,29 +89,31 @@ namespace Curves.EditorTools {
         }
 
         private void AddPointListCallback(ReorderableList list) {
-            var cSize = controlPoints.arraySize;
-            var pSize = points.arraySize;
+            var p0 = points.GetArrayElementAtIndex(currentIndex).vector3Value;
+            var c0 = p0 + new Vector3(1, 0, 1);
+            var c1 = c0 + new Vector3(1, 0, 1);
+            var p1 = c1 + new Vector3(0, 0, 10);
+            points.arraySize += 3;
 
-            var cPoint = controlPoints.GetArrayElementAtIndex(cSize - 1).vector3Value;
-            var pPoint = points.GetArrayElementAtIndex(pSize - 1).vector3Value;
-
-            points.arraySize++;
-            controlPoints.arraySize += 2;
-
-            var factor = 5;
-
-            points.GetArrayElementAtIndex(pSize).vector3Value = pPoint + factor * new Vector3(1, 0, 1);
-            controlPoints.GetArrayElementAtIndex(cSize).vector3Value = cPoint + factor * new Vector3(1, 0, 1);
-            controlPoints.GetArrayElementAtIndex(cSize + 1).vector3Value = cPoint + 2 * factor * new Vector3(1, 0, 1);
+            points.GetArrayElementAtIndex(currentIndex + 1).vector3Value = c0;
+            points.GetArrayElementAtIndex(currentIndex + 2).vector3Value = c1;
+            points.GetArrayElementAtIndex(currentIndex + 3).vector3Value = p1;
         }
 
         private void RemovePointsListCallback(ReorderableList list) {
-            points.arraySize -= 1;
-            controlPoints.arraySize -= 2;
+            if (currentIndex > 0 && currentIndex % 3 == 0) {
+                points.DeleteArrayElementAtIndex(currentIndex);
+                points.DeleteArrayElementAtIndex(currentIndex - 1);
+                points.DeleteArrayElementAtIndex(currentIndex - 2);
+            }
         }
 
         private bool CanRemovePointElement(ReorderableList list) {
-            return points.arraySize > 2;
+            return points.arraySize > 4;
+        }
+
+        private void OnSelectPointsList(ReorderableList list) {
+            currentIndex = list.index;
         }
 #endregion
 
@@ -167,30 +175,27 @@ namespace Curves.EditorTools {
         /// </summary>
         /// <param name="bezierColor">The colour of the bezier curve.</param>
         /// <param name="points">The serialized property containing the array of points.</param>
-        /// <param name="controlPoints">The serialized property containing the array of control points.</param>
         /// <param name="transformData">The transform data holding the position, rotation, and scale that affects the bezier curve.</param>
-        public static void DrawCubicBezierCurve(Color bezierColor, SerializedProperty points, SerializedProperty controlPoints, TransformData transformData) {
+        public static void DrawCubicBezierCurve(Color bezierColor, SerializedProperty points, TransformData transformData) {
             try {
                 var size = points.arraySize;
 
                 var trs = transformData.TRS;
 
-                for(int i = 1; i < size; i++) {
-                    var start = points.GetArrayElementAtIndex(i - 1).vector3Value;
-                    var end = points.GetArrayElementAtIndex(i).vector3Value;
-                    var index = i * 2;
-
-                    var controlStart = controlPoints.GetArrayElementAtIndex(index - 2).vector3Value;
-                    var controlEnd = controlPoints.GetArrayElementAtIndex(index - 1).vector3Value;
+                for(int i = 0; i < size - 1; i += 3) {
+                    var p0 = points.GetArrayElementAtIndex(i).vector3Value;
+                    var c0 = points.GetArrayElementAtIndex(i + 1).vector3Value;
+                    var c1 = points.GetArrayElementAtIndex(i + 2).vector3Value;
+                    var p1 = points.GetArrayElementAtIndex(i + 3).vector3Value;
 
                     Handles.DrawBezier(
-                        trs.MultiplyPoint3x4(start),
-                        trs.MultiplyPoint3x4(end),
-                        trs.MultiplyPoint3x4(controlStart),
-                        trs.MultiplyPoint3x4(controlEnd),
+                        trs.MultiplyPoint3x4(p0),
+                        trs.MultiplyPoint3x4(p1),
+                        trs.MultiplyPoint3x4(c0),
+                        trs.MultiplyPoint3x4(c1),
                         bezierColor,
                         null,
-                        HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
+                        HandleUtility.GetHandleSize(Vector3.one));
                 }
             } catch(System.NullReferenceException) { }
         }
@@ -199,26 +204,23 @@ namespace Curves.EditorTools {
         /// Draws a cubic bezier curve relative to a transform.
         /// </summary>
         /// <param name="points">The bezier reference points.</param>
-        /// <param name="controlPoints">The bezier control points.</param>
         /// <param name="transform">The transform that affects the bezier's position.</param>
         /// <param name="colour">The colour of the bezier to draw.</param>
-        public static void DrawCubicBezierCurve(Vector3[] points, Vector3[] controlPoints, Transform transform, Color colour) {
+        public static void DrawCubicBezierCurve(Vector3[] points, Transform transform, Color colour) {
             try {
                 var size = points.Length;
 
-                for(int i = 1; i < size; i++) {
-                    var start = points[i - 1];
-                    var end = points[i];
-
-                    var index = i * 2;
-                    var cStart = controlPoints[index - 2];
-                    var cEnd = controlPoints[index - 1];
+                for(int i = 0; i < size; i += 3) {
+                    var p0 = points[i];
+                    var c0 = points[i + 1];
+                    var c1 = points[i + 2];
+                    var p1 = points[i + 3];
 
                     Handles.DrawBezier(
-                        transform.TransformPoint(start),
-                        transform.TransformPoint(end),
-                        transform.TransformPoint(cStart),
-                        transform.TransformPoint(cEnd),
+                        transform.TransformPoint(p0),
+                        transform.TransformPoint(p1),
+                        transform.TransformPoint(c0),
+                        transform.TransformPoint(c1),
                         colour,
                         null,
                         HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
@@ -246,17 +248,16 @@ namespace Curves.EditorTools {
         /// <param name="bezier">The bezier to draw.</param>
         /// <param name="transformData">The transform that affects the bezier curve's position.</param>
         public static void SampleDirections(int segments, Bezier bezier, TransformData transformData) {
-            var pts = bezier.points;
-            var cPts = bezier.controlPoints;
-
-            var directions = Bezier.GetTangentsNormalised(segments, pts, cPts);
-
+            var directions = Bezier.GetTangentsNormalised(bezier.points, segments);
             var trs = transformData.TRS;
+
             Handles.color = Color.green;
+
             foreach (var direction in directions) {
-                var start = trs.MultiplyPoint3x4(direction.item1);
-                var end = trs.MultiplyPoint3x4(direction.item1 + direction.item2);
-                Handles.DrawLine(start, end);
+                var lhs = trs.MultiplyPoint3x4(direction.item1);
+                var rhs = trs.MultiplyPoint3x4(direction.item1 + direction.item2);
+
+                Handles.DrawLine(lhs, rhs);
             }
         }
 #endregion
@@ -267,10 +268,9 @@ namespace Curves.EditorTools {
                     LoadTransformData();
                     serializedObject.Update();
                     BezierEditor.DrawHandlePoints(points, Color.green, transformData);
-                    BezierEditor.DrawHandlePoints(controlPoints, Color.cyan, transformData);
-                    BezierEditor.DrawCubicBezierCurve(Color.red, points, controlPoints, transformData);
                     DrawTransformHandle();
-
+                    
+                    BezierEditor.DrawCubicBezierCurve(Color.red, points, transformData);
                     BezierEditor.SampleDirections(10, bezier, transformData);
 
                     if(changeCheck.changed) {
@@ -283,6 +283,7 @@ namespace Curves.EditorTools {
         }
 
         public override void OnInspectorGUI() {
+            DrawDefaultInspector();
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
                 LoadTransformData();
@@ -290,7 +291,6 @@ namespace Curves.EditorTools {
                 DrawTransformField();
 
                 pointsList.DoLayoutList();
-                controlPointsList.DoLayoutList();
 
                 if(changeCheck.changed) {
                     SaveTransformData();

@@ -9,14 +9,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1773c058b84b4de29be8e1b17f34f1c, type: 3}
-  m_Name: Bezier Curve
+  m_Name: Refactorered
   m_EditorClassIdentifier: 
   points:
-  - {x: 10.580078, y: 0, z: 1.2626953}
-  - {x: 5.255865, y: 0, z: 13.925794}
-  - {x: 16.907032, y: 0, z: 24.800812}
-  controlPoints:
-  - {x: -3.7958996, y: 0, z: 0.29003906}
-  - {x: 6.7402344, y: 0, z: 6.48291}
-  - {x: 3.4062512, y: 0, z: 20.880875}
-  - {x: 9.6421, y: 0, z: 16.436533}
+  - {x: 0, y: 0, z: 0}
+  - {x: -2.5, y: 0, z: 2.5}
+  - {x: 2.5, y: 0, z: 7.5}
+  - {x: -2.1669922, y: 0, z: 11.465576}
+  - {x: -5.90625, y: 0, z: 13.93811}
+  - {x: -4.4140625, y: 0, z: 22.127441}
+  - {x: -0.29296875, y: 0, z: 24.859375}

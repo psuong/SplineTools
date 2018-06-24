@@ -19,7 +19,7 @@ namespace Curves {
 
         private void GeneratePoints() {
             try {
-                vertices = bezier.GetCubicBezierPoints(segments, width);
+                // vertices = bezier.GetCubicBezierPoints(segments, width);
             } catch (System.NullReferenceException) { }
         }
         
@@ -42,6 +42,8 @@ namespace Curves {
         }
 
         public override void GenerateMesh() {
+            throw new System.NotImplementedException();
+            /*
             GeneratePoints();
 
             meshFilter = GetComponent<MeshFilter>();
@@ -69,14 +71,15 @@ namespace Curves {
 
             var splineCount = bezier.points.Length - 1;
 
-            // mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * (segments + 1) - 1, totalDistance);
-            mesh.uv = MeshGenerator.GenerateUvs(mVertices.ToArray(), resolution, splineCount * (segments + 1) - 1);
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * (segments + 1) - 1, totalDistance);
+            // mesh.uv = MeshGenerator.GenerateUvs(mVertices.ToArray(), resolution, splineCount * (segments + 1) - 1);
 
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             
             meshFilter.mesh = mesh;
+            */
         }
     }
 }

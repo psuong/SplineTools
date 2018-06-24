@@ -9,74 +9,41 @@ namespace Curves {
 
 #pragma warning disable 414
         [HideInInspector]
-        public Vector3[] points = { Vector3.zero, Vector3.forward * 10f };
-        [HideInInspector]
-        public Vector3[] controlPoints = { new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f) };
+        public Vector3[] points = { Vector3.zero, new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f), Vector3.forward * 10f };
 #pragma warning restore 414
         
         /// <summary>
-        /// Calculates a cubic bezier curve given a factor. The factor will determine the parametric value,
-        /// t.
+        /// Samples all of the points needed in a bezier curve.
         /// </summary>
-        /// <param name="segments">How many line segments should be generated in the spline?</param>
-        /// <returns>An array of points.</returns>
-        public Vector3[] GetCubicBezierPoints(int segments) {
-            var bezierPoints = new Vector3[segments + 1];
+        /// <param name="segments">The total number of line segments along a path.</param>
+        /// <returns>An array of points along a bezier curve.</returns>
+        public Vector3[] SampleCubicBezierCurve(int segments) {
+            var bezierPoints = new List<Vector3>();
             var size = points.Length;
+            
+            // Immediately add the first point.
+            bezierPoints.Add(points[0]);
 
-            for (int i = 1; i < size; i++) {
-                var start = points[i - 1];
-                var end = points[i];
+            for (int i = 0; i < size - 1; i+=3) {
+                var p0 = points[i];
+                var c0 = points[i + 1];
+                var c1 = points[i + 2];
+                var p1 = points[i + 3];
 
-                var controlStart = controlPoints[i == 1 ? 0 : i];
-                var controlEnd = controlPoints[i == 1 ? i : i + (i - 1)];
+                for (int j = 0; j <= segments; j++) {
+                    var t = ((float) j) / segments;
+                    var pt = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, t);
+                    var bSize = bezierPoints.Count;
 
-                for (int t = 0; t <= segments; t++) {
-                    var progress = ((float)t) / ((float)segments);
-                    var point = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
-                    bezierPoints[t] = point;
+                    var index = Mathf.Clamp(bSize - 1, 0, bSize);
+                    if (bezierPoints[index] != pt) {
+                        bezierPoints.Add(pt);
+                    }
                 }
             }
-            return bezierPoints;
+            return bezierPoints.ToArray();
         }
-        
-        /// <summary>
-        /// Creates a pairs of points which define a bezier curve.
-        /// </summary>
-        /// <param name="segments">How many segments should be defined within the bezier?</param>
-        /// <param name="width">What is the width of the bezier?</param>
-        /// <returns>An array of points defining a bezier</returns>
-        public Tuple<Vector3, Vector3>[] GetCubicBezierPoints(int segments, float width) {
-            var pSize = points.Length;
-            var size = (segments + 1) * (pSize - 1);
-            var cubicPoints = new Tuple<Vector3, Vector3>[size];
-            var index = 0;
 
-            for (int i = 1; i < pSize; i++) {
-                var start = points[i - 1];
-                var end = points[i];
-
-                var cIndex = i * 2;
-
-                var controlStart = controlPoints[cIndex - 2];
-                var controlEnd = controlPoints[cIndex - 1];
-
-                for (int t = 0; t <= segments; t++) {
-                    var progress = ((float)t) / ((float)segments);
-
-                    var lhs = Bezier.GetCubicBezierPoint(start, controlStart, controlEnd, end, progress);
-                    var tangent = Bezier.GetTangent(start, controlStart, controlEnd, end, progress);
-                    var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
-
-                    var rhs = lhs + (binormal * width);
-
-                    var pair = Tuple<Vector3, Vector3>.CreateTuple(rhs, lhs);
-                    cubicPoints[index] = pair;
-                    index++;
-                }
-            }
-            return cubicPoints;
-        }
 #region Static Functions
         /// <summary>
         /// Returns the binormal vector.
@@ -199,34 +166,32 @@ namespace Curves {
             
             return (3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2));
         }
-        
+
         /// <summary>
         /// Returns an array of of normalised tangents for each parametric value t within the linesteps.
         /// </summary>
-        /// <param name="lineStep">How many line segments should there be?</param>
-        /// <param name="points">An array of points that define the array.</param>
-        /// <param name="cPoints">An array of control points which define the bezier.</param>
+        /// <param name="segments">How many line segments should there be?</param>
+        /// <param name="points">An array of points that define the bezier.</param>
         /// <returns>Returns an array of tuples defining the direction and its points of origin.</returns>
-        public static Tuple<Vector3, Vector3>[] GetTangentsNormalised(int lineStep, Vector3[] points, Vector3[] cPoints) {
+        public static Tuple<Vector3, Vector3>[] GetTangentsNormalised(Vector3[] points, int segments) {
             var directions = new List<Tuple<Vector3, Vector3>>();
+            var size = points.Length;
 
-            for (int i = 1; i < points.Length; i++) {
-                var start = points[i - 1];
-                var end = points[i];
+            for (int i = 0; i < size - 1; i += 3) {
+                var p0 = points[i];
+                var c0 = points[i + 1];
+                var c1 = points[i + 2];
+                var p1 = points[i + 3];
 
-                var index = i * 2;
+                for (int t = 0; t <= segments; t++) {
+                    var progress = (float) t  / segments;
 
-                var cStart = cPoints[index - 2];
-                var cEnd = cPoints[index - 1];
-                for (int t = 0; t <= lineStep; t++) {
-                    float progress = ((float)t) / ((float)lineStep);
-
-                    var point = Bezier.GetCubicBezierPoint(start, cStart, cEnd, end, progress);
-                    var tangent = Bezier.GetTangent(start, cStart, cEnd, end, progress).normalized;
-
-                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(point, tangent));
+                    var pt = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
+                    var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress).normalized;
+                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(pt, tangent));
                 }
             }
+
             return directions.ToArray();
         }
     }
