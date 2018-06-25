@@ -11,7 +11,7 @@ namespace Curves {
         [HideInInspector]
         public Vector3[] points = { Vector3.zero, new Vector3(-2.5f, 0f, 2.5f), new Vector3(2.5f, 0f, 7.5f), Vector3.forward * 10f };
 #pragma warning restore 414
-        
+
         /// <summary>
         /// Samples all of the points needed in a bezier curve.
         /// </summary>
@@ -20,7 +20,7 @@ namespace Curves {
         public Vector3[] SampleCubicBezierCurve(int segments) {
             var bezierPoints = new List<Vector3>();
             var size = points.Length;
-            
+
             // Immediately add the first point.
             bezierPoints.Add(points[0]);
 
@@ -41,6 +41,40 @@ namespace Curves {
                     }
                 }
             }
+            return bezierPoints.ToArray();
+        }
+
+        public Tuple<Vector3, Vector3>[] SampleCubicBezierCurve(int segments, float width) {
+            var bezierPoints = new List<Tuple<Vector3, Vector3>>();
+            var size = points.Length;
+
+            for (int i = 0; i < size - 1; i += 3) {
+                var p0 = points[i];
+                var c0 = points[i + 1];
+                var c1 = points[i + 2];
+                var p1 = points[i + 3];
+
+                for (int t = 0; t <= segments; t++) {
+                    var progress = ((float) t) / segments;
+
+                    var lhs = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
+                    var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress);
+                    var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
+
+                    var rhs = lhs + (binormal * width);
+                    var tuple = Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs);
+                    var bSize = bezierPoints.Count;
+
+                    var index = Mathf.Clamp(bSize - 1, 0, bSize);
+
+                    if (index == 0) {
+                        bezierPoints.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));
+                    } else if (index > 0 && bezierPoints[index].item1 != tuple.item1 && bezierPoints[index].item2 != tuple.item2) {
+                        bezierPoints.Add(tuple);
+                    }
+                }
+            }
+
             return bezierPoints.ToArray();
         }
 
@@ -70,7 +104,7 @@ namespace Curves {
 
             return (Mathf.Pow(inverseT, 3) * p0) + (3 * Mathf.Pow(inverseT, 2) * t * p1) + (3 * inverseT * Mathf.Pow(t, 2) * p2) + (Mathf.Pow(t, 3) * p3); 
         }
-        
+
         /// <summary>
         /// Accumulates the distance of the entire bezier curve(s).
         /// </summary>
@@ -105,7 +139,7 @@ namespace Curves {
             }
             return distances;
         }
-        
+
         /// <summary>
         /// Generates a look up table for each spline.
         /// </summary>
@@ -119,12 +153,12 @@ namespace Curves {
                 var index = i * 2;
                 var lhs = points[i - 1];
                 var rhs = points[i];
-                
+
                 var cStart = controlPoints[index - 2];
                 var cEnd = controlPoints[index - 1];
 
                 distances[splineIndex] = new float[segments];
-                
+
                 for (int j = 0; j <= segments; j++) {
                     var t = (float) j / segments;
                     var point = Bezier.GetCubicBezierPoint(lhs, cStart, cEnd, rhs, t);
@@ -163,7 +197,7 @@ namespace Curves {
         public static Vector3 GetTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
-            
+
             return (3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2));
         }
 

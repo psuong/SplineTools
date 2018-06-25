@@ -17,9 +17,21 @@ namespace Curves {
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
 
+        private void OnDrawGizmos() {
+            GeneratePoints();
+            for (int i = 1; i < vertices.Length; i++) {
+                var start = vertices[i - 1];
+                var end = vertices[i];
+
+                Gizmos.DrawLine(start.item1, end.item1);
+                Gizmos.DrawLine(start.item2, end.item2);
+            }
+        }
+
         private void GeneratePoints() {
             try {
-                // vertices = bezier.GetCubicBezierPoints(segments, width);
+                vertices = bezier.SampleCubicBezierCurve(segments, width);
+
             } catch (System.NullReferenceException) { }
         }
         
@@ -42,8 +54,6 @@ namespace Curves {
         }
 
         public override void GenerateMesh() {
-            throw new System.NotImplementedException();
-            /*
             GeneratePoints();
 
             meshFilter = GetComponent<MeshFilter>();
@@ -60,9 +70,9 @@ namespace Curves {
                 }
             }
 
-            GenerateTriangles(bezier.points.Length);
+            GenerateTriangles(1);
 
-            var spline = bezier.GetCubicBezierPoints(segments);
+            var spline = bezier.SampleCubicBezierCurve(segments);
             var totalDistance = Bezier.GetCubicBezierDistance(spline);
 
             var mesh = meshGenerator.CreateMesh();
@@ -71,7 +81,7 @@ namespace Curves {
 
             var splineCount = bezier.points.Length - 1;
 
-            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * (segments + 1) - 1, totalDistance);
+            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, 1, totalDistance);
             // mesh.uv = MeshGenerator.GenerateUvs(mVertices.ToArray(), resolution, splineCount * (segments + 1) - 1);
 
             mesh.RecalculateBounds();
@@ -79,7 +89,6 @@ namespace Curves {
             mesh.RecalculateTangents();
             
             meshFilter.mesh = mesh;
-            */
         }
     }
 }

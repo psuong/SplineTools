@@ -17,16 +17,8 @@ namespace Curves.EditorTools {
         private Bezier bezier;
         private int currentIndex;
 
-        private Color pointBackground;
-        private Color controlPointBackground;
-        private Color selectedBackground;
-
         protected override void OnEnable() {
             base.OnEnable();
-
-            pointBackground = new Color(1, 0, 0, Alpha);
-            controlPointBackground = new Color(0, 0, 1, Alpha);
-            selectedBackground = new Color(0, 1, 1, Alpha);
 
             bezier = target as Bezier;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
@@ -37,7 +29,6 @@ namespace Curves.EditorTools {
 
             pointsList.drawHeaderCallback = DrawPointHeader;
             pointsList.drawElementCallback = DrawPointElement;
-            pointsList.drawElementBackgroundCallback = DrawPointElementBackground;
             pointsList.elementHeightCallback = ElementHeight;
             pointsList.onAddCallback = AddPointListCallback;
             pointsList.onRemoveCallback = RemovePointsListCallback;
@@ -50,7 +41,6 @@ namespace Curves.EditorTools {
 
             pointsList.drawHeaderCallback -= DrawPointHeader;
             pointsList.drawElementCallback -= DrawPointElement;
-            pointsList.drawElementBackgroundCallback -= DrawPointElementBackground;
             pointsList.elementHeightCallback -= ElementHeight;
             pointsList.onAddCallback -= AddPointListCallback;
             pointsList.onRemoveCallback -= RemovePointsListCallback;
@@ -69,14 +59,6 @@ namespace Curves.EditorTools {
 
         private void DrawPointElement(Rect r, int i, bool isActive, bool isFocused) {
             DrawVectorElement(points, r, i, isActive, isFocused);
-        }
-
-        private void DrawPointElementBackground(Rect r, int i, bool isActive, bool isFocused) {
-            var texture = new Texture2D(1, 1);
-            texture.SetPixel(0, 0, (isActive) ? selectedBackground : (i % 3 == 0) ? pointBackground : controlPointBackground);
-
-            texture.Apply();
-            GUI.DrawTexture(r, texture as Texture);
         }
 
         private void DrawVectorElement(SerializedProperty prop, Rect r, int i, bool isActive, bool isFocused) {
@@ -210,7 +192,7 @@ namespace Curves.EditorTools {
             try {
                 var size = points.Length;
 
-                for(int i = 0; i < size; i += 3) {
+                for(int i = 0; i < size - 1; i += 3) {
                     var p0 = points[i];
                     var c0 = points[i + 1];
                     var c1 = points[i + 2];
@@ -283,7 +265,6 @@ namespace Curves.EditorTools {
         }
 
         public override void OnInspectorGUI() {
-            DrawDefaultInspector();
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
                 LoadTransformData();
