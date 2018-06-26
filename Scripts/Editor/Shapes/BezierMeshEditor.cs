@@ -37,7 +37,7 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
 
                 foldoutState = EditorGUILayout.Foldout(foldoutState, "Bezier");
-                if (foldoutState) {
+                if (foldoutState && bezierProperty.objectReferenceValue != null) {
                     customEditor.OnInspectorGUI();
                 }
 

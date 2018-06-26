@@ -17,10 +17,23 @@ namespace Curves {
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
+
+        private void OnDrawGizmos() {
+            if (vertices != null) {
+                for (int i = 1; i < vertices.Length; i++) {
+                    var start = vertices[i - 1];
+                    var end = vertices[i];
+
+                    Gizmos.DrawLine(start.item1, end.item1);
+                    Gizmos.DrawLine(start.item2, end.item2);
+                }
+            }
+        }
         
-        private void GenerateTriangles(int size) {
-            triangles = new int[segments * resolution * 6];
-            for (int ti = 0, vi = 0, y = 0; y < segments - 1; y++, vi++) {
+        private void GenerateTriangles() {
+            triangles = new int[bezier.SplineCount * segments * resolution * 6];
+            var ySize = segments * bezier.SplineCount;
+            for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
                     triangles[ti + 3] = triangles[ti + 2] = vi + 1;
@@ -50,7 +63,7 @@ namespace Curves {
                 }
             }
 
-            GenerateTriangles(vertices.Length);
+            GenerateTriangles();
 
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangle(triangles);

@@ -6,6 +6,15 @@ namespace Curves {
 
     [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "Bezier Curve")]
     public class Bezier : ScriptableObject {
+        
+        /// <summary>
+        /// Returns the number of splines within the bezier.
+        /// </summary>
+        public int SplineCount {
+            get {
+                return (points.Length - 1) / 3;
+            }
+        }
 
 #pragma warning disable 414
         [HideInInspector]
@@ -43,7 +52,13 @@ namespace Curves {
             }
             return bezierPoints.ToArray();
         }
-
+        
+        /// <summary>
+        /// Samples a series of pair of points along a bezier curve.
+        /// </summary>
+        /// <param name="segments">How many segments are generated in a bezier curve?</param>
+        /// <param name="width">How far apart are the pair of points?</param>
+        /// <returns>An array of tuples containing the points along a bezier curve.</returns>
         public Tuple<Vector3, Vector3>[] SampleCubicBezierCurve(int segments, float width) {
             var bezierPoints = new List<Tuple<Vector3, Vector3>>();
             var size = points.Length;
@@ -74,7 +89,6 @@ namespace Curves {
                     }
                 }
             }
-
             return bezierPoints.ToArray();
         }
 

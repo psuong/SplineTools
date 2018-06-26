@@ -71,15 +71,12 @@ namespace Curves.EditorTools {
         }
 
         private void AddPointListCallback(ReorderableList list) {
-            var p0 = points.GetArrayElementAtIndex(currentIndex).vector3Value;
-            var c0 = p0 + new Vector3(1, 0, 1);
-            var c1 = c0 + new Vector3(1, 0, 1);
-            var p1 = c1 + new Vector3(0, 0, 10);
-            points.arraySize += 3;
-
-            points.GetArrayElementAtIndex(currentIndex + 1).vector3Value = c0;
-            points.GetArrayElementAtIndex(currentIndex + 2).vector3Value = c1;
-            points.GetArrayElementAtIndex(currentIndex + 3).vector3Value = p1;
+            var size = points.arraySize += 3;
+            
+            var p0 = points.GetArrayElementAtIndex(size - 4).vector3Value;
+            points.GetArrayElementAtIndex(size - 3).vector3Value = p0 + new Vector3(-2.5f, 0, 2.5f);
+            points.GetArrayElementAtIndex(size - 2).vector3Value = p0 + new Vector3(2.5f, 0, 7.5f);
+            points.GetArrayElementAtIndex(size - 1).vector3Value = p0 + (Vector3.forward * 15f);
         }
 
         private void RemovePointsListCallback(ReorderableList list) {
