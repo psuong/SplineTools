@@ -57,11 +57,11 @@ namespace Curves {
                 for (int t = 0; t <= segments; t++) {
                     var progress = ((float) t) / segments;
 
-                    var lhs = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
+                    var rhs = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
                     var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress);
                     var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
 
-                    var rhs = lhs + (binormal * width);
+                    var lhs = rhs + (binormal * width);
                     var tuple = Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs);
                     var bSize = bezierPoints.Count;
 
