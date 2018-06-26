@@ -37,7 +37,7 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
 
                 foldoutState = EditorGUILayout.Foldout(foldoutState, "Bezier");
-                if (foldoutState) {
+                if (foldoutState && bezierProperty.objectReferenceValue != null) {
                     customEditor.OnInspectorGUI();
                 }
 
@@ -52,11 +52,9 @@ namespace Curves.EditorTools {
             try {
                 var bezierMesh = meshTool as BezierMesh;
                 var points = bezierMesh.bezier.points;
-                var cPoints = bezierMesh.bezier.controlPoints;
                 
-                BezierEditor.DrawCubicBezierCurve(points, cPoints, transform, Color.red);
+                BezierEditor.DrawCubicBezierCurve(points, transform, Color.red);
                 BezierEditor.DrawHandlePoints(points, Color.green, transform);
-                BezierEditor.DrawHandlePoints(cPoints, Color.cyan, transform);
             } catch (System.NullReferenceException) { }
         }
 
