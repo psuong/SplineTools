@@ -157,7 +157,7 @@ namespace Curves {
         /// Adds all indices of a triangle to a list.
         /// </summary>
         /// <param name="triangles">An array of indices to add.</param>
-        public void AddTriangle(params int[] triangles) {
+        public void AddTriangles(params int[] triangles) {
             this.triangles.AddRange(triangles);
         }
 

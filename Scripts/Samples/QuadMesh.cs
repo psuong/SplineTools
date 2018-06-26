@@ -43,7 +43,7 @@ namespace Curves {
             var uvs = MeshGenerator.GenerateUvs(vertices.Length, resolution, resolution);
 
             meshGenerator.AddVertices(vertices);
-            meshGenerator.AddTriangle(triangles);
+            meshGenerator.AddTriangles(triangles);
             meshGenerator.AddUVs(uvs);
 
             var mesh = meshGenerator.CreateMesh();

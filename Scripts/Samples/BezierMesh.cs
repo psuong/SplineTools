@@ -66,7 +66,7 @@ namespace Curves {
             GenerateTriangles();
 
             meshGenerator.AddVertices(mVertices);
-            meshGenerator.AddTriangle(triangles);
+            meshGenerator.AddTriangles(triangles);
 
             var mesh = meshGenerator.CreateMesh();
 
