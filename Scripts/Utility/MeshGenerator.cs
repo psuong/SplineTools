@@ -28,23 +28,6 @@ namespace Curves {
         private List<int> triangles;                    // Store the triangles to generate the triangle
             
         /// <summary>
-        /// A utlity function to generate the uv coordinates of a mesh.
-        /// </summary>
-        /// <param name="size">The size of a series of vertices.</param>
-        /// <param name="xSize">The number of segments along the x axis.</param>
-        /// <param name="ySize">The number of segments along the y axis.</param>
-        /// <returns>An array of the computed uv coordinates.</returns>
-        public static Vector2[] GenerateUvs(int size, int xSize, int ySize) {
-            var uvs = new Vector2[size];
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    uvs[i] = new Vector2((float) x / xSize, (float) y / ySize);
-                }
-            }
-            return uvs;
-        }
-        
-        /// <summary>
         /// A utility function to generate the uv coordinates equidistance no matter the mesh size.
         /// </summary>
         /// <param name="size">The size of a series of vertices.</param>
@@ -88,24 +71,6 @@ namespace Curves {
             return uvs;
         }
 
-        public static Vector2[] GenerateUvs(Vector3[] vertices, int xSize, int ySize, int vertexCount, int verticesPerSpline) {
-            var uvs = new Vector2[vertexCount];
-
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    var u = (float) x / xSize;
-
-                    i = i % verticesPerSpline;
-                    var t = (float)i / verticesPerSpline;
-                    var v = ((float) y / ySize);
-
-                    var uv = new Vector2(u, v);
-                    uvs[i] = uv;
-                }
-            }            
-            return uvs;
-        }
-    
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
@@ -146,11 +111,47 @@ namespace Curves {
         }
 
         /// <summary>
-        /// Adds all normals to a list.
+        /// Adds all uv coordinates to a list.
         /// </summary>
         /// <param name="uvs">A variable number of uvs to add.</param>
         public void AddUVs(params Vector2[] uvs) {
             this.uvs.AddRange(uvs);
+        }
+        
+        /// <summary>
+        /// Generates a series of UV coordinates mapped relative to the size of the mesh.
+        /// The x and y size should match the size parameter.
+        /// </summary>
+        /// <param name="size">How many UV coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        public void AddUVs(int size, int xSize, int ySize) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    uvs[i] = new Vector2((float) x / xSize, (float) y / ySize);
+                }
+            }
+            AddUVs(uvs);
+        }
+        
+        /// <summary>
+        /// Generates a series of UV coordinates with each coordinate equidistant from each other. This avoids
+        /// unnecessary stretching but compresses the coordinates together.
+        /// </summary>
+        /// <param name="size">How many uv coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        /// <param name="totalDistance">What is the total length of the mesh?</param>
+        public void AddUVs(int size, int xSize, int ySize, int totalDistance) {
+           var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    // Generate the (UV) coordinate
+                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * totalDistance);
+                }
+            }
+            AddUVs(uvs);
         }
 
         /// <summary>

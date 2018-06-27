@@ -40,11 +40,10 @@ namespace Curves {
             }
 
             GenerateTriangles();
-            var uvs = MeshGenerator.GenerateUvs(vertices.Length, resolution, resolution);
+            meshGenerator.AddUVs(vertices.Length, resolution, resolution);
 
             meshGenerator.AddVertices(vertices);
             meshGenerator.AddTriangles(triangles);
-            meshGenerator.AddUVs(uvs);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.name = name;

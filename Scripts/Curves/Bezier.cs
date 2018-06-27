@@ -91,7 +91,6 @@ namespace Curves {
             }
             return bezierPoints.ToArray();
         }
-
 #region Static Functions
         /// <summary>
         /// Returns the binormal vector.

@@ -68,6 +68,10 @@ namespace Curves {
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
 
+            // TODO: Add the UVs.
+            // MeshGenerator.GenerateUvs(mVertices.Length, resolution, segments);
+            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount);
+            
             var mesh = meshGenerator.CreateMesh();
 
             mesh.RecalculateBounds();
