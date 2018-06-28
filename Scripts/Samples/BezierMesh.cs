@@ -1,14 +1,15 @@
 ﻿using CommonStructures;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
 
     public class BezierMesh : BaseMesh {
-
+        
+        [SerializeField, Tooltip("What bezier profile should we use?")]
         public Bezier bezier;
         [Tooltip("How wide are the curves away from each other?")]
         public float width = 1f;
+        [Tooltip("What is the resolution along the x axis?")]
         public int resolution = 1;
         [Range(5, 100), Tooltip("How many line segments define the bezier curve?")]
         public int segments = 10;
@@ -16,66 +17,58 @@ namespace Curves {
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
-
-        private void GeneratePoints() {
-            try {
-                vertices = bezier.GetCubicBezierPoints(segments, width);
-            } catch (System.NullReferenceException) { }
-        }
         
-        private void GenerateTriangles(int splineCount) {
-            // TODO: Use an array instead of a list.
-            var mTriangles = new List<int>();
-
-            for (int ti = 0, vi = 0, y = 0; y < (segments * (splineCount - 1)) + (splineCount - 2); y++, vi++) {
+        private void GenerateTriangles() {
+            triangles = new int[bezier.SplineCount * segments * resolution * 6];
+            var ySize = segments * bezier.SplineCount;
+            for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
-                    mTriangles.Add(vi);
-                    mTriangles.Add(vi + resolution + 1);
-                    mTriangles.Add(vi + 1);
-                    mTriangles.Add(vi + 1);
-                    mTriangles.Add(vi + resolution + 1);
-                    mTriangles.Add(vi + resolution + 2);
+                    triangles[ti] = vi;
+                    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                    triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
+                    triangles[ti + 5] = vi + resolution + 2;
                 }
             }
-
-            triangles = mTriangles.ToArray();
         }
 
         public override void GenerateMesh() {
-            GeneratePoints();
+            vertices = bezier.SampleCubicBezierCurve(segments, width);
 
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = meshGenerator?? new MeshGenerator();
             meshGenerator.Clear();
 
-            var mVertices = new List<Vector3>();
-
+            var mVertices = new Vector3[vertices.Length * (resolution + 1)];
+            var index = 0;
+            
+            // Generate the vertices
             foreach (var tuple in vertices) {
                 for (int t = 0; t <= resolution; t++) {
                     var progress = ((float) t) / ((float) resolution);
                     var pt = Vector3.Lerp(tuple.item1, tuple.item2, progress);
-                    mVertices.Add(pt);
+                    mVertices[index] = pt;
+                    index++;
                 }
             }
 
-            GenerateTriangles(bezier.points.Length);
+            GenerateTriangles();
 
-            var spline = bezier.GetCubicBezierPoints(segments);
-            var totalDistance = Bezier.GetCubicBezierDistance(spline);
+            meshGenerator.AddVertices(mVertices);
+            meshGenerator.AddTriangles(triangles);
+
+            var lookUpTable = Bezier.GetCubicLengthTable(vertices);
+
+            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
 
             var mesh = meshGenerator.CreateMesh();
-            mesh.SetVertices(mVertices);
-            mesh.triangles = triangles;
-
-            var splineCount = bezier.points.Length - 1;
-
-            mesh.uv = MeshGenerator.GenerateUvs(mVertices.Count, resolution, splineCount * (segments + 1) - 1, totalDistance);
-
+            
+            // Mesh recalculation
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
-            
-            meshFilter.mesh = mesh;
+            mesh.name = name;
+
+            meshFilter.sharedMesh = mesh;
         }
     }
 }

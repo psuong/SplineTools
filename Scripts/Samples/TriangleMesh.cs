@@ -28,7 +28,7 @@ namespace Curves {
             meshGenerator.AddVertices(vertices);
             meshGenerator.AddNormals(normals);
             meshGenerator.AddUVs(uvs);
-            meshGenerator.AddTriangle(triangleIndices);
+            meshGenerator.AddTriangles(triangleIndices);
 
             meshFilter.sharedMesh = meshGenerator.CreateMesh();
         }
