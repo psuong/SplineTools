@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Curves.Utility;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
+
     public class MeshGenerator { 
         public IList<Vector3> Vertices {
             get {
@@ -25,42 +27,6 @@ namespace Curves {
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
         private List<int> triangles;                    // Store the triangles to generate the triangle
             
-        /// <summary>
-        /// A utlity function to generate the uv coordinates of a mesh.
-        /// </summary>
-        /// <param name="size">The size of a series of vertices.</param>
-        /// <param name="xSize">The number of segments along the x axis.</param>
-        /// <param name="ySize">The number of segments along the y axis.</param>
-        /// <returns>An array of the computed uv coordinates.</returns>
-        public static Vector2[] GenerateUvs(int size, int xSize, int ySize) {
-            var uvs = new Vector2[size];
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    uvs[i] = new Vector2((float) x / xSize, (float) y / ySize);
-                }
-            }
-            return uvs;
-        }
-        
-        /// <summary>
-        /// A utility function to generate the uv coordinates equidistance no matter the mesh size.
-        /// </summary>
-        /// <param name="size">The size of a series of vertices.</param>
-        /// <param name="xSize">The number of segments along the x axis.</param>
-        /// <param name="ySize">The number of segments along the y axis.</param>
-        /// <param name="splineDistance">The total distance of a spline.</param>
-        /// <returns>An array of uv coordinates with equidistant v coordinates.</returns>
-        public static Vector2[] GenerateUvs(int size, int xSize, int ySize, float splineDistance) {
-            var uvs = new Vector2[size];
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    // Generate the (UV) coordinate
-                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * splineDistance);
-                }
-            }
-            return uvs;
-        }
-    
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
@@ -101,18 +67,75 @@ namespace Curves {
         }
 
         /// <summary>
-        /// Adds all normals to a list.
+        /// Adds all uv coordinates to a list.
         /// </summary>
         /// <param name="uvs">A variable number of uvs to add.</param>
         public void AddUVs(params Vector2[] uvs) {
             this.uvs.AddRange(uvs);
+        }
+        
+        /// <summary>
+        /// Generates a series of UV coordinates mapped relative to the size of the mesh.
+        /// The x and y size should match the size parameter.
+        /// </summary>
+        /// <param name="size">How many UV coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        public void AddUVs(int size, int xSize, int ySize) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    uvs[i] = new Vector2((float) x / xSize, (float) y / ySize);
+                }
+            }
+            AddUVs(uvs);
+        }
+        
+        /// <summary>
+        /// Generates a series of UV coordinates with each coordinate equidistant from each other. This avoids
+        /// unnecessary stretching but compresses the coordinates together.
+        /// </summary>
+        /// <param name="size">How many uv coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        /// <param name="totalDistance">What is the total length of the mesh?</param>
+        public void AddUVs(int size, int xSize, int ySize, float totalDistance) {
+           var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    // Generate the (UV) coordinate
+                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * totalDistance);
+                }
+            }
+            AddUVs(uvs);
+        }
+
+        /// <summary>
+        /// Generates and assigns series of UV coordinates with each coordinate relatively equidistant from each other. This samples 
+        /// the distance of the assumed point at the parametric value, t.
+        /// </summary>
+        /// <param name="size">How many uv coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        /// <param name="distances">The distance of each vertex from the start of the spline.</param>
+        public void AddUVs(int size, int xSize, int ySize, float[] distances) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    var u = ((float) x / xSize);
+                    var t = ((float) y / ySize);
+                    var v = t * distances.Sample(t);
+                    uvs[i] = new Vector2(u, v);
+                }
+            }
+            AddUVs(uvs);
         }
 
         /// <summary>
         /// Adds all indices of a triangle to a list.
         /// </summary>
         /// <param name="triangles">An array of indices to add.</param>
-        public void AddTriangle(params int[] triangles) {
+        public void AddTriangles(params int[] triangles) {
             this.triangles.AddRange(triangles);
         }
 
