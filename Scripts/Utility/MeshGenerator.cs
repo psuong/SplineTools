@@ -143,7 +143,7 @@ namespace Curves {
         /// <param name="xSize">How many segments should occur along the x axis?</param>
         /// <param name="ySize">How many segments should occur along the y axis?</param>
         /// <param name="totalDistance">What is the total length of the mesh?</param>
-        public void AddUVs(int size, int xSize, int ySize, int totalDistance) {
+        public void AddUVs(int size, int xSize, int ySize, float totalDistance) {
            var uvs = new Vector2[size];
             for (int y = 0, i = 0; y <= ySize; y++) {
                 for (int x = 0; x <= xSize; x++, i++) {

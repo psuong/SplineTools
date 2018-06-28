@@ -5,7 +5,7 @@ namespace Curves {
 
     public class BezierMesh : BaseMesh {
         
-        [Tooltip("What bezier profile should we use?")]
+        [SerializeField, Tooltip("What bezier profile should we use?")]
         public Bezier bezier;
         [Tooltip("How wide are the curves away from each other?")]
         public float width = 1f;
@@ -68,9 +68,10 @@ namespace Curves {
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
 
-            // TODO: Add the UVs.
-            // MeshGenerator.GenerateUvs(mVertices.Length, resolution, segments);
-            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount);
+            var totalDistance = Bezier.GetBezierDistance(vertices);
+
+            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount);
+            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, totalDistance);
             
             var mesh = meshGenerator.CreateMesh();
 
