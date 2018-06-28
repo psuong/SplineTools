@@ -17,18 +17,6 @@ namespace Curves {
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
         private int[] triangles;
-
-        private void OnDrawGizmos() {
-            if (vertices != null) {
-                for (int i = 1; i < vertices.Length; i++) {
-                    var start = vertices[i - 1];
-                    var end = vertices[i];
-
-                    Gizmos.DrawLine(start.item1, end.item1);
-                    Gizmos.DrawLine(start.item2, end.item2);
-                }
-            }
-        }
         
         private void GenerateTriangles() {
             triangles = new int[bezier.SplineCount * segments * resolution * 6];
@@ -68,13 +56,13 @@ namespace Curves {
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
 
-            var totalDistance = Bezier.GetBezierDistance(vertices);
+            var lookUpTable = Bezier.GetCubicLengthTable(vertices);
 
-            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount);
-            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, totalDistance);
-            
+            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
+
             var mesh = meshGenerator.CreateMesh();
-
+            
+            // Mesh recalculation
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();

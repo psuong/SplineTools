@@ -36,7 +36,9 @@ namespace Curves.Utility {
 
             if (size == 0) {
                 return 0f;
-            } else if (size == 1) {
+            } 
+            
+            if (size == 1) {
                 return data[1];
             }
 

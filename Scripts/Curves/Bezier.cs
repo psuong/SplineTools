@@ -149,10 +149,10 @@ namespace Curves {
         }
 
         /// <summary>
-        /// Creates a lookup table of the distances.
+        /// Creates a lookup table of the distances of the spline.
         /// </summary>
         /// <param name="vertices">An array of vertices.</param>
-        /// <returns>An array of accumulating distances.</returns>
+        /// <returns>An array of accumulating distances between the points.</returns>
         public static float[] GetCubicLengthTable(Vector3[] vertices) {
             var distances = new float[vertices.Length];
             distances[0] = 0f;
@@ -160,6 +160,27 @@ namespace Curves {
             for (int i = 1; i < vertices.Length; i++) {
                 var start = vertices[i - 1];
                 var end = vertices[i];
+
+                var distance = (end - start).magnitude;
+                total += distance;
+                distances[i] = total;
+            }
+            return distances;
+        }
+
+        /// <summary>
+        /// Creates a lookup table of the relative distances of the spline.
+        /// </summary>
+        /// <param name="vertices">An array of pairs of points.</param>
+        /// <returns>An array of accumulating distances between the points.</returns>
+        public static float[] GetCubicLengthTable(Tuple<Vector3, Vector3>[] vertices) {
+            var distances = new float[vertices.Length];
+            distances[0] = 0;
+            var total = 0f;
+
+            for (int i = 1; i < vertices.Length; i++) {
+                var start = vertices[i - 1].item1;
+                var end = vertices[i].item1;
 
                 var distance = (end - start).magnitude;
                 total += distance;

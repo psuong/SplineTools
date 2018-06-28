@@ -27,50 +27,6 @@ namespace Curves {
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
         private List<int> triangles;                    // Store the triangles to generate the triangle
             
-        /// <summary>
-        /// A utility function to generate the uv coordinates equidistance no matter the mesh size.
-        /// </summary>
-        /// <param name="size">The size of a series of vertices.</param>
-        /// <param name="xSize">The number of segments along the x axis.</param>
-        /// <param name="ySize">The number of segments along the y axis.</param>
-        /// <param name="splineDistance">The total distance of a spline.</param>
-        /// <returns>An array of uv coordinates with equidistant v coordinates.</returns>
-        public static Vector2[] GenerateUvs(int size, int xSize, int ySize, float splineDistance) {
-            var uvs = new Vector2[size];
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    // Generate the (UV) coordinate
-                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * splineDistance);
-                }
-            }
-            return uvs;
-        }
-        
-        /// <summary>
-        /// </summary>
-        /// <param name="vertices">A series of vertices to calculate the distance.</param>
-        /// <param name="xSize">A the number of segments along the x axis.</param>
-        /// <param name="ySize">A the number of segments along the y axis.</param>
-        /// <returns>An array of uv coordinates with v values mapped to the distance of the vertices.</returns>
-        public static Vector2[] GenerateUvs(Vector3[] vertices, int xSize, int ySize) {
-            var uvs = new Vector2[vertices.Length];
-            // Stores the look up table for the distances.
-            var distances = Bezier.GetCubicLengthTable(vertices);
-
-            for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
-                    var u = (float) x / xSize;
-
-                    var t = (float)i / (vertices.Length - 1);
-                    var v = ((float) y / ySize) * distances.Sample(t);
-
-                    var uv = new Vector2(u, v);
-                    uvs[i] = uv;
-                }
-            }
-            return uvs;
-        }
-
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
@@ -149,6 +105,27 @@ namespace Curves {
                 for (int x = 0; x <= xSize; x++, i++) {
                     // Generate the (UV) coordinate
                     uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * totalDistance);
+                }
+            }
+            AddUVs(uvs);
+        }
+
+        /// <summary>
+        /// Generates and assigns series of UV coordinates with each coordinate relatively equidistant from each other. This samples 
+        /// the distance of the assumed point at the parametric value, t.
+        /// </summary>
+        /// <param name="size">How many uv coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        /// <param name="distances">The distance of each vertex from the start of the spline.</param>
+        public void AddUVs(int size, int xSize, int ySize, float[] distances) {
+            var uvs = new Vector2[size];
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                for (int x = 0; x <= xSize; x++, i++) {
+                    var u = ((float) x / xSize);
+                    var t = ((float) y / ySize);
+                    var v = t * distances.Sample(t);
+                    uvs[i] = new Vector2(u, v);
                 }
             }
             AddUVs(uvs);
