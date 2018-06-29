@@ -91,6 +91,26 @@ namespace Curves {
             }
             return bezierPoints.ToArray();
         }
+
+        public float[] GetCubicLengthTable(int segments) {
+            var p0 = points[0];
+            var c0 = points[1];
+            var c1 = points[2];
+            var p1 = points[3];
+
+            var distances = new float[segments + 1];
+            var previous = p0;
+            var total = 0f;
+
+            for (int i = 1; i <= segments; i++) {
+                Debug.LogFormat("Point: {0}", previous);
+                var point = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) i / segments);
+                distances[i] = total += (point - previous).magnitude;
+                previous = point;
+            }
+
+            return distances;
+        }
 #region Static Functions
         /// <summary>
         /// Returns the binormal vector.
