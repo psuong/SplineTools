@@ -103,7 +103,6 @@ namespace Curves {
             var total = 0f;
 
             for (int i = 1; i <= segments; i++) {
-                Debug.LogFormat("Point: {0}", previous);
                 var point = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) i / segments);
                 distances[i] = total += (point - previous).magnitude;
                 previous = point;

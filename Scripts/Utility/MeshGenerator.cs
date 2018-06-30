@@ -124,7 +124,7 @@ namespace Curves {
                 for (int x = 0; x <= xSize; x++, i++) {
                     var u = ((float) x / xSize);
                     var t = ((float) y / ySize);
-                    var v = t * distances.Sample(t);
+                    var v = distances.Sample(t);
                     uvs[i] = new Vector2(u, v);
                 }
             }
