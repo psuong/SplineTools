@@ -121,10 +121,9 @@ namespace Curves {
         public void AddUVs(int size, int xSize, int ySize, float[] distances) {
             var uvs = new Vector2[size];
             for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; x++, i++) {
+                for (int x = 0; x <= xSize; ++x, i++) {
                     var u = ((float) x / xSize);
-                    var t = ((float) y / ySize);
-                    var v = distances.Sample(t);
+                    var v = distances.Sample((float) y / (float) ySize) * 0.5f;
                     uvs[i] = new Vector2(u, v);
                 }
             }

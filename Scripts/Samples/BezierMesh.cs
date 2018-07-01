@@ -61,6 +61,7 @@ namespace Curves {
             // var total = Bezier.GetBezierDistance(vertices);
 
             meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
+            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, total);
 
             var mesh = meshGenerator.CreateMesh();
             

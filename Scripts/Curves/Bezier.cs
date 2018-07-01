@@ -92,6 +92,11 @@ namespace Curves {
             return bezierPoints.ToArray();
         }
 
+        /// <summary>
+        /// Returns the accumulating the distance of each segment within the first spline.
+        /// </summary>
+        /// <param name="segments">How many segments are there in the spline?</param>
+        /// <returns>An array of distances from the original point for each point within the spline.</returns>
         public float[] GetCubicLengthTable(int segments) {
             var p0 = points[0];
             var c0 = points[1];
@@ -110,6 +115,33 @@ namespace Curves {
 
             return distances;
         }
+
+        /// <summary>
+        /// Returns the accumulating the distance of each segment for all of the splines.
+        /// </summary>
+        /// <param name="segments">How many segments are within each spline?</param>
+        /// <returns>A matrix of accumulating distances for each spline.</returns>
+        public float[,] GetSplineLengthTable(int segments) {
+            var distances = new float[SplineCount, segments + 1];
+            var size = points.Length;
+            for (int i = 0, splineIndex = 0; i < size - 1; i += 3, splineIndex++) {
+                var p0 = points[i];
+                var c0 = points[i + 1];
+                var c1 = points[i + 2];
+                var p1 = points[i + 3];
+
+                var previous = p0;
+                var total = 0f;
+
+                for (int j = 0; j <= segments; j++) {
+                    var point = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) j / segments);
+                    distances[splineIndex, j] = total += (point - previous).magnitude;
+                    previous = point;
+                }
+            }
+            return distances;
+        }
+
 #region Static Functions
         /// <summary>
         /// Returns the binormal vector.
@@ -165,78 +197,6 @@ namespace Curves {
                 sum += ((start - end).magnitude);
             }
             return sum;
-        }
-
-        /// <summary>
-        /// Creates a lookup table of the distances of the spline.
-        /// </summary>
-        /// <param name="vertices">An array of vertices.</param>
-        /// <returns>An array of accumulating distances between the points.</returns>
-        public static float[] GetCubicLengthTable(Vector3[] vertices) {
-            var distances = new float[vertices.Length];
-            distances[0] = 0f;
-            var total = 0f;
-            for (int i = 1; i < vertices.Length; i++) {
-                var start = vertices[i - 1];
-                var end = vertices[i];
-
-                var distance = (end - start).magnitude;
-                total += distance;
-                distances[i] = total;
-            }
-            return distances;
-        }
-
-        /// <summary>
-        /// Creates a lookup table of the relative distances of the spline.
-        /// </summary>
-        /// <param name="vertices">An array of pairs of points.</param>
-        /// <returns>An array of accumulating distances between the points.</returns>
-        public static float[] GetCubicLengthTable(Tuple<Vector3, Vector3>[] vertices) {
-            var distances = new float[vertices.Length];
-            distances[0] = 0;
-            var total = 0f;
-
-            for (int i = 1; i < vertices.Length; i++) {
-                var start = vertices[i - 1].item1;
-                var end = vertices[i].item1;
-
-                var distance = (end - start).magnitude;
-                total += distance;
-                distances[i] = total;
-            }
-            return distances;
-        }
-
-        /// <summary>
-        /// Generates a look up table for each spline.
-        /// </summary>
-        public static float[][] GetCubicLengthTable(Vector3[] points, Vector3[] controlPoints, int segments) {
-            var splineCount = points.Length - 1;
-
-            var distances = new float[splineCount][];
-            var previous = points[0];
-
-            for (int i = 1, splineIndex = 0; i < points.Length; i++, splineIndex++) {
-                var index = i * 2;
-                var lhs = points[i - 1];
-                var rhs = points[i];
-
-                var cStart = controlPoints[index - 2];
-                var cEnd = controlPoints[index - 1];
-
-                distances[splineIndex] = new float[segments];
-
-                for (int j = 0; j <= segments; j++) {
-                    var t = (float) j / segments;
-                    var point = Bezier.GetCubicBezierPoint(lhs, cStart, cEnd, rhs, t);
-                    var magnitude = (point - previous).magnitude;
-
-                    distances[splineIndex][j] = magnitude;
-                }
-            }
-
-            return distances;
         }
 
         /// <summary>

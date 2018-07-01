@@ -46,13 +46,15 @@ namespace Curves.Utility {
             var lhs = Mathf.FloorToInt(floatI);
             var rhs = Mathf.FloorToInt(floatI + 1);
 
+            float value;
             if (rhs >= size) {
-                return data[size - 1];
+                value = data[size - 1];
             } else if (lhs <= 0) {
-                return data[0];
+                value = data[0];
             } else {
-                return Mathf.Lerp(data[lhs], data[rhs], floatI - lhs);
+                value = Mathf.Lerp(data[lhs], data[rhs], floatI - lhs);
             }
+            return value;
         }
         
         /// <summary>
