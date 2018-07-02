@@ -72,5 +72,21 @@ namespace Curves.EditorTools {
                 Handles.DrawSolidDisc(bPoint, Vector3.up, 0.2f);
             }
         }
+        
+        /// <summary>
+        /// Draws the lines given an array relative to a transform.
+        /// </summary>
+        /// <param name="points">An array of Vector3.</param>
+        /// <param name="transformData">The transform that affects the line's position.</param>
+        /// <param name="lineColour">What colour is the line?</param>
+        public static void DrawLines(Vector3[] points, TransformData transformData, Color lineColour) {
+            Handles.color = lineColour;
+            for (int i = 1; i < points.Length; i++) {
+                var lhs = transformData.TRS.MultiplyPoint3x4(points[i - 1]);
+                var rhs = transformData.TRS.MultiplyPoint3x4(points[i]);
+
+                Handles.DrawLine(lhs, rhs);
+            }
+        }
     }
 }

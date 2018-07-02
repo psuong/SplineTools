@@ -3,13 +3,13 @@ using UnityEditorInternal;
 using UnityEngine;
 
 namespace Curves.EditorTools {
-    
+
     [CustomEditor(typeof(CatmullRom))]
     public class CatmullRomEditor : SceneViewEditor {
 
         private SerializedProperty points;
         private SerializedProperty loopField;
-        
+
         private ReorderableList pointsList;
         private CatmullRom catmullRom;
 
@@ -21,7 +21,7 @@ namespace Curves.EditorTools {
             points = serializedObject.FindProperty("points");
             loopField = serializedObject.FindProperty("isLooping");
             pointsList = new ReorderableList(serializedObject, points);
-            
+
             pointsList.drawHeaderCallback = DrawPointsHeader;
             pointsList.drawElementCallback = DrawPointElement;
             pointsList.elementHeightCallback = ElementHeight;
@@ -53,14 +53,8 @@ namespace Curves.EditorTools {
 
 #region Curve Rendering
         private void DrawCatmullRomSpline(Color colour) {
-           var pts = catmullRom.SampleCatmullRomSpline(10);
-           Handles.color = colour;
-           for (int i = 1; i < pts.Length; i++) {
-               var lhs = pts[i - 1];
-               var rhs = pts[i];
-
-               Handles.DrawLine(lhs, rhs);
-           }
+            var pts = catmullRom.SampleCatmullRomSpline(10);
+            VectorHandles.DrawLines(pts, transformData, Color.red);
         }
 #endregion
 
@@ -74,6 +68,7 @@ namespace Curves.EditorTools {
                 DrawCatmullRomSpline(Color.red);
 
                 if (changeCheck.changed) {
+                    SaveTransformData();
                     serializedObject.ApplyModifiedProperties();
                     SceneView.RepaintAll();
                 }
@@ -86,11 +81,12 @@ namespace Curves.EditorTools {
                 LoadTransformData();
                 DrawDefaultInspector();
                 DrawTransformField();
-                
+
                 DrawIsLoopingField();
                 pointsList.DoLayoutList();
 
                 if (changeCheck.changed) {
+                    SaveTransformData();
                     serializedObject.ApplyModifiedProperties();
                     SceneView.RepaintAll();
                 }
