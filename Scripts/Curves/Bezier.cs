@@ -121,10 +121,11 @@ namespace Curves {
         /// </summary>
         /// <param name="segments">How many segments are within each spline?</param>
         /// <returns>A matrix of accumulating distances for each spline.</returns>
-        public float[,] GetSplineLengthTable(int segments) {
-            var distances = new float[SplineCount, segments + 1];
+        public float[][] GetSplineLengthTable(int segments) {
+            var distances = new float[SplineCount][];
             var size = points.Length;
             for (int i = 0, splineIndex = 0; i < size - 1; i += 3, splineIndex++) {
+                distances[splineIndex] = new float[segments + 1];
                 var p0 = points[i];
                 var c0 = points[i + 1];
                 var c1 = points[i + 2];
@@ -135,7 +136,7 @@ namespace Curves {
 
                 for (int j = 0; j <= segments; j++) {
                     var point = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) j / segments);
-                    distances[splineIndex, j] = total += (point - previous).magnitude;
+                    distances[splineIndex][j] = total += (point - previous).magnitude;
                     previous = point;
                 }
             }

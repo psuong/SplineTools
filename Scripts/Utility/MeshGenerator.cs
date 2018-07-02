@@ -26,7 +26,7 @@ namespace Curves {
         private List<Vector3> vertices, normals;        // Store coordinates to generate all properties of the mesh
         private List<Vector2> uvs;                      // Store the 2D representation of the UVs.
         private List<int> triangles;                    // Store the triangles to generate the triangle
-            
+
         public MeshGenerator() {
             vertices = new List<Vector3>();
             normals = new List<Vector3>();
@@ -41,7 +41,7 @@ namespace Curves {
         public void AddNormal(Vector3 normal) {
             normals.Add(normal);
         }
-        
+
         /// <summary>
         /// Stores a vertex into the mesh generator.
         /// </summary>
@@ -73,7 +73,7 @@ namespace Curves {
         public void AddUVs(params Vector2[] uvs) {
             this.uvs.AddRange(uvs);
         }
-        
+
         /// <summary>
         /// Generates a series of UV coordinates mapped relative to the size of the mesh.
         /// The x and y size should match the size parameter.
@@ -90,7 +90,7 @@ namespace Curves {
             }
             AddUVs(uvs);
         }
-        
+
         /// <summary>
         /// Generates a series of UV coordinates with each coordinate equidistant from each other. This avoids
         /// unnecessary stretching but compresses the coordinates together.
@@ -100,7 +100,7 @@ namespace Curves {
         /// <param name="ySize">How many segments should occur along the y axis?</param>
         /// <param name="totalDistance">What is the total length of the mesh?</param>
         public void AddUVs(int size, int xSize, int ySize, float totalDistance) {
-           var uvs = new Vector2[size];
+            var uvs = new Vector2[size];
             for (int y = 0, i = 0; y <= ySize; y++) {
                 for (int x = 0; x <= xSize; x++, i++) {
                     // Generate the (UV) coordinate
@@ -118,14 +118,63 @@ namespace Curves {
         /// <param name="xSize">How many segments should occur along the x axis?</param>
         /// <param name="ySize">How many segments should occur along the y axis?</param>
         /// <param name="distances">The distance of each vertex from the start of the spline.</param>
-        public void AddUVs(int size, int xSize, int ySize, float[] distances) {
+        /// <param name="factor">What factor should the sampled distances be multiplied by, by default 1.</param>
+        public void AddUVs(int size, int xSize, int ySize, float[] distances, float factor = 1f) {
             var uvs = new Vector2[size];
             for (int y = 0, i = 0; y <= ySize; y++) {
-                for (int x = 0; x <= xSize; ++x, i++) {
+                var t = ((float) y / ySize);
+                for (int x = 0; x <= xSize; x++, i++) {
                     var u = ((float) x / xSize);
-                    var v = distances.Sample((float) y / (float) ySize) * 0.5f;
+                    var v = distances.Sample(t) * factor;
                     uvs[i] = new Vector2(u, v);
                 }
+            }
+            AddUVs(uvs);
+        }
+
+        // TODO: Function cleanup for adding UVs.
+        /// <summary>
+        /// Generates and assigns a series of UV coordinates by sampling the distances of the assumed point at a parametric value, t for each
+        /// spline in the distance.
+        /// </summary>
+        /// <param name="size">How many uv coordinates should be stored?</param>
+        /// <param name="xSize">How many segments should occur along the x axis?</param>
+        /// <param name="ySize">How many segments should occur along the y axis?</param>
+        /// <param name="splineCount">The number of splines within the curve.</param>
+        /// <param name="distances">The distance of each vertex from the start of the spline.</param>
+        /// <param name="factor">The factor should the sampled distances be multiplied by, by default 1.</param>
+        public void AddUVs(int size, int xSize, int ySize, int splineCount, float[][] distances, float factor = 1f) {
+            var uvs = new Vector2[size];
+
+            // Store the total number of segments.
+            var segments = ySize / splineCount;
+            var splineCounter = 0;
+            var progress = 0;
+            for (int y = 0, i = 0; y <= ySize; y++) {
+                // Increment which spline to retrieve if y is greater than the (1 based) splineCounter * segments
+                if (y > (splineCounter + 1) * segments) {
+                    splineCounter++;
+                }
+
+                if (y % segments == 1 && y > segments) {
+                    progress = 0;
+                } else if (y > 0) {
+                    progress++;
+                }
+
+                // progress = (y > 0 && y % segments == 1) ? 0 : progress++;
+
+                var t = (float) progress / segments;
+                Debug.LogFormat("y: {0}, SplineCounter: {1}, t: {2}, Progress: {3}", y, splineCounter, t, progress);
+                try {
+                    float[] splineDistances = distances[splineCounter];
+                    for (int x = 0; x <= xSize; x++, i++) {
+                        var u = ((float) x / xSize);
+                        var v = splineDistances.Sample(t) * factor;
+                        uvs[i] = new Vector2(u, v);
+                    }
+
+                } catch (System.IndexOutOfRangeException) { }
             }
             AddUVs(uvs);
         }
