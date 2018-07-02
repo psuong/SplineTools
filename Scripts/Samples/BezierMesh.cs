@@ -56,9 +56,12 @@ namespace Curves {
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
 
-            var lookUpTable = Bezier.GetCubicLengthTable(vertices);
+            // var lookUpTable = Bezier.GetCubicLengthTable(vertices);
+            var lookUpTable = bezier.GetCubicLengthTable(10);
+            // var total = Bezier.GetBezierDistance(vertices);
 
             meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
+            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, total);
 
             var mesh = meshGenerator.CreateMesh();
             
