@@ -201,6 +201,7 @@ namespace Curves.EditorTools {
                 DrawTransformField();
 
                 pointsList.DoLayoutList();
+                VectorListUtility.ResetHeight(points);
 
                 if(changeCheck.changed) {
                     SaveTransformData();

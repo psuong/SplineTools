@@ -84,6 +84,7 @@ namespace Curves.EditorTools {
 
                 DrawIsLoopingField();
                 pointsList.DoLayoutList();
+                VectorListUtility.ResetHeight(points);
 
                 if (changeCheck.changed) {
                     SaveTransformData();

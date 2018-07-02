@@ -72,7 +72,7 @@ namespace Curves.EditorTools {
                 Handles.DrawSolidDisc(bPoint, Vector3.up, 0.2f);
             }
         }
-        
+
         /// <summary>
         /// Draws the lines given an array relative to a transform.
         /// </summary>
@@ -86,6 +86,43 @@ namespace Curves.EditorTools {
                 var rhs = transformData.TRS.MultiplyPoint3x4(points[i]);
 
                 Handles.DrawLine(lhs, rhs);
+            }
+        }
+    }
+
+    public static class VectorListUtility {
+
+        private const string ResetHeightLabel = "Reset Height";
+        
+        /// <summary>
+        /// Creates a button that resets a Vector3 property's y value.
+        /// </summary>
+        /// <param name="property">The property that's restricted to a Vector3 property.</param>
+        /// <param name="height">The y value of the height.</param>
+        public static void ResetHeight(SerializedProperty property, float height = 0f) {
+            try {
+                if (GUILayout.Button(ResetHeightLabel)) {
+                    for (int i = 0; i < property.arraySize; i++) {
+                        var v = property.GetArrayElementAtIndex(i).vector3Value;
+                        property.GetArrayElementAtIndex(i).vector3Value = new Vector3(v.x, height, v.z);
+                    }
+                }
+            } catch (System.Exception) { }
+        }
+
+        /// <summary>
+        /// Creates a button that resets a Vector3 property's y value.
+        /// </summary>
+        /// <param name="height">The custom height for the following Vector3 properties.</param>
+        /// <param name="properties">The propertties that's restricted to a Vector3 property.</param>
+        public static void ResetHeight(float height, params SerializedProperty[] properties) {
+            if (GUILayout.Button(ResetHeightLabel)) {
+                try {
+                    foreach (var p in properties) {
+                        var v = p.vector3Value;
+                        p.vector3Value = new Vector3(v.x, height, v.z);
+                    }
+                } catch (System.Exception) { }
             }
         }
     }
