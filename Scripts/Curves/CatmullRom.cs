@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace Curves {
     
-    [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "CatmullRom Curve")]
+    [CreateAssetMenu(menuName = "Curves/CatmullRom", fileName = "CatmullRom Curve")]
     public class CatmullRom : ScriptableObject {
 
-        public Vector3[] points;
+        public Vector3[] points = { Vector3.zero, Vector3.left, Vector3.forward, Vector3.right };
         public bool isLooping;
 
         public Vector3[] SampleCatmullRomSpline(int segments) {
@@ -33,12 +33,15 @@ namespace Curves {
         }
 
         private int ClampIndex(int i) {
-            if (i > points.Length) {
+            if (i < 0) {
+                return points.Length - 1;
+            } else if (i > points.Length) {
                 return 1;
             } else if (i > points.Length - 1) {
                 return 0;
+            } else {
+                return i;
             }
-            return i;
         }
 
 #region Static Functions
