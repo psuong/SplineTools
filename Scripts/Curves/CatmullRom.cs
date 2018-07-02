@@ -5,8 +5,10 @@ namespace Curves {
     
     [CreateAssetMenu(menuName = "Curves/CatmullRom", fileName = "CatmullRom Curve")]
     public class CatmullRom : ScriptableObject {
-
+        
+        [HideInInspector]
         public Vector3[] points = { Vector3.zero, Vector3.left, Vector3.forward, Vector3.right };
+        [HideInInspector]
         public bool isLooping;
 
         public Vector3[] SampleCatmullRomSpline(int segments) {

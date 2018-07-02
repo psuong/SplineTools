@@ -8,9 +8,6 @@ namespace Curves.EditorTools {
     [CustomEditor(typeof(Bezier))]
     public class BezierEditor : SceneViewEditor {
 
-        private const float HandleSize = 0.07f;
-        private const float Alpha = 0.2f;
-
         private SerializedProperty points;
 
         private ReorderableList pointsList;
@@ -98,58 +95,6 @@ namespace Curves.EditorTools {
 
 #region Curve Rendering
         /// <summary>
-        /// Draws moveable points within the Scene View to edit.
-        /// </summary>
-        /// <param name="points">A series of points to draw.</param>
-        /// <param name="handlesColour">The colour of the points.</param>
-        /// <param name= "transform">The relative position/rotation/scale that affect the points' position.</param>
-        public static void DrawHandlePoints(Vector3[] points, Color handlesColour, Transform transform) {
-            try {
-                var size = points.Length;
-                Handles.color = handlesColour;
-
-                for(int i = 0; i < size; i++) {
-                    var elem = points[i];
-
-                    var point = transform.TransformPoint(elem);
-                    var snapSize = Vector3.one * HandleSize;
-                    var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    points[i] = transform.InverseTransformPoint(position);
-
-                    position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
-                    points[i] = transform.InverseTransformPoint(position);
-                }
-            } catch(System.NullReferenceException) { }
-        }
-
-        /// <summary>
-        /// Draws moveable points within the Scene View to edit.
-        /// </summary>
-        /// <param name="property">The array/list property to reference to.</param>
-        /// <param name="handlesColour">The colour of the handles.</param>
-        /// <param name= "transformData">The position/rotation/scale that affects the points within the property's position.</param>
-        public static void DrawHandlePoints(SerializedProperty property, Color handlesColour, TransformData transformData) {
-            try {
-                var size = property.arraySize;
-                Handles.color = handlesColour;
-
-                for(int i = 0; i < size; i++) {
-                    var elem = property.GetArrayElementAtIndex(i);
-
-                    var trs = transformData.TRS;
-
-                    var point = trs.MultiplyPoint3x4(elem.vector3Value);
-                    var snapSize = Vector3.one * HandleSize;
-                    var position = Handles.FreeMoveHandle(point, Quaternion.identity, HandleSize * 2, snapSize * 2, Handles.CircleHandleCap);
-                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
-
-                    position = Handles.FreeMoveHandle(position, Quaternion.identity, HandleSize, snapSize, Handles.DotHandleCap);
-                    elem.vector3Value = trs.inverse.MultiplyPoint3x4(position);
-                }
-            } catch(System.NullReferenceException) { }
-        }
-
-        /// <summary>
         /// Draws a cubic bezier curve relative to a position.
         /// </summary>
         /// <param name="bezierColor">The colour of the bezier curve.</param>
@@ -208,19 +153,6 @@ namespace Curves.EditorTools {
         }
 
         /// <summary>
-        /// Draws each point within an array relative to a transform.
-        /// </summary>
-        /// <param name="points">The series of Vector3s to draw.</param>
-        /// <param name="transformData">The transform that affects the bezier curve's position.</param>
-        public static void DrawPoints(Vector3[] points, TransformData transformData) {
-            Handles.color = Color.green;
-            foreach (var point in points) {
-                var bPoint = transformData.TRS.MultiplyPoint3x4(point);
-                Handles.DrawSolidDisc(bPoint, Vector3.up, 0.2f);
-            }
-        }
-
-        /// <summary>
         /// Draws the tangents of a bezier curve.
         /// </summary>
         /// <param name="segments">How many segments should there be in the bezier curve?</param>
@@ -246,7 +178,7 @@ namespace Curves.EditorTools {
                 using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                     LoadTransformData();
                     serializedObject.Update();
-                    BezierEditor.DrawHandlePoints(points, Color.green, transformData);
+                    VectorHandles.DrawHandlePoints(points, Color.green, transformData);
                     DrawTransformHandle();
                     
                     BezierEditor.DrawCubicBezierCurve(Color.red, points, transformData);
