@@ -1,4 +1,5 @@
 ﻿using CommonStructures;
+using Curves.Utility;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -74,7 +75,7 @@ namespace Curves {
 
                     var rhs = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
                     var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress);
-                    var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
+                    var binormal = tangent.Binormal(Vector3.up);
 
                     var lhs = rhs + (binormal * width);
                     var tuple = Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs);
@@ -144,16 +145,6 @@ namespace Curves {
         }
 
 #region Static Functions
-        /// <summary>
-        /// Returns the binormal vector.
-        /// </summary>
-        /// <param name="tangent">The tangent of a point</param>
-        /// <param name="normal">The normal of the tangent.</param>
-        /// <returns>The cross product between a tangent and a normal.</returns>
-        public static Vector3 GetBinormal(Vector3 tangent, Vector3 normal) {
-            return Vector3.Cross(tangent, normal);
-        }
-
         /// <summary>
         /// Gets a point along the tangent of the cubic bezier curve.
         /// </summary>

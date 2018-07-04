@@ -10,7 +10,12 @@ namespace Curves {
         public Vector3[] points = { Vector3.back, Vector3.left, Vector3.forward, Vector3.right };
         [HideInInspector]
         public bool isLooping;
-
+        
+        /// <summary>
+        /// Samples and generates a Catmull Rom Spline between all of the points if looping is toggled. Otherwise,
+        /// the Catmull Rom Spline is generated between all of the points except the first and last point in the array.
+        /// </summary>
+        /// <param name="segments">How many segments are there within each line segment?</param>
         public Vector3[] SampleCatmullRomSpline(int segments) {
             var pts = new List<Vector3>();
 
@@ -63,7 +68,26 @@ namespace Curves {
             var c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
             var d = -p0 + 3f * p1 - 3f * p2 + p3;
 
+            // 0.5f ((2f * p1) + ((p2 - p0) * t) + ((2f * p0 - 5f * p1 + 4f * p2 - p3) * t^2) * ((-p0 + 3f * p1 - 3f * p2 + p3) * t^3)
+
             return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
+        }
+        
+        /// <summary>
+        /// Gets the tangent (velocity) at a point in the Catmull Rom Spline.
+        /// </summary>
+        /// <param name="p0">The first control point.</param>
+        /// <param name="p1">The first point of the actual spline.</param>
+        /// <param name="p2">The end point of the actual spline.</param>
+        /// <param name="p3">The second control point.</param>
+        /// <param name="t">Parametric value, t, which defines the position of the point on the curve.</param>
+        /// <returns>The first derivative along the point of the curve.</returns>
+        public static Vector3 GetTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+            var a = t * p2 + t * p0;
+            var b = (2 * t) * (2 * p0 - 5f * p1 + 4f * p2 - p3);
+            var c = (3 * t * t) * (-p0 + 3f * p1 - 3f * p2 + p3);
+            
+            return (0.5f * (a + b + c)).normalized;
         }
 #endregion
     }
