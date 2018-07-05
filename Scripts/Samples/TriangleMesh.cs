@@ -21,6 +21,10 @@ namespace Curves {
         private int[] triangleIndices;
 #pragma warning restore 414
 
+        protected override void GenerateTriangles() {
+            triangleIndices = new int[] { 0, 1, 2 };
+        }
+
         public override void GenerateMesh() {
             meshFilter = GetComponent<MeshFilter>();
             meshGenerator = new MeshGenerator();

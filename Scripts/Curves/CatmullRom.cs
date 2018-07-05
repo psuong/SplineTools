@@ -1,4 +1,5 @@
 ﻿using CommonStructures;
+using Curves.Utility;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,7 +46,7 @@ namespace Curves {
         /// </summary>
         /// <param name="segments">How many line segments are there within each spline.</param>
         /// <returns>An array of tuples defining the direction relative to the original point.</returns>
-        public Tuple<Vector3, Vector3>[] SampleTangents(int segments) {
+        public Tuple<Vector3, Vector3>[] SampleCatmullRomSpline(int segments, float width) {
             var directions = new List<Tuple<Vector3, Vector3>>();
 
             for (int i = 0; i < points.Length; i++) {
@@ -60,9 +61,10 @@ namespace Curves {
 
                 for (int t = 0; t <= segments; t++) {
                     var progress = (float) t / segments;
-                    var pt = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
+                    var rhs = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
                     var tangent = CatmullRom.GetTangent(p0, p1, p2, p3, progress);
-                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(pt, tangent));
+                    var lhs = rhs + (tangent.Binormal(Vector3.up) * width);
+                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));
                 }
             }
             return directions.ToArray();

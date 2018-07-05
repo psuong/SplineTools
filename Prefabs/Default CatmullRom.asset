@@ -9,13 +9,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc2f62711cebc45c5af7fc2a927660e0, type: 3}
-  m_Name: CatmullRom Curve
+  m_Name: Default CatmullRom
   m_EditorClassIdentifier: 
   points:
-  - {x: -0.9922619, y: 0, z: 0.006040871}
-  - {x: -1.0000024, y: 0, z: 0.7510897}
-  - {x: -0.24806473, y: 0, z: 0.848408}
-  - {x: 0.8001702, y: 0, z: 0.1653797}
-  - {x: 0.95176685, y: 0, z: -0.5857079}
-  - {x: 0.14555535, y: 0, z: -0.7510827}
+  - {x: 0, y: 0, z: -1}
+  - {x: -1, y: 0, z: 0}
+  - {x: 0, y: 0, z: 1}
+  - {x: 1, y: 0, z: 0}
   isLooping: 1

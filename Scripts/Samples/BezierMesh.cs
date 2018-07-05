@@ -5,7 +5,7 @@ namespace Curves {
 
     public class BezierMesh : BaseMesh {
         
-        [SerializeField, Tooltip("What bezier profile should we use?")]
+        [Tooltip("What bezier profile should we use?")]
         public Bezier bezier;
         [Tooltip("How wide are the curves away from each other?")]
         public float width = 1f;
@@ -16,9 +16,8 @@ namespace Curves {
 
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
-        private int[] triangles;
         
-        private void GenerateTriangles() {
+        protected override void GenerateTriangles() {
             triangles = new int[bezier.SplineCount * segments * resolution * 6];
             var ySize = segments * bezier.SplineCount;
             for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
