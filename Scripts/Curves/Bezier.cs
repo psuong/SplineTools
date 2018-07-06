@@ -218,7 +218,7 @@ namespace Curves {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
 
-            return (3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2)).normalized;
+            return ((3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2))).normalized;
         }
 
         /// <summary>
