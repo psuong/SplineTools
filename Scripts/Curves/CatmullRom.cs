@@ -4,15 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Curves {
-    
+
     [CreateAssetMenu(menuName = "Curves/CatmullRom", fileName = "CatmullRom Curve")]
-    public class CatmullRom : ScriptableObject {
+    public class CatmullRom : ScriptableObject, ISpline {
         
+        /// <summary>
+        /// The number of splines between all of the points.
+        /// </summary>
+        public int SplineCount {
+            get {
+                return isLooping ? points.Length : points.Length - 1;
+            }
+        }
+
         [HideInInspector]
         public Vector3[] points = { Vector3.back, Vector3.left, Vector3.forward, Vector3.right };
         [HideInInspector]
         public bool isLooping;
-        
+
         /// <summary>
         /// Samples and generates a Catmull Rom Spline between all of the points if looping is toggled. Otherwise,
         /// the Catmull Rom Spline is generated between all of the points except the first and last point in the array.
@@ -34,7 +43,11 @@ namespace Curves {
                 for (int t = 0; t <= segments; t++) {
                     var progress = (float) t / segments;
                     var pt = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
-                    pts.Add(pt);
+                    if (pts.Count == 0) {
+                        pts.Add(pt);
+                    } else if (pts[pts.Count - 1] != pt) {
+                        pts.Add(pt);
+                    }
                 }
             }
 
@@ -64,10 +77,36 @@ namespace Curves {
                     var rhs = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
                     var tangent = CatmullRom.GetTangent(p0, p1, p2, p3, progress);
                     var lhs = rhs + (tangent.Binormal(Vector3.up) * width);
-                    directions.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));
+
+                    if (directions.Count == 0) {
+                        directions.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));                   
+                    } else if (directions.Count > 0 && directions[directions.Count - 1].item2 != rhs) {
+                        directions.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));
+                    }
                 }
             }
             return directions.ToArray();
+        }
+
+        /// <summary>
+        /// Returns the accumulating distance of each segment within the first spline.
+        /// </summary>
+        /// <param name="segments">How many segments are there in the spline?</param>
+        /// <returns>An array of distances from the original point for each point within the spline.</returns>
+        public float[] GetLengthTable(int segments) {
+            var vertices = SampleCatmullRomSpline(segments);
+
+            var distances = new float[SplineCount * (segments + 1) - (SplineCount - 1)];
+
+            var previous = vertices[0];
+            var total = 0f;
+
+            for (int i = 1; i < distances.Length; i++) {
+                distances[i] = total += (vertices[i] - previous).magnitude;
+                previous = vertices[i];
+            }
+
+            return distances;
         }
 
         private int ClampIndex(int i) {
@@ -103,7 +142,7 @@ namespace Curves {
 
             return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
         }
-        
+
         /// <summary>
         /// Gets the tangent (velocity) at a point in the Catmull Rom Spline.
         /// </summary>
@@ -117,7 +156,7 @@ namespace Curves {
             var a = p2 - p0;
             var b = (2 * t) * (2 * p0 - 5f * p1 + 4f * p2 - p3);
             var c = (3 * t * t) * (-p0 + 3f * p1 - 3f * p2 + p3);
-            
+
             return (0.5f * (a + b + c)).normalized;
         }
 #endregion

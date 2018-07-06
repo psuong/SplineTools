@@ -15,34 +15,38 @@ namespace Curves.EditorTools {
         private int currentIndex;
 
         protected override void OnEnable() {
-            base.OnEnable();
+            try {
+                base.OnEnable();
 
-            bezier = target as Bezier;
-            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
+                bezier = target as Bezier;
+                jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 
-            points = serializedObject.FindProperty("points");
+                points = serializedObject.FindProperty("points");
 
-            pointsList = new ReorderableList(serializedObject, points);
+                pointsList = new ReorderableList(serializedObject, points);
 
-            pointsList.drawHeaderCallback = DrawPointHeader;
-            pointsList.drawElementCallback = DrawPointElement;
-            pointsList.elementHeightCallback = ElementHeight;
-            pointsList.onAddCallback = AddPointListCallback;
-            pointsList.onRemoveCallback = RemovePointsListCallback;
-            pointsList.onCanRemoveCallback = CanRemovePointElement;
-            pointsList.onSelectCallback = OnSelectPointsList;
+                pointsList.drawHeaderCallback = DrawPointHeader;
+                pointsList.drawElementCallback = DrawPointElement;
+                pointsList.elementHeightCallback = ElementHeight;
+                pointsList.onAddCallback = AddPointListCallback;
+                pointsList.onRemoveCallback = RemovePointsListCallback;
+                pointsList.onCanRemoveCallback = CanRemovePointElement;
+                pointsList.onSelectCallback = OnSelectPointsList;
+            } catch (System.NullReferenceException) { }
         }
 
         protected override void OnDisable() {
-            base.OnDisable();
+            try {
+                base.OnDisable();
 
-            pointsList.drawHeaderCallback -= DrawPointHeader;
-            pointsList.drawElementCallback -= DrawPointElement;
-            pointsList.elementHeightCallback -= ElementHeight;
-            pointsList.onAddCallback -= AddPointListCallback;
-            pointsList.onRemoveCallback -= RemovePointsListCallback;
-            pointsList.onCanRemoveCallback -= CanRemovePointElement;
-            pointsList.onSelectCallback -= OnSelectPointsList;
+                pointsList.drawHeaderCallback -= DrawPointHeader;
+                pointsList.drawElementCallback -= DrawPointElement;
+                pointsList.elementHeightCallback -= ElementHeight;
+                pointsList.onAddCallback -= AddPointListCallback;
+                pointsList.onRemoveCallback -= RemovePointsListCallback;
+                pointsList.onCanRemoveCallback -= CanRemovePointElement;
+                pointsList.onSelectCallback -= OnSelectPointsList;
+            } catch (System.NullReferenceException) { }
         }
 
 #region List Callbacks
@@ -69,7 +73,7 @@ namespace Curves.EditorTools {
 
         private void AddPointListCallback(ReorderableList list) {
             var size = points.arraySize += 3;
-            
+
             var p0 = points.GetArrayElementAtIndex(size - 4).vector3Value;
             points.GetArrayElementAtIndex(size - 3).vector3Value = p0 + new Vector3(-2.5f, 0, 2.5f);
             points.GetArrayElementAtIndex(size - 2).vector3Value = p0 + new Vector3(2.5f, 0, 7.5f);
@@ -113,13 +117,13 @@ namespace Curves.EditorTools {
                     var p1 = points.GetArrayElementAtIndex(i + 3).vector3Value;
 
                     Handles.DrawBezier(
-                        trs.MultiplyPoint3x4(p0),
-                        trs.MultiplyPoint3x4(p1),
-                        trs.MultiplyPoint3x4(c0),
-                        trs.MultiplyPoint3x4(c1),
-                        bezierColor,
-                        null,
-                        HandleUtility.GetHandleSize(Vector3.one));
+                            trs.MultiplyPoint3x4(p0),
+                            trs.MultiplyPoint3x4(p1),
+                            trs.MultiplyPoint3x4(c0),
+                            trs.MultiplyPoint3x4(c1),
+                            bezierColor,
+                            null,
+                            HandleUtility.GetHandleSize(Vector3.one));
                 }
             } catch(System.NullReferenceException) { }
         }
@@ -141,13 +145,13 @@ namespace Curves.EditorTools {
                     var p1 = points[i + 3];
 
                     Handles.DrawBezier(
-                        transform.TransformPoint(p0),
-                        transform.TransformPoint(p1),
-                        transform.TransformPoint(c0),
-                        transform.TransformPoint(c1),
-                        colour,
-                        null,
-                        HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
+                            transform.TransformPoint(p0),
+                            transform.TransformPoint(p1),
+                            transform.TransformPoint(c0),
+                            transform.TransformPoint(c1),
+                            colour,
+                            null,
+                            HandleUtility.GetHandleSize(Vector3.one) * 0.5f);
                 }
             } catch(System.NullReferenceException) { }
         }
@@ -174,23 +178,25 @@ namespace Curves.EditorTools {
 #endregion
         protected override void OnSceneGUI(SceneView sceneView) {
             // Only draw the editor if the scriptable object was selected.
-            if(Selection.Contains(bezier)) {
-                using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
-                    LoadTransformData();
-                    serializedObject.Update();
-                    VectorHandles.DrawHandlePoints(points, Color.green, transformData);
-                    DrawTransformHandle();
-                    
-                    BezierEditor.DrawCubicBezierCurve(Color.red, points, transformData);
-                    BezierEditor.SampleDirections(10, bezier, transformData);
+            try {
+                if(Selection.Contains(bezier)) {
+                    using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                        LoadTransformData();
+                        serializedObject.Update();
+                        VectorHandles.DrawHandlePoints(points, Color.green, transformData);
+                        DrawTransformHandle();
 
-                    if(changeCheck.changed) {
-                        serializedObject.ApplyModifiedProperties();
-                        SaveTransformData();
-                        SceneView.RepaintAll();
+                        BezierEditor.DrawCubicBezierCurve(Color.red, points, transformData);
+                        BezierEditor.SampleDirections(10, bezier, transformData);
+
+                        if(changeCheck.changed) {
+                            serializedObject.ApplyModifiedProperties();
+                            SaveTransformData();
+                            SceneView.RepaintAll();
+                        }
                     }
                 }
-            }
+            } catch (System.NullReferenceException) { }
         }
 
         public override void OnInspectorGUI() {

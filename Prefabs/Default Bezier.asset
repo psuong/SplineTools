@@ -9,13 +9,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1773c058b84b4de29be8e1b17f34f1c, type: 3}
-  m_Name: Bezier Curve
+  m_Name: Default Bezier
   m_EditorClassIdentifier: 
   points:
   - {x: 0, y: 0, z: 0}
   - {x: -2.5, y: 0, z: 2.5}
-  - {x: 3.1921115, y: -1.1576242, z: 6.589557}
+  - {x: 2.5, y: 0, z: 7.5}
   - {x: 0, y: 0, z: 10}
-  - {x: -6.3396993, y: 1.0969515, z: 9.692835}
-  - {x: 2.5, y: 0, z: 17.5}
-  - {x: 0, y: 0, z: 25}

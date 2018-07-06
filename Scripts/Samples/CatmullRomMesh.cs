@@ -31,14 +31,12 @@ namespace Curves {
         protected override void GenerateTriangles() {
             var ySize = (segments + 1) * catmullRom.points.Length;
             triangles = new int[ySize * resolution * 6];
-            var index = 0;
             for (int ti = 0, vi = 0, y = 0; y < vertices.Length; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
                     triangles[ti + 3] = triangles[ti + 2] = vi + 1;
                     triangles[ti + 4] = triangles[ti + 1] = vi + resolution + 1;
                     triangles[ti + 5] = vi + resolution + 2;
-                    index++;
                 }
             }
         }
@@ -64,6 +62,9 @@ namespace Curves {
             GenerateTriangles();
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
+
+            var distances = catmullRom.GetLengthTable(10);
+            meshGenerator.AddUVs(mVertices.Length, resolution, mVertices.Length / 2 - 1, distances);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.RecalculateBounds();
