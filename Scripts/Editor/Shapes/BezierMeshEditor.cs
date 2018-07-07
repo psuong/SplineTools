@@ -11,7 +11,6 @@ namespace Curves.EditorTools {
         private Transform transform;
         private bool foldoutState;
 
-
         protected override void OnEnable() {
             base.OnEnable();
             bezierProperty = serializedObject.FindProperty("bezier");
@@ -54,7 +53,7 @@ namespace Curves.EditorTools {
                 var points = bezierMesh.bezier.points;
                 
                 BezierEditor.DrawCubicBezierCurve(points, transform, Color.red);
-                BezierEditor.DrawHandlePoints(points, Color.green, transform);
+                VectorHandles.DrawHandlePoints(points, Color.green, transform);
             } catch (System.NullReferenceException) { }
         }
 

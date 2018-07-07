@@ -104,7 +104,7 @@ namespace Curves {
             for (int y = 0, i = 0; y <= ySize; y++) {
                 for (int x = 0; x <= xSize; x++, i++) {
                     // Generate the (UV) coordinate
-                    uvs[i] = new Vector2((float) x / xSize, totalDistance);
+                    uvs[i] = new Vector2((float) x / xSize, ((float) y / ySize) * totalDistance);
                 }
             }
             AddUVs(uvs);

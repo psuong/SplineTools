@@ -12,7 +12,6 @@ namespace Curves {
         private int resolution = 1;
 
         private Vector3[] vertices;
-        private int[] triangles;
 
         public override void GenerateMesh() {
             vertices = new Vector3[(resolution + 1) * (resolution + 1)];
@@ -55,7 +54,7 @@ namespace Curves {
             meshFilter.sharedMesh = mesh;
         }
 
-        private void GenerateTriangles() {
+        protected override void GenerateTriangles() {
             triangles = new int[resolution * resolution * 6];
             for (int ti = 0, vi = 0, y = 0; y < resolution; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {

@@ -8,6 +8,9 @@ namespace Curves.EditorTools {
 
     public abstract class SceneViewEditor : Editor {
 
+        protected const float HandleSize = 0.07f;
+        protected const float Alpha = 0.02f;
+
         public TransformDataHandler onDrawTransformCallback;
 
         protected TransformData transformData;
