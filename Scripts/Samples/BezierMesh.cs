@@ -5,7 +5,7 @@ namespace Curves {
 
     public class BezierMesh : BaseMesh {
         
-        [SerializeField, Tooltip("What bezier profile should we use?")]
+        [Tooltip("What bezier profile should we use?")]
         public Bezier bezier;
         [Tooltip("How wide are the curves away from each other?")]
         public float width = 1f;
@@ -16,9 +16,8 @@ namespace Curves {
 
         // Store the vertices for the mesh.
         private Tuple<Vector3, Vector3>[] vertices;
-        private int[] triangles;
         
-        private void GenerateTriangles() {
+        protected override void GenerateTriangles() {
             triangles = new int[bezier.SplineCount * segments * resolution * 6];
             var ySize = segments * bezier.SplineCount;
             for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
@@ -57,11 +56,11 @@ namespace Curves {
             meshGenerator.AddTriangles(triangles);
 
             // var lookUpTable = Bezier.GetCubicLengthTable(vertices);
-            var lookUpTable = bezier.GetCubicLengthTable(10);
-            // var total = Bezier.GetBezierDistance(vertices);
+            // var lookUpTable = bezier.GetLengthTable(10);
+            var total = Bezier.GetBezierDistance(vertices);
 
-            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
-            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, total);
+            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
+            meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, total);
 
             var mesh = meshGenerator.CreateMesh();
             

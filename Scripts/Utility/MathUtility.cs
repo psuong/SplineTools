@@ -22,6 +22,19 @@ namespace Curves.Utility {
         }
     }
 
+    public static class VectorExtension {
+
+        /// <summary>
+        /// Returns the binormal vector.
+        /// </summary>
+        /// <param name="tangent">The tangent of a point</param>
+        /// <param name="normal">The normal of the tangent.</param>
+        /// <returns>The cross product between a tangent and a normal.</returns>
+        public static Vector3 Binormal(this Vector3 tangent, Vector3 normal) {
+            return Vector3.Cross(tangent, normal);
+        }
+    }
+
     public static class FloatExtension {
 
         /// <summary>
@@ -55,22 +68,6 @@ namespace Curves.Utility {
                 value = Mathf.Lerp(data[lhs], data[rhs], floatI - lhs);
             }
             return value;
-        }
-        
-        /// <summary>
-        /// Samples a matrix of a size t given a row.
-        /// </summary>
-        /// <param name="data">A matrix of data given</param>
-        public static float Sample(this float[][] data, int index, float t) {
-            var size = data.Length;
-            if (size == 0) {
-                return 0f;
-            } else {
-                index = Mathf.Clamp(index, 0, size - 1);
-                t = Mathf.Clamp01(t);
-                
-                return data[index].Sample(t);
-            }
         }
     }
 }

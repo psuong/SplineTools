@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
-    [CustomEditor(typeof(Line))]
-    public class LineEditor : SceneViewEditor {
+    [CustomEditor(typeof(Line))] public class LineEditor : SceneViewEditor {
 
         private const float HandleSize = 0.15f;
 
@@ -21,7 +20,8 @@ namespace Curves.EditorTools {
         }
 
         protected override void OnDisable() {
-            base.OnDisable(); }
+            base.OnDisable();
+        }
 
         protected override void OnSceneGUI(SceneView sceneView) {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
@@ -41,8 +41,12 @@ namespace Curves.EditorTools {
                 serializedObject.Update();
                 DrawTransformField();
                 DrawDefaultInspector();
+                
+                VectorListUtility.ResetHeight(0f, p0, p1);
+
                 serializedObject.ApplyModifiedProperties();
                 SaveTransformData();
+
                 if (changeCheck.changed) {
                     SceneView.RepaintAll();
                 }
@@ -53,7 +57,7 @@ namespace Curves.EditorTools {
             Handles.color = Color.red;
 
             var trs = transformData.TRS;
-            
+
             var start = trs.MultiplyPoint3x4(p0.vector3Value);
             var end = trs.MultiplyPoint3x4(p1.vector3Value);
 

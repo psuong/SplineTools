@@ -1,11 +1,12 @@
 ﻿using CommonStructures;
+using Curves.Utility;
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace Curves {
 
     [CreateAssetMenu(menuName = "Curves/Bezier", fileName = "Bezier Curve")]
-    public class Bezier : ScriptableObject {
+    public class Bezier : ScriptableObject, ISpline {
         
         /// <summary>
         /// Returns the number of splines within the bezier.
@@ -74,7 +75,7 @@ namespace Curves {
 
                     var rhs = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
                     var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress);
-                    var binormal = Bezier.GetBinormal(tangent.normalized, Vector3.up);
+                    var binormal = tangent.Binormal(Vector3.up);
 
                     var lhs = rhs + (binormal * width);
                     var tuple = Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs);
@@ -83,7 +84,7 @@ namespace Curves {
                     var index = Mathf.Clamp(bSize - 1, 0, bSize);
 
                     if (index == 0) {
-                        bezierPoints.Add(Tuple<Vector3, Vector3>.CreateTuple(lhs, rhs));
+                        bezierPoints.Add(tuple);
                     } else if (index > 0 && bezierPoints[index].item1 != tuple.item1 && bezierPoints[index].item2 != tuple.item2) {
                         bezierPoints.Add(tuple);
                     }
@@ -93,11 +94,11 @@ namespace Curves {
         }
 
         /// <summary>
-        /// Returns the accumulating the distance of each segment within the first spline.
+        /// Returns the accumulating distance of each segment within the first spline.
         /// </summary>
         /// <param name="segments">How many segments are there in the spline?</param>
         /// <returns>An array of distances from the original point for each point within the spline.</returns>
-        public float[] GetCubicLengthTable(int segments) {
+        public float[] GetLengthTable(int segments) {
             var p0 = points[0];
             var c0 = points[1];
             var c1 = points[2];
@@ -144,16 +145,6 @@ namespace Curves {
         }
 
 #region Static Functions
-        /// <summary>
-        /// Returns the binormal vector.
-        /// </summary>
-        /// <param name="tangent">The tangent of a point</param>
-        /// <param name="normal">The normal of the tangent.</param>
-        /// <returns>The cross product between a tangent and a normal.</returns>
-        public static Vector3 GetBinormal(Vector3 tangent, Vector3 normal) {
-            return Vector3.Cross(tangent, normal);
-        }
-
         /// <summary>
         /// Gets a point along the tangent of the cubic bezier curve.
         /// </summary>
@@ -222,12 +213,12 @@ namespace Curves {
         /// <param name="p2">The second control point on the bezier curve</param>
         /// <param name="p3">The second point on the bezier curve</param>
         /// <param name="t">Parametric value, t, which defines the percentage on the curve</param>
-        /// <returns>The first derivative at a said point.</returns>
+        /// <returns>The first derivative normalised at a said point.</returns>
         public static Vector3 GetTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
             t = Mathf.Clamp01(t);
             var inverseT = 1f - t;
 
-            return (3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2));
+            return ((3f * Mathf.Pow(inverseT, 2)  * p1 - p0) + (6f * inverseT * t * (p2 - p1)) + (3 * Mathf.Pow(t, 2) * (p3 - p2))).normalized;
         }
 
         /// <summary>
@@ -250,7 +241,7 @@ namespace Curves {
                     var progress = (float) t  / segments;
 
                     var pt = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, progress);
-                    var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress).normalized;
+                    var tangent = Bezier.GetTangent(p0, c0, c1, p1, progress);
                     directions.Add(Tuple<Vector3, Vector3>.CreateTuple(pt, tangent));
                 }
             }

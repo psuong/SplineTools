@@ -30,8 +30,7 @@ namespace Curves.EditorTools {
                     if (onSceneCallback != null) {
                         onSceneCallback();
                     }
-                } catch (System.Exception) { }
-
+                } catch (System.Exception) { } 
                 if (changeCheck.changed) {
                     if (onChangeCallback != null) {
                         onChangeCallback();
