@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Name: Default CatmullRom
   m_EditorClassIdentifier: 
   points:
-  - {x: 0, y: 0, z: -1}
+  - {x: -0.30257475, y: 0, z: -1.2313908}
   - {x: -1, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}
-  - {x: 1, y: 0, z: 0}
+  - {x: 1.0594051, y: 0, z: 0.8168122}
+  - {x: 1.6996331, y: 0, z: -0.14154673}
+  - {x: 1.7705032, y: 0, z: -1.187701}
+  - {x: 0.723761, y: 0, z: -1.9672878}
   isLooping: 1

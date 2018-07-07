@@ -57,6 +57,14 @@ namespace Curves {
         public void AddVertices(params Vector3[] vertices) {
             this.vertices.AddRange(vertices);
         }
+        
+        /// <summary>
+        /// Adds all vertices to a list.
+        /// </summary>
+        /// <param name="vertices">A generic colelction of vertices.</param>
+        public void AddVertices(System.Collections.IEnumerable vertices) {
+            this.vertices.AddRange(vertices as Vector3[]);
+        }
 
         /// <summary>
         /// Adds all normals to a list.
@@ -165,7 +173,6 @@ namespace Curves {
                 // progress = (y > 0 && y % segments == 1) ? 0 : progress++;
 
                 var t = (float) progress / segments;
-                Debug.LogFormat("y: {0}, SplineCounter: {1}, t: {2}, Progress: {3}", y, splineCounter, t, progress);
                 try {
                     float[] splineDistances = distances[splineCounter];
                     for (int x = 0; x <= xSize; x++, i++) {

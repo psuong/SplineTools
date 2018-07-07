@@ -88,6 +88,22 @@ namespace Curves.EditorTools {
                 Handles.DrawLine(lhs, rhs);
             }
         }
+
+        /// <summary>
+        /// Draws the lines given an array relative to a transform.
+        /// </summary>
+        /// <param name="points">An array of Vector3.</param>
+        /// <param name="transform">The transform that affects the line's position.</param>
+        /// <param name="lineColour">What colour is the line?</param>
+        public static void DrawLines(Vector3[] points, Transform transform, Color lineColour) {
+            Handles.color = lineColour;
+            for (int i = 1; i < points.Length; i++) {
+                var lhs = transform.InverseTransformPoint(points[i - 1]);
+                var rhs = transform.InverseTransformPoint(points[i]);
+
+                Handles.DrawLine(lhs, rhs);
+            }
+        }
     }
 
     public static class VectorListUtility {

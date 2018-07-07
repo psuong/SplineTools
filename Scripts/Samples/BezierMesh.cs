@@ -18,8 +18,8 @@ namespace Curves {
         private Tuple<Vector3, Vector3>[] vertices;
         
         protected override void GenerateTriangles() {
-            triangles = new int[bezier.SplineCount * segments * resolution * 6];
             var ySize = segments * bezier.SplineCount;
+            triangles = new int[ySize * resolution * 6];
             for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
@@ -55,11 +55,7 @@ namespace Curves {
             meshGenerator.AddVertices(mVertices);
             meshGenerator.AddTriangles(triangles);
 
-            // var lookUpTable = Bezier.GetCubicLengthTable(vertices);
-            // var lookUpTable = bezier.GetLengthTable(10);
             var total = Bezier.GetBezierDistance(vertices);
-
-            // meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, lookUpTable);
             meshGenerator.AddUVs(mVertices.Length, resolution, segments * bezier.SplineCount, total);
 
             var mesh = meshGenerator.CreateMesh();
