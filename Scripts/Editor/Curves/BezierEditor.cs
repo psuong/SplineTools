@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
+    using NIL = System.NullReferenceException;
+
     [CustomEditor(typeof(Bezier))]
     public class BezierEditor : SceneViewEditor {
 
@@ -15,34 +17,39 @@ namespace Curves.EditorTools {
         private int currentIndex;
 
         protected override void OnEnable() {
-            base.OnEnable();
+            try {
+                base.OnEnable();
 
-            bezier = target as Bezier;
-            jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
+                bezier = target as Bezier;
+                jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 
-            points = serializedObject.FindProperty("points");
+                points = serializedObject.FindProperty("points");
 
-            pointsList = new ReorderableList(serializedObject, points);
+                pointsList = new ReorderableList(serializedObject, points);
 
-            pointsList.drawHeaderCallback = DrawPointHeader;
-            pointsList.drawElementCallback = DrawPointElement;
-            pointsList.elementHeightCallback = ElementHeight;
-            pointsList.onAddCallback = AddPointListCallback;
-            pointsList.onRemoveCallback = RemovePointsListCallback;
-            pointsList.onCanRemoveCallback = CanRemovePointElement;
-            pointsList.onSelectCallback = OnSelectPointsList;
+                pointsList.drawHeaderCallback = DrawPointHeader;
+                pointsList.drawElementCallback = DrawPointElement;
+                pointsList.elementHeightCallback = ElementHeight;
+                pointsList.onAddCallback = AddPointListCallback;
+                pointsList.onRemoveCallback = RemovePointsListCallback;
+                pointsList.onCanRemoveCallback = CanRemovePointElement;
+                pointsList.onSelectCallback = OnSelectPointsList;
+            } catch (NIL) {
+            }
         }
 
         protected override void OnDisable() {
-            base.OnDisable();
+            try {
+                base.OnDisable();
 
-            pointsList.drawHeaderCallback -= DrawPointHeader;
-            pointsList.drawElementCallback -= DrawPointElement;
-            pointsList.elementHeightCallback -= ElementHeight;
-            pointsList.onAddCallback -= AddPointListCallback;
-            pointsList.onRemoveCallback -= RemovePointsListCallback;
-            pointsList.onCanRemoveCallback -= CanRemovePointElement;
-            pointsList.onSelectCallback -= OnSelectPointsList;
+                pointsList.drawHeaderCallback -= DrawPointHeader;
+                pointsList.drawElementCallback -= DrawPointElement;
+                pointsList.elementHeightCallback -= ElementHeight;
+                pointsList.onAddCallback -= AddPointListCallback;
+                pointsList.onRemoveCallback -= RemovePointsListCallback;
+                pointsList.onCanRemoveCallback -= CanRemovePointElement;
+                pointsList.onSelectCallback -= OnSelectPointsList;
+            } catch (NIL) { }
         }
 
 #region List Callbacks
@@ -188,7 +195,7 @@ namespace Curves.EditorTools {
                         }
                     }
                 }
-            } catch (System.NullReferenceException) { }
+            } catch (NIL) { }
         }
 
         public override void OnInspectorGUI() {
