@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace Curves.EditorTools {
 
         protected override void OnEnable() {
             base.OnEnable();
+            ShowTransformField = true;
             catmullRom = target as CatmullRom;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 
@@ -55,6 +57,12 @@ namespace Curves.EditorTools {
         private void DrawCatmullRomSpline(Color colour) {
             var pts = catmullRom.SampleCatmullRomSpline(10);
             VectorHandles.DrawLines(pts, transformData, Color.red);
+        }
+
+        public static void DrawCatmullRomSpline(CatmullRom catmullRom, Transform transform, Color colour) {
+            var values = new List<Vector3>();
+            CatmullRom.SampleCatmullRomSpline(catmullRom.points, catmullRom.isLooping, 20, (values as IList<Vector3>));
+            VectorHandles.DrawLines(values.ToArray(), transform, colour);
         }
 #endregion
 

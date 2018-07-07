@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
-    [CustomEditor(typeof(Line))] public class LineEditor : SceneViewEditor {
-
-        private const float HandleSize = 0.15f;
+    [CustomEditor(typeof(Line))] 
+    public class LineEditor : SceneViewEditor {
 
         private SerializedProperty p0;
         private SerializedProperty p1;

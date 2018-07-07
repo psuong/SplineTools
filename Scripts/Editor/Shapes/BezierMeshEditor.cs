@@ -17,6 +17,7 @@ namespace Curves.EditorTools {
             transform = ((MonoBehaviour)target).transform;
 
             customEditor = Editor.CreateEditor(bezierProperty.objectReferenceValue);
+            (customEditor as SceneViewEditor).ShowTransformField = false;
 
             onSceneCallback += RedrawMesh;
             onSceneCallback += DrawSceneViewEditor;
