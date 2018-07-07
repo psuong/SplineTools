@@ -20,7 +20,6 @@ namespace Curves {
         protected override void GenerateTriangles() {
             var ySize = segments * bezier.SplineCount;
             triangles = new int[ySize * resolution * 6];
-            Debug.LogWarning(ySize);
             for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
                 for (int x = 0; x < resolution; x++, ti += 6, vi++) {
                     triangles[ti] = vi;
@@ -52,10 +51,8 @@ namespace Curves {
             }
 
             GenerateTriangles();
-            Debug.Log(triangles.Length);
 
             meshGenerator.AddVertices(mVertices);
-            Debug.Log(mVertices.Length);
             meshGenerator.AddTriangles(triangles);
 
             var total = Bezier.GetBezierDistance(vertices);

@@ -29,30 +29,9 @@ namespace Curves {
         /// </summary>
         /// <param name="segments">How many segments are there within each line segment?</param>
         public Vector3[] SampleCatmullRomSpline(int segments) {
-            var pts = new List<Vector3>();
-
-            for (int i = 0; i < points.Length; i++) {
-                if ((i == 0 || i == points.Length - 1 || i == points.Length - 2) && !isLooping) {
-                    continue;
-                }
-
-                var p0 = points[ClampIndex(i - 1)];
-                var p1 = points[ClampIndex(i)];
-                var p2 = points[ClampIndex(i + 1)];
-                var p3 = points[ClampIndex(i + 2)];
-
-                for (int t = 0; t <= segments; t++) {
-                    var progress = (float) t / segments;
-                    var pt = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
-                    if (pts.Count == 0) {
-                        pts.Add(pt);
-                    } else if (pts[pts.Count - 1] != pt) {
-                        pts.Add(pt);
-                    }
-                }
-            }
-
-            return pts.ToArray();
+            var @out = new List<Vector3>();
+            CatmullRom.SampleCatmullRomSpline(this.points, isLooping, segments, @out as IList<Vector3>);
+            return @out.ToArray();
         }
 
         /// <summary>
@@ -63,15 +42,17 @@ namespace Curves {
         public Tuple<Vector3, Vector3>[] SampleCatmullRomSpline(int segments, float width) {
             var directions = new List<Tuple<Vector3, Vector3>>();
 
-            for (int i = 0; i < points.Length; i++) {
-                if ((i == 0 || i == points.Length - 1 || i == points.Length - 2) && !isLooping) {
+            var size = points.Length;
+
+            for (int i = 0; i < size; i++) {
+                if ((i == 0 || i == size - 1 || i == size - 2) && !isLooping) {
                     continue;
                 }
 
-                var p0 = points[ClampIndex(i - 1)];
-                var p1 = points[ClampIndex(i)];
-                var p2 = points[ClampIndex(i + 1)];
-                var p3 = points[ClampIndex(i + 2)];
+                var p0 = points[CatmullRom.ClampIndex(i - 1, size)];
+                var p1 = points[CatmullRom.ClampIndex(i, size)];
+                var p2 = points[CatmullRom.ClampIndex(i + 1, size)];
+                var p3 = points[CatmullRom.ClampIndex(i + 2, size)];
 
                 for (int t = 0; t <= segments; t++) {
                     var progress = (float) t / segments;
@@ -110,19 +91,20 @@ namespace Curves {
             return distances;
         }
 
-        private int ClampIndex(int i) {
+
+#region Static Functions
+        private static int ClampIndex(int i, int size) {
             if (i < 0) {
-                return points.Length - 1;
-            } else if (i > points.Length) {
+                return size - 1;
+            } else if (i > size) {
                 return 1;
-            } else if (i > points.Length - 1) {
+            } else if (i > size - 1) {
                 return 0;
             } else {
                 return i;
             }
         }
 
-#region Static Functions
         /// <summary>
         /// Returns a point on the catmull rom spline between p1 and p2.
         /// </summary>
@@ -138,8 +120,6 @@ namespace Curves {
             var b = p2 - p0;
             var c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
             var d = -p0 + 3f * p1 - 3f * p2 + p3;
-
-            // 0.5f ((2f * p1) + ((p2 - p0) * t) + ((2f * p0 - 5f * p1 + 4f * p2 - p3) * t^2) * ((-p0 + 3f * p1 - 3f * p2 + p3) * t^3)
 
             return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
         }
@@ -159,6 +139,37 @@ namespace Curves {
             var c = (3 * t * t) * (-p0 + 3f * p1 - 3f * p2 + p3);
 
             return (0.5f * (a + b + c)).normalized;
+        }
+        
+        /// <summary>
+        /// Samples and writes a series of Vector3 points into a list given the segments.
+        /// </summary>
+        /// <param name="points">The control points used to generate the spline.</param>
+        /// <param name="isLooping">Is the catmull rom spline looping?</param>
+        /// <param name="segments">How many segments are in each spline?</param>
+        /// <param name="pts">The write list to store the values into.</param>
+        public static void SampleCatmullRomSpline(Vector3[] points, bool isLooping, int segments, IList<Vector3> pts) {
+            var size = points.Length;
+            for (int i = 0; i < points.Length; i++) {
+                if ((i == 0 || i == points.Length - 1 || i == points.Length - 2) && !isLooping) {
+                    continue;
+                }
+
+                var p0 = points[CatmullRom.ClampIndex(i - 1, size)];
+                var p1 = points[CatmullRom.ClampIndex(i, size)];
+                var p2 = points[CatmullRom.ClampIndex(i + 1, size)];
+                var p3 = points[CatmullRom.ClampIndex(i + 2, size)];
+
+                for (int t = 0; t <= segments; t++) {
+                    var progress = (float) t / segments;
+                    var pt = CatmullRom.GetCatmullRomSplinePoint(p0, p1, p2, p3, progress);
+                    if (pts.Count == 0) {
+                        pts.Add(pt);
+                    } else if (pts[pts.Count - 1] != pt) {
+                        pts.Add(pt);
+                    }
+                }
+            }
         }
 #endregion
     }

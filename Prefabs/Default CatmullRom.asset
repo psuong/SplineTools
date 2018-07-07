@@ -9,11 +9,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc2f62711cebc45c5af7fc2a927660e0, type: 3}
-  m_Name: 
+  m_Name: Default CatmullRom
   m_EditorClassIdentifier: 
   points:
-  - {x: 0, y: 0, z: -1}
+  - {x: -0.30257475, y: 0, z: -1.2313908}
   - {x: -1, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}
-  - {x: 1, y: 0, z: 0}
+  - {x: 1.0594051, y: 0, z: 0.8168122}
+  - {x: 1.6996331, y: 0, z: -0.14154673}
+  - {x: 1.7705032, y: 0, z: -1.187701}
+  - {x: 0.723761, y: 0, z: -1.9672878}
   isLooping: 1
