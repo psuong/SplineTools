@@ -18,20 +18,25 @@ namespace Curves.EditorTools {
             transform = ((MonoBehaviour)target).transform;
 
             customEditor = Editor.CreateEditor(catmullRomProperty.objectReferenceValue);
+            (customEditor as SceneViewEditor).ShowTransformField = false;
 
             onInspectorCallback += DrawCatmullRomEditor;
+            onInspectorCallback += RedrawMesh;
             onSceneCallback += DrawSceneViewEditor;
+            onSceneCallback += RedrawMesh;
         }
         
         protected override void OnDisable() {
             onInspectorCallback -= DrawCatmullRomEditor;
+            onInspectorCallback -= RedrawMesh;
             onSceneCallback -= DrawSceneViewEditor;
+            onSceneCallback -= RedrawMesh;
         }
 
         private void DrawCatmullRomEditor() {
             using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
                 serializedObject.Update();
-                foldoutState = EditorGUILayout.Foldout(foldoutState, "Bezier");
+                foldoutState = EditorGUILayout.Foldout(foldoutState, "Catmull Rom");
                 
                 if (foldoutState && catmullRomProperty.objectReferenceValue != null) {
                     customEditor.OnInspectorGUI();
@@ -51,6 +56,10 @@ namespace Curves.EditorTools {
                 CatmullRomEditor.DrawCatmullRomSpline(catmullRomProperty.objectReferenceValue as CatmullRom, transform, Color.red);
                 VectorHandles.DrawHandlePoints(points, Color.green, transform);
             } catch (System.NullReferenceException) { }
+        }
+
+        private void RedrawMesh() {
+            meshTool.GenerateMesh();
         }
     }
 }
