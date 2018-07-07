@@ -134,8 +134,6 @@ namespace Curves {
                 for (int x = 0; x <= xSize; x++, i++) {
                     var u = ((float) x / xSize);
                     var v = distances.Sample(t) * factor;
-
-                    Debug.LogFormat("i: {0}, ySize: {1}", i, size);
                     uvs[i] = new Vector2(u, v);
                 }
             }

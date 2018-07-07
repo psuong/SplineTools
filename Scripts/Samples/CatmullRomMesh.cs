@@ -14,29 +14,6 @@ namespace Curves {
         private Tuple<Vector3, Vector3>[] vertices;
         private List<Vector3> meshVertices;
 
-        private void Start() {
-            GenerateMesh();
-        }
-
-        private void OnDrawGizmos() {
-            Gizmos.color = Color.cyan;
-            vertices = catmullRom.SampleCatmullRomSpline(segments, width);
-            for (int i = 1; i < vertices.Length; i++) {
-                var start = vertices[i - 1];
-                var end = vertices[i];
-
-                Gizmos.DrawLine(start.item1, end.item1);
-                Gizmos.DrawLine(start.item2, end.item2);
-            }
-
-            foreach (var vertex in vertices) {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(vertex.item1, 0.025f);
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(vertex.item2, 0.025f);
-            }
-        }
-
         protected override void GenerateTriangles() {
             var ySize = segments * catmullRom.SplineCount;
             triangles = new int[resolution * 6 * ySize];
@@ -70,23 +47,17 @@ namespace Curves {
                 }
             }
 
-            Debug.Log(meshVertices.Count);
-
             GenerateTriangles();
             meshGenerator.AddVertices(meshVertices.ToArray());
             meshGenerator.AddTriangles(triangles);
 
             var distances = catmullRom.GetLengthTable(10);
-            // meshGenerator.AddUVs(meshVertices.Count, resolution, segments * 4, distances);
-
-            Debug.LogWarningFormat("Vertices: {0}, Uvs: {1}, Triangles: {2}", meshVertices.Count, meshGenerator.UVs.Count, triangles.Length);
+            meshGenerator.AddUVs(meshVertices.Count, resolution, segments * catmullRom.SplineCount, distances);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
-
-            Debug.LogFormat("Vertices: {0}, Uvs: {1}, Normal: {2}, Triangles: {3}", mesh.vertices.Length, mesh.uv.Length, mesh.normals.Length, mesh.triangles.Length);
 
             mesh.name = name; meshFilter.sharedMesh = mesh;
         }
