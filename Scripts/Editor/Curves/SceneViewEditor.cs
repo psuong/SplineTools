@@ -4,14 +4,15 @@ using UnityEngine;
 
 namespace Curves.EditorTools {
 
-    public delegate bool TransformDataHandler();
-
     public abstract class SceneViewEditor : Editor {
+
+        public bool ShowTransformField {
+            get;
+            set;
+        }
 
         protected const float HandleSize = 0.07f;
         protected const float Alpha = 0.02f;
-
-        public TransformDataHandler onDrawTransformCallback;
 
         protected TransformData transformData;
         protected string jsonDirectory;
@@ -29,15 +30,17 @@ namespace Curves.EditorTools {
         protected abstract void OnSceneGUI(SceneView sceneView);
 
         protected void DrawTransformField() {
-            EditorGUILayout.LabelField("Transform", EditorStyles.boldLabel);
-            transformData.position = EditorGUILayout.Vector3Field(new GUIContent("Position"), transformData.position);
-            transformData.rotation = EditorGUILayout.Vector3Field(new GUIContent("Rotation"), transformData.rotation);
-            transformData.scale = EditorGUILayout.Vector3Field(new GUIContent("Scale"), transformData.scale);
-            transformData.showTransformData = EditorGUILayout.Toggle("Show Transform", transformData.showTransformData);
+            if (ShowTransformField) {
+                EditorGUILayout.LabelField("Transform", EditorStyles.boldLabel);
+                transformData.position = EditorGUILayout.Vector3Field(new GUIContent("Position"), transformData.position);
+                transformData.rotation = EditorGUILayout.Vector3Field(new GUIContent("Rotation"), transformData.rotation);
+                transformData.scale = EditorGUILayout.Vector3Field(new GUIContent("Scale"), transformData.scale);
+                transformData.showTransformData = EditorGUILayout.Toggle("Show Transform", transformData.showTransformData);
+            }
         }
 
         protected void DrawTransformHandle() {
-            if (transformData.showTransformData) {
+            if (transformData.showTransformData && ShowTransformField) {
                 transformData.position = Handles.PositionHandle(transformData.position, Quaternion.Euler(transformData.rotation));
                 transformData.rotation = Handles.RotationHandle(Quaternion.Euler(transformData.rotation), transformData.position).eulerAngles;
                 transformData.scale = Handles.ScaleHandle(transformData.scale, transformData.position, Quaternion.Euler(transformData.rotation), transformData.scale.magnitude);

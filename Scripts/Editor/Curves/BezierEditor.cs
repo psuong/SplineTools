@@ -19,6 +19,7 @@ namespace Curves.EditorTools {
         protected override void OnEnable() {
             try {
                 base.OnEnable();
+                ShowTransformField = true;
 
                 bezier = target as Bezier;
                 jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));

@@ -15,6 +15,7 @@ namespace Curves.EditorTools {
 
         protected override void OnEnable() {
             base.OnEnable();
+            ShowTransformField = false;
             catmullRom = target as CatmullRom;
             jsonPath = System.IO.Path.Combine(jsonDirectory, string.Format("{0}.json", target.name));
 

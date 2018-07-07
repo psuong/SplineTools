@@ -13,7 +13,8 @@ namespace Curves {
         /// </summary>
         public int SplineCount {
             get {
-                return isLooping ? points.Length : points.Length - 1;
+                var size = points.Length;
+                return isLooping ? points.Length : (size % 2 == 0) ? size / 2 - 1 : size / 2 + 1;
             }
         }
 
