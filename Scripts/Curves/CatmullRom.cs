@@ -91,6 +91,36 @@ namespace Curves {
             return distances;
         }
 
+        /// <summary>
+        /// Returns a lookup table of accumulating distances of the spline(s).
+        /// </summary>
+        /// <param name="segments">How many segments exist within each spline?</param>
+        /// <param name="transformData">The position, rotation, and scale which affects the splines position.</param>
+        /// <returns>An array of floats that define the entire distance of the spline.</returns>
+        public float[] GetLengthTable(int segments, TransformData transformData) {
+            var vertices = SampleCatmullRomSpline(segments);
+            var distances = new float[SplineCount * (segments + 1) - (SplineCount - 1)];
+
+            var previous = transformData.TRS.MultiplyPoint3x4(vertices[0]);
+            var total = 0f;
+
+            for (int i = 1; i < distances.Length; i++) {
+                var current = transformData.TRS.MultiplyPoint3x4(vertices[i]);
+                distances[i] = total += (current - previous).magnitude;
+                previous = current;
+            }
+
+            return distances;
+        }
+
+        /// <summary>
+        /// Gets the total length of the spline.
+        /// </summary>
+        /// <param name="segments">How many line segments exist within the spline?</param>
+        /// <returns>Returns the total length of the spline.</returns>
+        public float GetTotalSplineDistance(int segments) {
+            return SampleCatmullRomSpline(segments).Accumulate();
+        }
 
 #region Static Functions
         private static int ClampIndex(int i, int size) {

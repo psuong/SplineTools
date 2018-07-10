@@ -1,4 +1,5 @@
 ﻿using CommonStructures;
+using Curves.Utility;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -51,8 +52,15 @@ namespace Curves {
             meshGenerator.AddVertices(meshVertices.ToArray());
             meshGenerator.AddTriangles(triangles);
 
-            var distances = catmullRom.GetLengthTable(10);
-            meshGenerator.AddUVs(meshVertices.Count, resolution, segments * catmullRom.SplineCount, distances);
+            var transformData = new TransformData {
+                position = transform.position,
+                rotation = transform.rotation.eulerAngles,
+                scale = transform.lossyScale
+            };
+
+            // var distances = catmullRom.GetLengthTable(10, transformData);
+            var total = catmullRom.GetTotalSplineDistance(segments);
+            meshGenerator.AddUVs(meshVertices.Count, resolution, segments * catmullRom.SplineCount, total);
 
             var mesh = meshGenerator.CreateMesh();
             mesh.RecalculateBounds();

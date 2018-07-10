@@ -120,13 +120,13 @@ namespace Curves.EditorTools {
                 var p1 = points.GetArrayElementAtIndex(i + 3).vector3Value;
 
                 Handles.DrawBezier(
-                        trs.MultiplyPoint3x4(p0),
-                        trs.MultiplyPoint3x4(p1),
-                        trs.MultiplyPoint3x4(c0),
-                        trs.MultiplyPoint3x4(c1),
-                        bezierColor,
-                        null,
-                        HandleUtility.GetHandleSize(Vector3.one));
+                    trs.MultiplyPoint3x4(p0),
+                    trs.MultiplyPoint3x4(p1),
+                    trs.MultiplyPoint3x4(c0),
+                    trs.MultiplyPoint3x4(c1),
+                    bezierColor,
+                    null,
+                    HandleUtility.GetHandleSize(Vector3.one));
             }
         }
 

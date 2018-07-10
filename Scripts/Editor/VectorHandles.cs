@@ -98,8 +98,8 @@ namespace Curves.EditorTools {
         public static void DrawLines(Vector3[] points, Transform transform, Color lineColour) {
             Handles.color = lineColour;
             for (int i = 1; i < points.Length; i++) {
-                var lhs = transform.InverseTransformPoint(points[i - 1]);
-                var rhs = transform.InverseTransformPoint(points[i]);
+                var lhs = transform.localToWorldMatrix.MultiplyPoint3x4(points[i - 1]);
+                var rhs = transform.localToWorldMatrix.MultiplyPoint3x4(points[i]);
 
                 Handles.DrawLine(lhs, rhs);
             }

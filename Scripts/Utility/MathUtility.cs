@@ -33,6 +33,19 @@ namespace Curves.Utility {
         public static Vector3 Binormal(this Vector3 tangent, Vector3 normal) {
             return Vector3.Cross(tangent, normal);
         }
+
+        /// <summary>
+        /// Accumulates and sums all of the values in the Vector3 array.
+        /// </summary>
+        /// <param name="data">An array of Vector3s.</param>
+        /// <returns>The sum of all elements in the data.</returns>
+        public static float Accumulate(this Vector3[] data) {
+            var total = 0f;
+            for (int i = 1; i < data.Length; i++) {
+                total += (data[i] - data[i - 1]).magnitude;
+            }
+            return total;
+        }
     }
 
     public static class FloatExtension {
@@ -69,5 +82,7 @@ namespace Curves.Utility {
             }
             return value;
         }
+        
+
     }
 }
