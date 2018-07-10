@@ -118,30 +118,37 @@ namespace Curves {
         }
 
         /// <summary>
-        /// Returns the accumulating the distance of each segment for all of the splines.
+        /// Returns a lookup table of accumulating distances of the spline(s).
         /// </summary>
-        /// <param name="segments">How many segments are within each spline?</param>
-        /// <returns>A matrix of accumulating distances for each spline.</returns>
-        public float[][] GetSplineLengthTable(int segments) {
-            var distances = new float[SplineCount][];
-            var size = points.Length;
-            for (int i = 0, splineIndex = 0; i < size - 1; i += 3, splineIndex++) {
-                distances[splineIndex] = new float[segments + 1];
-                var p0 = points[i];
-                var c0 = points[i + 1];
-                var c1 = points[i + 2];
-                var p1 = points[i + 3];
+        /// <param name="segments">How many segments exist within each spline?</param>
+        /// <param name="transformData">The position, rotation, and scale which affects the splines position.</param>
+        /// <returns>An array of floats that define the entire distance of the spline.</returns>
+        public float[] GetLengthTable(int segments, TransformData transformData) {
+            var p0 = transformData.TRS.MultiplyPoint3x4(points[0]);
+            var c0 = transformData.TRS.MultiplyPoint3x4(points[1]);
+            var c1 = transformData.TRS.MultiplyPoint3x4(points[2]);
+            var p1 = transformData.TRS.MultiplyPoint3x4(points[3]);
 
-                var previous = p0;
-                var total = 0f;
+            var distances = new float[segments + 1];
+            var previous = p0;
+            var total = 0f;
 
-                for (int j = 0; j <= segments; j++) {
-                    var point = Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) j / segments);
-                    distances[splineIndex][j] = total += (point - previous).magnitude;
-                    previous = point;
-                }
+            for (int i = 1; i <= segments; i++) {
+                var point = transformData.TRS.MultiplyPoint3x4(Bezier.GetCubicBezierPoint(p0, c0, c1, p1, (float) i / segments));
+                distances[i] = total += (point - previous).magnitude;
+                previous = point;
             }
+
             return distances;
+        }
+
+        /// <summary>
+        /// Gets the total length of the spline.
+        /// </summary>
+        /// <param name="segments">How many line segments make up the spline?</param>
+        /// <returns>Returns the total length of the spline.</returns>
+        public float GetTotalSplineDistance(int segments) {
+            return SampleCubicBezierCurve(segments).Accumulate();
         }
 
 #region Static Functions

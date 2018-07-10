@@ -59,6 +59,12 @@ namespace Curves.EditorTools {
             VectorHandles.DrawLines(pts, transformData, Color.red);
         }
 
+        public static void DrawCatmullRomSpline(CatmullRom catmullRom, Curves.Utility.TransformData transformData, Color colour) {
+            var values = new List<Vector3>();
+            CatmullRom.SampleCatmullRomSpline(catmullRom.points, catmullRom.isLooping, 20, (values as IList<Vector3>));
+            VectorHandles.DrawLines(values.ToArray(), transformData, Color.red);
+        }
+
         public static void DrawCatmullRomSpline(CatmullRom catmullRom, Transform transform, Color colour) {
             var values = new List<Vector3>();
             CatmullRom.SampleCatmullRomSpline(catmullRom.points, catmullRom.isLooping, 20, (values as IList<Vector3>));
@@ -67,18 +73,20 @@ namespace Curves.EditorTools {
 #endregion
 
         protected override void OnSceneGUI(SceneView sceneView) {
-            using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
-                LoadTransformData();
-                serializedObject.Update();
-                VectorHandles.DrawHandlePoints(points, Color.green, transformData);
-                DrawTransformHandle();
+            if (Selection.Contains(catmullRom)) {
+                using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+                    LoadTransformData();
+                    serializedObject.Update();
+                    VectorHandles.DrawHandlePoints(points, Color.green, transformData);
+                    DrawTransformHandle();
 
-                DrawCatmullRomSpline(Color.red);
+                    DrawCatmullRomSpline(Color.red);
 
-                if (changeCheck.changed) {
-                    SaveTransformData();
-                    serializedObject.ApplyModifiedProperties();
-                    SceneView.RepaintAll();
+                    if (changeCheck.changed) {
+                        serializedObject.ApplyModifiedProperties();
+                        SaveTransformData();
+                        SceneView.RepaintAll();
+                    }
                 }
             }
         }

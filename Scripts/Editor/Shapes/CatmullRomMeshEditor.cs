@@ -1,4 +1,5 @@
 ﻿using Curves;
+using Curves.Utility;
 using UnityEditor;
 using UnityEngine;
 
@@ -53,8 +54,16 @@ namespace Curves.EditorTools {
             try {
                 var catmullRomMesh = meshTool as CatmullRomMesh;
                 var points = catmullRomMesh.catmullRom.points;
+
+                var transformData = new TransformData() {
+                    position = transform.position,
+                    rotation = transform.rotation.eulerAngles,
+                    scale = transform.lossyScale
+                };
+
                 CatmullRomEditor.DrawCatmullRomSpline(catmullRomProperty.objectReferenceValue as CatmullRom, transform, Color.red);
-                VectorHandles.DrawHandlePoints(points, Color.green, transform);
+                // CatmullRomEditor.DrawCatmullRomSpline(catmullRomProperty.objectReferenceValue as CatmullRom, transformData, Color.red);
+                VectorHandles.DrawHandlePoints(points, Color.green, transform, 0.1f);
             } catch (System.NullReferenceException) { }
         }
 
