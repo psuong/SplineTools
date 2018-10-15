@@ -8,8 +8,6 @@ namespace SplineTools.EditorTools {
     [CustomEditor(typeof(PointsContainer), true)]
     public class PointsContainerInspector : Editor {
 
-        private const float HandlesSize = 0.045f;
-
         private SerializedProperty samplesProperty;
         private ReorderableList samplesList;
         private PointsContainer container;
@@ -19,7 +17,7 @@ namespace SplineTools.EditorTools {
             samplesProperty = serializedObject.FindProperty("points");
             samplesList = new ReorderableList(serializedObject, samplesProperty, true, true, true, true);
 
-            samplesList.drawHeaderCallback  += (Rect r) => { EditorGUI.LabelField(r, "Points"); };
+            samplesList.drawHeaderCallback += (Rect r) => { EditorGUI.LabelField(r, "Points"); };
             samplesList.drawElementCallback += DrawVectorElement;
         }
 
@@ -45,8 +43,15 @@ namespace SplineTools.EditorTools {
                 Handles.color = container.lineColor;
                 CatmullRomSpline.SampleCatmullRomSpline(ref container.points, container.lineSegments, container.loop, out Vector3[] points);
 
+                CatmullRomSpline.SampleCatmullRomBinormals(ref container.points, container.lineSegments, container.loop, out Vector3[] tangents);
                 for (int i = 1; i < points.Length; i++) {
                     Handles.DrawDottedLine(points[i - 1], points[i], container.lineSpacing);
+                }
+
+                for (int i = 0; i < points.Length; i++) {
+                    // Handles.DrawLine(points[i], points[i] + tangents[i].normalized);
+                    Handles.color = container.normalColor;
+                    Handles.DrawLine(points[i], tangents[i] + points[i]);
                 }
             }
         }
@@ -66,11 +71,11 @@ namespace SplineTools.EditorTools {
                 serializedObject.Update();
 
                 ProcessElements((element) => {
-                    element.vector3Value = Handles.FreeMoveHandle(element.vector3Value, Quaternion.identity, HandlesSize, 
-                        Vector3.one * HandlesSize, Handles.DotHandleCap);
+                    element.vector3Value = Handles.FreeMoveHandle(element.vector3Value, Quaternion.identity, container.handlesSize,
+                        Vector3.one * container.handlesSize, Handles.DotHandleCap);
                 });
 
-                ProcessElements((element) => { 
+                ProcessElements((element) => {
                     var v = element.vector3Value;
                     element.vector3Value = new Vector3(Mathf.Round(v.x * 100) / 100, Mathf.Round(v.y * 100) / 100, Mathf.Round(v.z * 100) / 100);
                 });

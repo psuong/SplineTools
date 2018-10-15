@@ -18,14 +18,18 @@ namespace SplineTools {
 
 #if UNITY_EDITOR
         [Header("Editor Options")]
+        [Tooltip("How big are the handles?")]
+        public float handlesSize = 0.04f;
         [Tooltip("What height should the value be at?")]
         public float heightClamp;
-        [Range(0.1f, 1f), Tooltip("How far should the lines be?")]
-        public float lineSpacing = 0.5f;
+        [Range(0.1f, 10f), Tooltip("How far should the lines be?")]
+        public float lineSpacing = 4.0f;
         [Tooltip("What color should the clickable handles be?")]
         public Color handlesColor = Color.green;
         [Tooltip("What color should the lines be?")]
         public Color lineColor = Color.red;
+        [Tooltip("What color should the normals be?")]
+        public Color normalColor = Color.blue;
 #endif
     }
 }

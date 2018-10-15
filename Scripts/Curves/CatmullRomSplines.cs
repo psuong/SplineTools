@@ -1,3 +1,5 @@
+using SplineTools.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -7,7 +9,7 @@ namespace SplineTools {
     public static class CatmullRomSpline {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ClampIndex(int index, int sampleSize) {
+        private static int ClampIndex(int index, int sampleSize) {
             if (index < 0) 
                 return sampleSize - 1;
             else if (index > sampleSize)
@@ -50,6 +52,36 @@ namespace SplineTools {
             var d = -p0 + 3f * p1 - 3f * p2 + p3;
 
             return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
+        }
+
+        /// <summary>
+        /// Samples the tangents along the catmull rom spline.
+        /// </summary>
+        /// <param name="samples">The control points to sample.</param>
+        /// <param name="segments">The number of segments between each spline.</param>
+        /// <param name="loop">Should the Catmull Rom Spline loop?</param>
+        /// <param name="points">The buffer to write to.</param>
+        public static void SampleCatmullRomBinormals(ref Vector3[] samples, int segments, bool loop, out Vector3[] points) {
+            var size = samples.Length;
+            points = new Vector3[size * segments];
+            for (int i = 0; i < size; i++) {
+                if ((i == 0 || i == (size - 1) || i == (size - 2)) && !loop)
+                    continue;
+
+                var p0 = samples[ClampIndex(i - 1, size)];
+                var p1 = samples[i];
+                var p2 = samples[ClampIndex(i + 1, size)];
+                var p3 = samples[ClampIndex(i + 2, size)];
+                
+                var index = i * segments;
+                points[index] = (p2 - p0).Binormal(Vector3.up).normalized;
+                for (int k = 1; k < segments; k++) {
+                    var t = ((float)k) / segments;
+                    var tangent = GetTangent(p0, p1, p2, p3, t);
+                    var position = index + k;
+                    points[position] = tangent.Binormal(Vector3.up).normalized;
+                }
+            }
         }
 
         /// <summary>
