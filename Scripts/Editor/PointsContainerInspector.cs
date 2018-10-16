@@ -49,9 +49,9 @@ namespace SplineTools.EditorTools {
                 }
 
                 for (int i = 0; i < points.Length; i++) {
-                    // Handles.DrawLine(points[i], points[i] + tangents[i].normalized);
                     Handles.color = container.normalColor;
                     Handles.DrawLine(points[i], tangents[i] + points[i]);
+                    Handles.DrawLine(points[i], points[i] - tangents[i]);
                 }
             }
         }
