@@ -8,7 +8,7 @@ More spline types are to come!
 ## QuickStart ##
 Simply attach a `PointsContainer` to any gameObject and create points.
 
-[!Inspector](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
+![Inspector](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
 
 ### Fields ###
 * Type:         The kind of spline to generate
@@ -22,7 +22,7 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 * Points:       The series of control points to generated the spline.
 
 ### SceneView ###
-[!Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
+![Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
 
 ## Dependencies ##
 * Unity
