@@ -22,7 +22,7 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 * Points:       The series of control points to generated the spline.
 
 ### SceneView ###
-![Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
+![Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/CatmullRomPreview.png)
 
 ## Dependencies ##
 * Unity
