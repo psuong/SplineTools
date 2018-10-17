@@ -8,6 +8,8 @@ More spline types are to come!
 ## QuickStart ##
 Simply attach a `PointsContainer` to any gameObject and create points.
 
+[!Inspector](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
+
 ### Fields ###
 * Type:         The kind of spline to generate
 * LineSegments: How many segments should each subspline be splitted into?
@@ -19,7 +21,8 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 * NormalColor:  The color of the preview normals.
 * Points:       The series of control points to generated the spline.
 
-## Preview ##
+### SceneView ###
+[!Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
 
 ## Dependencies ##
 * Unity
