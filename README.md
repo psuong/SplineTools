@@ -8,10 +8,11 @@ More spline types are to come!
 ## QuickStart ##
 Simply attach a `PointsContainer` to any gameObject and create points.
 
-![Inspector](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/PointsContainer.png)
+![Inspector](Images/PointsContainer.png)
 
 ### Fields ###
 * Type:         The kind of spline to generate
+* Loop:         Should the spline loop?
 * LineSegments: How many segments should each subspline be splitted into?
 * HandlesSize:  The size of the movement handles within the Scene
 * HeightClamp:  What should the heights of all spline be?
@@ -22,7 +23,7 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 * Points:       The series of control points to generated the spline.
 
 ### SceneView ###
-![Scene](https://github.com/psuong/SplineTools/blob/overhaul/structure/Images/CatmullRomPreview.png)
+![Scene](Images/CatmullRomPreview.png)
 
 ## Dependencies ##
 * Unity
