@@ -1,28 +1,43 @@
-using static SplineTools.CatmullRomSpline;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using static SplineTools.CatmullRomSpline;
 
 namespace SplineTools.Visualization {
 
     public class CatmullRomVisualization : PointsContainer {
 
+        [SerializeField, Tooltip("What position are we targetting to compute the angle?")]
+        private Transform target;
         [SerializeField]
-        private Color gizmos = Color.magenta;
-        [SerializeField, Range(0.1f, 1f)]
-        private float radius = 0.1f;
+        private float angleConstraint = 10;
 
-        private IList<Vector3> generated;
+        private Vector3[] binormalBuffer;   // Stores the binormals of the catmull rom spline.
+        private Vector3[] pointsBuffer;     // Stores all of the sampled points
 
-        private void OnDrawGizmosSelected() {
-            Gizmos.color = gizmos;
-            foreach (var point in points) {
-                Gizmos.DrawWireSphere(point, radius);
-            }
-            SampleCatmullRomSpline(ref points, 10, loop, out generated);
+#if UNITY_EDITOR
+        private void Start() {
+            SampleCatmullRomSpline(in points, lineSegments, loop, out pointsBuffer);
+            SampleCatmullRomBinormals(in points, lineSegments, loop, out binormalBuffer);
+        }
 
-            for (int i = 1; i < generated.Count; i++) {
-                Gizmos.DrawLine(generated[i - 1], generated[i]);
+        private void Update() {
+            if (target) {
+                for (int i = 0; i < binormalBuffer.Length; i++) {
+                    var reverseBinormal = binormalBuffer[i];
+                    var direction = pointsBuffer[i] - target.position;
+
+                    var from = target.position;
+                    from.y = direction.y = 0.5f;
+                    if (IsClosestEstimatedAngle(reverseBinormal, direction, in angleConstraint, out var deg)) {
+                        Debug.DrawRay(target.position, direction, Color.green);
+                    }
+                }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsClosestEstimatedAngle(Vector3 from, Vector3 to, in float constraint, out float deg) =>
+            (deg = Vector3.Angle(from, to)) <= constraint;
+#endif
     }
 }
