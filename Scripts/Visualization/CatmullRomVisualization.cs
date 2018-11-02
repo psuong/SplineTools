@@ -6,7 +6,7 @@ namespace SplineTools.Visualization {
 
     public class CatmullRomVisualization : PointsContainer {
 
-        [SerializeField, Tooltip("What position are we targetting to compute the angle?")]
+        [SerializeField, Tooltip("What position are we targeting to compute the angle?")]
         private Transform target;
         [SerializeField]
         private float angleConstraint = 10;

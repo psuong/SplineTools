@@ -169,7 +169,7 @@ namespace SplineTools {
         /// </summary>
         /// <param name="samples">The control points to sample.</param>
         /// <param name="segments">The segments between each spline.</param>
-        /// <param name="points">The genereated output of the Catmull Rom Spline.</param>
+        /// <param name="points">The generated output of the Catmull Rom Spline.</param>
         /// <param name="loop">Should the catmull Rom Spline loop?</param>
         public static void SampleCatmullRomSplineTangents(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
             ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3, t) => GetTangent(p0, p1, p2, p3, t, true));
