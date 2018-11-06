@@ -20,12 +20,9 @@ namespace SplineTools.Visualization {
         private Vector3 direction;
 
 #if UNITY_EDITOR
-        private void Start() {
+        private void OnDrawGizmos() {
             SampleCatmullRomSpline(in points, lineSegments, loop, out pointsBuffer);
             SampleCatmullRomBinormals(in points, lineSegments, loop, out binormalBuffer);
-        }
-
-        private void OnDrawGizmos() {
             if (drawGizmos) {
                 Gizmos.color = Color.green;
                 for (int i = 1; i < pointsBuffer.Length; i++) {
