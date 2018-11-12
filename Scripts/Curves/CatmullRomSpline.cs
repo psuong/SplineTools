@@ -2,12 +2,13 @@ using SplineTools.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 
 namespace SplineTools {
 
     public static class CatmullRomSpline {
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int ClampIndex(int index, int sampleSize) {
             if (index < 0) 
@@ -207,8 +208,12 @@ namespace SplineTools {
         /// <param name="loop">Should the catmull Rom Spline loop?</param>
         public static void SampleCatmullRomSplineTangents(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
             ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3, t) => GetTangent(p0, p1, p2, p3, t, true));
-            for (int i = 0; i < samples.Length; i++) {
-                
+            var size = samples.Length;
+            for (int i = 0; i < size; i++) {
+                var index = i * segments;
+                var lhs = points[ClampIndex(index - 1, size)];
+                var rhs = points[ClampIndex(index + 1, size)];
+                points[index] = (lhs + rhs) / 2;
             }
         }
     }

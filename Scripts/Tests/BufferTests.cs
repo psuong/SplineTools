@@ -17,6 +17,7 @@ namespace SplineTools.Tests {
             expectedSize = lineSegments * Points.Length;
         }
 
+        [Test]
         public void CheckingTheLoopedFixedPointsBufferSize() {
             SampleCatmullRomSpline(in Points, lineSegments, true, out Vector3[] samples);
             Assert.AreEqual(expectedSize, samples.Length, "Buffer size mismatch for points!");

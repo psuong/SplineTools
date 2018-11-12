@@ -11,10 +11,9 @@ namespace SplineTools.Tests {
 
         [Test]
         public void AllBinormalsArePerpendicularToTheNormal() {
-            SampleCatmullRomSplineTangents(in Points, Points.Length, true, out Vector3[] tangents);
             SampleCatmullRomBinormals(in Points, Points.Length, true, out Vector3[] binormals);
 
-            for (int i = 0; i < tangents.Length; i++) {
+            for (int i = 0; i < binormals.Length; i++) {
                 Assert.IsTrue(ArePerpendicular(binormals[i], Vector3.up, out var value),
                     $"Perpendicular points' dot products must be 0, but was {value} for {i}, {binormals[i]} and {Vector3.up}!");
             }
@@ -22,7 +21,14 @@ namespace SplineTools.Tests {
 
         [Test]
         public void AllBinormalsArePerpendicularToTheirTangents() {
-            throw new System.NotImplementedException();
+            SampleCatmullRomBinormals(in Points, Points.Length, true, out Vector3[] binormals);
+            SampleCatmullRomSplineTangents(in Points, Points.Length, true, out Vector3[] tangents);
+
+            var size = binormals.Length;
+            for (int i = 0; i < size; i++) {
+                Assert.IsTrue(ArePerpendicular(binormals[i], tangents[i], out var value),
+                    $"Perpendicular points' dot products must be 0, but was {value} for {i}, {binormals[i]} and {tangents[i]}");
+            }
         }
     }
 }
