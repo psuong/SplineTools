@@ -27,7 +27,7 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 
 ## Dependencies ##
 * Unity
-* C# 7
+* C# 7.2
 * .NET4.6
 
 ## Notes ##
@@ -42,7 +42,7 @@ Only looped CatmullRom Splines have array buffers which are properly calculated.
 CatmullRom Splines, use an `IList<Vector3>` instead. You should have enough points to generate the splines.
 
 ## Immediate Goals ##
-* [ ] Tests to check the math of creating buffers
+* [ ] Tests to check the math of creating buffers `[In Progress]`
 * [ ] Safety checking
 * [ ] Burst compiler ready
 
