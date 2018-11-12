@@ -75,6 +75,7 @@ namespace SplineTools {
         /// <param name="p1">The second point on the CatmullRomSpline.</param>
         /// <param name="p2">The third point on the CatmullRomSpline.</param>
         /// <param name="p3">The fourth point on the CatmullRomSpline.</param>
+        /// <param name="t">The parametric value along the spline.</param>
         /// <param name="normalize">Should the tangent be normalised?</param>
         public static Vector3 GetTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t, bool normalize = false) {
             var a = p2 - p0;
@@ -110,33 +111,20 @@ namespace SplineTools {
         /// <param name="loop">Should the Catmull Rom Spline loop?</param>
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomBinormals(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
+            // TODO: Fix the generative functions as the binormals are too expensive.
             ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3) => (p2 - p0).Binormal(Vector3.up).normalized,
                 (p0, p1, p2, p3, t) => {
                     var tangent = GetTangent(p0, p1, p2, p3, t);
                     return tangent.Binormal(Vector3.up).normalized;
                 });
-            /*
-            var size = samples.Length;
-            points = new Vector3[size * segments];
-            for (int i = 0; i < size; i++) {
-                if ((i == 0 || i == (size - 1) || i == (size - 2)) && !loop)
-                    continue;
+            
+            SampleCatmullRomSplineTangents(in samples, segments, loop, out Vector3[] tangents);
 
-                var p0 = samples[ClampIndex(i - 1, size)];
-                var p1 = samples[i];
-                var p2 = samples[ClampIndex(i + 1, size)];
-                var p3 = samples[ClampIndex(i + 2, size)];
-                
+            for (int i = 0; i < samples.Length; i++) {
                 var index = i * segments;
-                points[index] = (p2 - p0).Binormal(Vector3.up).normalized;
-                for (int k = 1; k < segments; k++) {
-                    var t = ((float)k) / segments;
-                    var tangent = GetTangent(p0, p1, p2, p3, t);
-                    var position = index + k;
-                    points[position] = tangent.Binormal(Vector3.up).normalized;
-                }
+                var tangent = tangents[index];
+                points[index] = tangent.Binormal(Vector3.up).normalized;
             }
-            */
         }
 
         /// <summary>
@@ -148,27 +136,6 @@ namespace SplineTools {
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
             ProcessElements(in samples, segments, loop, out points, GetCatmullRomPosition);
-            /*
-            var size = samples.Length;
-            points = new Vector3[size * segments];
-            for (int i = 0; i < size; i++) {
-                if ((i == 0 || i == (size - 1) || i == (size - 2)) && !loop)
-                    continue;
-
-                var p0 = samples[ClampIndex(i - 1, size)];
-                var p1 = samples[i];
-                var p2 = samples[ClampIndex(i + 1, size)];
-                var p3 = samples[ClampIndex(i + 2, size)];
-
-                var index = i * segments;
-                points[index] = p1;
-                for (int k = 1; k < segments; k++) {
-                    var t = ((float)k) / segments;
-                    var point = GetCatmullRomPosition(p0, p1, p2, p3, t);
-                    points[index + k] = point;
-                }
-            }
-            */
         }
 
         /// <summary>
@@ -176,8 +143,8 @@ namespace SplineTools {
         /// </summary>
         /// <param name="samples">The control points to sample.</param>
         /// <param name="segments">The segments between each spline.</param>
-        /// <param name="points">The genereated output of the Catmull Rom Spline.</param>
-        /// <param name="loop">Should the catmull Rom Spline loop?</param>
+        /// <param name="points">The generated output of the Catmull Rom Spline.</param>
+        /// <param name="loop">Should the Catmull Rom Spline loop?</param>
         public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out IList<Vector3> points) {
             var size = samples.Length;
             points = new List<Vector3>();
