@@ -146,7 +146,7 @@ namespace SplineTools {
         /// <param name="loop">Should the Catmull Rom Spline loop?</param>
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
-            ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3, t) => GetCatmullRomPosition(p0, p1, p2, p3, t));
+            ProcessElements(in samples, segments, loop, out points, GetCatmullRomPosition);
             /*
             var size = samples.Length;
             points = new Vector3[size * segments];
@@ -207,6 +207,9 @@ namespace SplineTools {
         /// <param name="loop">Should the catmull Rom Spline loop?</param>
         public static void SampleCatmullRomSplineTangents(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
             ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3, t) => GetTangent(p0, p1, p2, p3, t, true));
+            for (int i = 0; i < samples.Length; i++) {
+                
+            }
         }
     }
 }

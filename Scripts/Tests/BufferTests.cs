@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static SplineTools.CatmullRomSpline;
+using static SplineTools.Tests.CommonValues;
 
 namespace SplineTools.Tests {
 
     public class BufferTest {
 
-        private Vector3[] Points = { Vector3.back, Vector3.left, Vector3.forward, Vector3.right };
         private int lineSegments, expectedSize;
 
         [SetUp]
