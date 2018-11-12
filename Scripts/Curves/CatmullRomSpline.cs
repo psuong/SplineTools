@@ -38,7 +38,31 @@ namespace SplineTools {
                 points[index] = p1;
                 for (int k = 1; k < segments; k++) {
                     var t = ((float)k) / segments;
-                    points[index + k] = action != null ? action.Invoke(p0, p1, p2, p3, t) : Vector3.zero;
+                    points[index + k] = action?.Invoke(p0, p1, p2, p3, t) ?? Vector3.zero;
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ProcessElements(in Vector3[] samples, int segments, bool loop, out Vector3[] points, 
+                Func<Vector3, Vector3, Vector3, Vector3, Vector3> controlPtAction,
+                Func<Vector3, Vector3, Vector3, Vector3, float, Vector3> segmentAction) {
+            var size = samples.Length;
+            points = new Vector3[size * segments];
+            for (int i = 0; i < size; i++) {
+                if ((i == 0 || i == (size - 1) || i == (size - 2)) && !loop)
+                    continue;
+
+                var p0 = samples[ClampIndex(i - 1, size)];
+                var p1 = samples[i];
+                var p2 = samples[ClampIndex(i + 1, size)];
+                var p3 = samples[ClampIndex(i + 2, size)];
+
+                var index = i * segments;
+                points[index] = controlPtAction?.Invoke(p0, p1, p2, p3) ?? Vector3.zero;
+                for (int k = 1; k < segments; k++) {
+                    var t = ((float)k) / segments;
+                    points[index + k] = segmentAction?.Invoke(p0, p1, p2, p3, t) ?? Vector3.zero;
                 }
             }
         }
@@ -85,6 +109,12 @@ namespace SplineTools {
         /// <param name="loop">Should the Catmull Rom Spline loop?</param>
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomBinormals(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
+            ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3) => (p2 - p0).Binormal(Vector3.up).normalized,
+                (p0, p1, p2, p3, t) => {
+                    var tangent = GetTangent(p0, p1, p2, p3, t);
+                    return tangent.Binormal(Vector3.up).normalized;
+                });
+            /*
             var size = samples.Length;
             points = new Vector3[size * segments];
             for (int i = 0; i < size; i++) {
@@ -105,6 +135,7 @@ namespace SplineTools {
                     points[position] = tangent.Binormal(Vector3.up).normalized;
                 }
             }
+            */
         }
 
         /// <summary>
@@ -115,6 +146,8 @@ namespace SplineTools {
         /// <param name="loop">Should the Catmull Rom Spline loop?</param>
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
+            ProcessElements(in samples, segments, loop, out points, (p0, p1, p2, p3, t) => GetCatmullRomPosition(p0, p1, p2, p3, t));
+            /*
             var size = samples.Length;
             points = new Vector3[size * segments];
             for (int i = 0; i < size; i++) {
@@ -134,6 +167,7 @@ namespace SplineTools {
                     points[index + k] = point;
                 }
             }
+            */
         }
 
         /// <summary>
