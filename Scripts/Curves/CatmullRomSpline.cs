@@ -1,8 +1,6 @@
 using SplineTools.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
 
 namespace SplineTools {
@@ -136,34 +134,6 @@ namespace SplineTools {
         /// <param name="points">The buffer to write to.</param>
         public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out Vector3[] points) {
             ProcessElements(in samples, segments, loop, out points, GetCatmullRomPosition);
-        }
-
-        /// <summary>
-        /// Samples points along the Catmull Rom Spline.
-        /// </summary>
-        /// <param name="samples">The control points to sample.</param>
-        /// <param name="segments">The segments between each spline.</param>
-        /// <param name="points">The generated output of the Catmull Rom Spline.</param>
-        /// <param name="loop">Should the Catmull Rom Spline loop?</param>
-        public static void SampleCatmullRomSpline(in Vector3[] samples, int segments, bool loop, out IList<Vector3> points) {
-            var size = samples.Length;
-            points = new List<Vector3>();
-            for (int i = 0; i < size; i++) {
-                if ((i == 0 || i == (size - 1) || i == (size - 2)) && !loop)
-                    continue;
-
-                var p0 = samples[ClampIndex(i - 1, size)];
-                var p1 = samples[i];
-                var p2 = samples[ClampIndex(i + 1, size)];
-                var p3 = samples[ClampIndex(i + 2, size)];
-
-                points.Add(p1);
-                for (int k = 1; k < segments; k++) {
-                    var t = ((float)k) / segments;
-                    var point = GetCatmullRomPosition(p0, p1, p2, p3, t);
-                    points.Add(point);
-                }
-            }
         }
 
         /// <summary>
