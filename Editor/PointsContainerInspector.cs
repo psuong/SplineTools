@@ -41,9 +41,9 @@ namespace SplineTools.EditorTools {
         private void DisplayGeneratedPoints() {
             if (container.lineSegments > 0) {
                 Handles.color = container.lineColor;
-                CatmullRomSpline.SampleCatmullRomSpline(in container.points, container.lineSegments, container.loop, out Vector3[] points);
-
+                CatmullRomSpline.SampleCatmullRomSpline(in container.points, segments: container.lineSegments, loop: container.loop, points: out Vector3[] points);
                 CatmullRomSpline.SampleCatmullRomBinormals(in container.points, container.lineSegments, container.loop, out Vector3[] tangents);
+                
                 for (int i = 1; i < points.Length; i++) {
                     Handles.DrawDottedLine(points[i - 1], points[i], container.lineSpacing);
                 }

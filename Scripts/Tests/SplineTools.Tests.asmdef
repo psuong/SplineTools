@@ -1,0 +1,14 @@
+{
+    "name": "SplineTools.Tests",
+    "references": [
+        "SplineTools"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
