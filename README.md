@@ -65,8 +65,8 @@ Only looped CatmullRom Splines have array buffers which are properly calculated.
 CatmullRom Splines, use an `IList<Vector3>` instead. You should have enough points to generate the splines.
 
 ## Immediate Goals ##
-* [ ] Tests to check the math of creating buffers `[In Progress]`
-* [ ] Safety checking
+* [x] Tests to check the math of creating buffers `[In Progress]`
+* [x] Safety checking
 * [ ] Burst compiler ready
 
 ## Potential Future Goals ##
