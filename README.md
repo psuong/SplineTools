@@ -30,6 +30,29 @@ Simply attach a `PointsContainer` to any gameObject and create points.
 * C# 7.2
 * .NET4.6
 
+### Upgrading to C# 7 ###
+In Player Settings, ensure your
+
+* Scripting Runtime Version is .NET 4.x Equivalent
+* Api Compatibility Level is .NET 4.x
+
+If you're having compilation errors, in your `*.csproj` files try editing from
+
+```
+<PropertyGroup>
+  <LangVersion>6</LangVersion>
+</PropertyGroup>
+```
+
+to:
+```
+<PropertyGroup>
+  <LangVersion>latest</LangVersion>
+</PropertyGroup>
+```
+
+You can replace ***latest*** with ***7*** if you chose to do so.
+
 ## Notes ##
 This is an experimental repo for me to explore so expect optimizations and refactors. I do use C# 7, so Unity should be targetted 
 on the .NET 4.6 runtime instead of 3.5.
